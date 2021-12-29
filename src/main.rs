@@ -3,6 +3,7 @@ use std::io::Read;
 use std::time::Instant;
 
 mod day1;
+mod day2;
 
 pub enum Part {
     One,
@@ -43,6 +44,7 @@ fn run(day: usize) {
             let t0 = Instant::now();
             let result = match day {
                 1 => day1::run(&input, part),
+                2 => day2::run(&input, part),
                 _ => "Not implemented".to_string(),
             };
             println!(
