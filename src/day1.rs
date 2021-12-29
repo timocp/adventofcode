@@ -6,7 +6,7 @@ pub fn run(input: &str, part: Part) -> String {
         "{}",
         match part {
             Part::One => lift(&input),
-            Part::Two => 0,
+            Part::Two => find_basement(&input) as i32,
         }
     )
 }
@@ -21,6 +21,17 @@ fn lift(directions: &[char]) -> i32 {
         .fold(0, |acc, &c| acc + if c == '(' { 1 } else { -1 })
 }
 
+fn find_basement(directions: &[char]) -> usize {
+    let mut level = 0;
+    for (i, &d) in directions.iter().enumerate() {
+        level += if d == '(' { 1 } else { -1 };
+        if level == -1 {
+            return i + 1;
+        }
+    }
+    panic!("never reached basement");
+}
+
 #[test]
 fn test() {
     assert_eq!(0, lift(&parse_input("(())\n")));
@@ -32,4 +43,7 @@ fn test() {
     assert_eq!(-1, lift(&parse_input("))(\n")));
     assert_eq!(-3, lift(&parse_input(")))\n")));
     assert_eq!(-3, lift(&parse_input(")())())\n")));
+
+    assert_eq!(1, find_basement(&parse_input(")\n")));
+    assert_eq!(5, find_basement(&parse_input("()())\n")));
 }
