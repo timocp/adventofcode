@@ -6,7 +6,7 @@ pub fn run(input: &str, part: Part) -> String {
         "{}",
         match part {
             Part::One => part1(&key),
-            Part::Two => 0,
+            Part::Two => part2(&key),
         }
     )
 }
@@ -20,6 +20,17 @@ fn part1(key: &str) -> usize {
     loop {
         let digest = md5::compute(format!("{}{}", key, num).as_bytes());
         if digest[0] == 0 && digest[1] == 0 && digest[2] < 16 {
+            return num;
+        }
+        num += 1;
+    }
+}
+
+fn part2(key: &str) -> usize {
+    let mut num: usize = 0;
+    loop {
+        let digest = md5::compute(format!("{}{}", key, num).as_bytes());
+        if digest[0] == 0 && digest[1] == 0 && digest[2] == 0 {
             return num;
         }
         num += 1;
