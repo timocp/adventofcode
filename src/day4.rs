@@ -15,26 +15,27 @@ fn parse_input(input: &str) -> String {
     input.lines().next().unwrap().to_string()
 }
 
-fn part1(key: &str) -> usize {
-    let mut num: usize = 0;
+fn search_hash(key: &str, test: impl Fn(md5::Digest) -> bool) -> usize {
+    let mut num = 0;
     loop {
         let digest = md5::compute(format!("{}{}", key, num).as_bytes());
-        if digest[0] == 0 && digest[1] == 0 && digest[2] < 16 {
+        if test(digest) {
             return num;
         }
         num += 1;
     }
 }
 
+fn part1(key: &str) -> usize {
+    search_hash(key, |digest| {
+        digest[0] == 0 && digest[1] == 0 && digest[2] < 16
+    })
+}
+
 fn part2(key: &str) -> usize {
-    let mut num: usize = 0;
-    loop {
-        let digest = md5::compute(format!("{}{}", key, num).as_bytes());
-        if digest[0] == 0 && digest[1] == 0 && digest[2] == 0 {
-            return num;
-        }
-        num += 1;
-    }
+    search_hash(key, |digest| {
+        digest[0] == 0 && digest[1] == 0 && digest[2] == 0
+    })
 }
 
 #[test]
