@@ -30,8 +30,12 @@ fn search_hash(key: &str, zeros: u32) -> u32 {
         handles.push((
             thread::spawn(move || {
                 let mut best: u32 = u32::MAX;
-                let mut num = i;
-                while num < best {
+                let mut iter = 0;
+                loop {
+                    let num = iter * threads + i;
+                    if num > best {
+                        return None;
+                    }
                     let digest = md5::compute(format!("{}{}", key, num).as_bytes());
                     if match zeros {
                         5 => digest[0] == 0 && digest[1] == 0 && digest[2] < 16,
@@ -41,12 +45,13 @@ fn search_hash(key: &str, zeros: u32) -> u32 {
                         let _ = tx.send(num); // don't care if error
                         return Some(num);
                     }
-                    num += threads;
-                    if let Ok(n) = rstop.try_recv() {
-                        best = n;
+                    iter += 1;
+                    if iter % 10000 == 0 {
+                        if let Ok(n) = rstop.try_recv() {
+                            best = n;
+                        }
                     }
                 }
-                None
             }),
             tstop,
         ));
