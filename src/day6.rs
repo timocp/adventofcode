@@ -10,7 +10,7 @@ pub fn run(input: &str, part: Part) -> String {
         "{}",
         match part {
             Part::One => part1(&instructions),
-            Part::Two => 0,
+            Part::Two => part2(&instructions),
         }
     )
 }
@@ -59,36 +59,31 @@ fn parse_input(input: &str) -> Vec<Instruction> {
     input.lines().map(Instruction::from).collect()
 }
 
-fn build_axes(index: Vec<(u32, u32)>) -> Vec<u32> {
-    let mut numbers: Vec<u32> = index
-        .iter()
-        .map(|p| vec![p.0, p.1 + 1])
-        .flatten()
-        .collect::<HashSet<u32>>()
-        .into_iter()
-        .collect();
-    numbers.sort_unstable();
-    numbers
+fn build_axes(instructions: &[Instruction]) -> (Vec<u32>, Vec<u32>) {
+    let mut x = HashSet::new();
+    let mut y = HashSet::new();
+    for inst in instructions {
+        x.insert(inst.from.0);
+        x.insert(inst.to.0 + 1);
+        y.insert(inst.from.1);
+        y.insert(inst.to.1 + 1);
+    }
+    let mut x: Vec<_> = x.into_iter().collect();
+    let mut y: Vec<_> = y.into_iter().collect();
+    x.sort_unstable();
+    y.sort_unstable();
+    (x, y)
 }
 
-fn part1(instructions: &[Instruction]) -> usize {
-    let x_axes = build_axes(
-        instructions
-            .iter()
-            .map(|inst| (inst.from.0, inst.to.0))
-            .collect(),
-    );
-    let y_axes = build_axes(
-        instructions
-            .iter()
-            .map(|inst| (inst.from.1, inst.to.1))
-            .collect(),
-    );
+fn build_axes_map(axes: &[u32]) -> HashMap<u32, usize> {
+    HashMap::from_iter(axes.iter().enumerate().map(|(i, c)| (*c, i)))
+}
 
-    let x_map: HashMap<u32, usize> =
-        HashMap::from_iter(x_axes.iter().enumerate().map(|(i, c)| (*c, i)));
-    let y_map: HashMap<u32, usize> =
-        HashMap::from_iter(y_axes.iter().enumerate().map(|(i, c)| (*c, i)));
+#[allow(clippy::needless_range_loop)]
+fn part1(instructions: &[Instruction]) -> usize {
+    let (x_axes, y_axes) = build_axes(instructions);
+    let x_map = build_axes_map(&x_axes);
+    let y_map = build_axes_map(&y_axes);
 
     let mut grid = vec![vec![false; y_axes.len()]; x_axes.len()];
 
@@ -119,6 +114,45 @@ fn part1(instructions: &[Instruction]) -> usize {
     count
 }
 
+#[allow(clippy::needless_range_loop)]
+fn part2(instructions: &[Instruction]) -> usize {
+    let (x_axes, y_axes) = build_axes(instructions);
+    let x_map = build_axes_map(&x_axes);
+    let y_map = build_axes_map(&y_axes);
+
+    let mut grid = vec![vec![0; y_axes.len()]; x_axes.len()];
+
+    for inst in instructions {
+        let x0 = x_map[&inst.from.0];
+        let x1 = x_map[&(inst.to.0 + 1)];
+        let y0 = y_map[&inst.from.1];
+        let y1 = y_map[&(inst.to.1 + 1)];
+        for x in x0..x1 {
+            for y in y0..y1 {
+                match inst.action {
+                    Action::TurnOn => grid[x][y] += 1,
+                    Action::Toggle => grid[x][y] += 2,
+                    Action::TurnOff => {
+                        if grid[x][y] > 0 {
+                            grid[x][y] -= 1;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    let mut count = 0;
+    for x in 0..(x_axes.len() - 1) {
+        for y in 0..(y_axes.len() - 1) {
+            count += (x_axes[x + 1] - x_axes[x]) as usize
+                * (y_axes[y + 1] - y_axes[y]) as usize
+                * grid[x][y]
+        }
+    }
+    count
+}
+
 #[test]
 fn test() {
     assert_eq!(
@@ -127,4 +161,7 @@ fn test() {
     );
     assert_eq!(1000, part1(&parse_input("toggle 0,0 through 999,0\n")));
     assert_eq!(0, part1(&parse_input("turn off 499,499 through 500,500\n")));
+
+    assert_eq!(1, part2(&parse_input("turn on 0,0 through 0,0\n")));
+    assert_eq!(2000000, part2(&parse_input("toggle 0,0 through 999,999\n")));
 }
