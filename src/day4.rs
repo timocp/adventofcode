@@ -21,7 +21,8 @@ fn search_hash(key: &str, zeros: u32) -> u32 {
     let mut handles = vec![];
     // channel used for threads to tell main when they have a result
     let (tx, rx) = mpsc::channel();
-    for i in 0..4 {
+    let threads = num_cpus::get() as u32;
+    for i in 0..threads {
         let tx = tx.clone();
         let key = key.to_owned();
         // channel used by main to tell threads a result has been found
@@ -40,7 +41,7 @@ fn search_hash(key: &str, zeros: u32) -> u32 {
                         let _ = tx.send(num); // don't care if error
                         return Some(num);
                     }
-                    num += 4;
+                    num += threads;
                     if let Ok(n) = rstop.try_recv() {
                         best = n;
                     }
