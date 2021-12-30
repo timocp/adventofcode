@@ -5,6 +5,7 @@ use std::time::Instant;
 mod day1;
 mod day2;
 mod day3;
+mod day4;
 
 pub enum Part {
     One,
@@ -47,6 +48,7 @@ fn run(day: usize) {
                 1 => day1::run(&input, part),
                 2 => day2::run(&input, part),
                 3 => day3::run(&input, part),
+                4 => day4::run(&input, part),
                 _ => "Not implemented".to_string(),
             };
             println!(
