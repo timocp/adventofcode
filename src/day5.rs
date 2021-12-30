@@ -19,12 +19,7 @@ fn count_vowels(chars: &[char]) -> usize {
 }
 
 fn contains_double(chars: &[char]) -> bool {
-    for i in 0..(chars.len() - 1) {
-        if chars[i] == chars[i + 1] {
-            return true;
-        }
-    }
-    false
+    chars.windows(2).any(|pair| pair[0] == pair[1])
 }
 
 fn contains_bad(s: &str) -> bool {
@@ -49,12 +44,7 @@ fn contains_non_overlapping_pair(chars: &[char]) -> bool {
 }
 
 fn contains_sandwiched_letter(chars: &[char]) -> bool {
-    for i in 0..(chars.len() - 2) {
-        if chars[i] == chars[i + 2] {
-            return true;
-        }
-    }
-    false
+    chars.windows(3).any(|slice| slice[0] == slice[2])
 }
 
 fn is_nice2(s: &str) -> bool {
