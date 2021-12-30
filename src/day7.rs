@@ -4,17 +4,20 @@ use regex::Regex;
 use std::collections::HashMap;
 
 pub fn run(input: &str, part: Part) -> String {
-    let wires = parse_input(input);
+    let mut wires = parse_input(input);
     format!(
         "{}",
         match part {
-            Part::One => part1(&wires),
-            Part::Two => 0,
+            Part::One => measure_a(&wires),
+            Part::Two => {
+                wires.insert("b".to_string(), Wire::Signal(measure_a(&wires)));
+                measure_a(&wires)
+            }
         }
     )
 }
 
-fn part1(wires: &HashMap<String, Wire>) -> u16 {
+fn measure_a(wires: &HashMap<String, Wire>) -> u16 {
     measure(wires, "a", &mut HashMap::new())
 }
 
