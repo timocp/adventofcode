@@ -2,10 +2,10 @@ use crate::Part;
 
 pub fn run(input: &str, part: Part) -> String {
     let pw = parse_input(input);
-    match part {
-        Part::One => password_to_s(&next_password(&pw)),
-        Part::Two => "?".to_string(),
-    }
+    password_to_s(&match part {
+        Part::One => next_password(&pw),
+        Part::Two => next_password(&next_password(&pw)),
+    })
 }
 
 type Password = [u8; 8];
