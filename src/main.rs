@@ -3,6 +3,7 @@ use std::io::Read;
 use std::time::Instant;
 
 mod day1;
+mod day10;
 mod day2;
 mod day3;
 mod day4;
@@ -59,6 +60,7 @@ fn run(day: usize) {
                 7 => day7::run(&input, part),
                 8 => day8::run(&input, part),
                 9 => day9::run(&input, part),
+                10 => day10::run(&input, part),
                 _ => "Not implemented".to_string(),
             };
             println!(
