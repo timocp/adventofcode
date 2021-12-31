@@ -5,15 +5,15 @@ pub fn run(input: &str, part: Part) -> String {
     format!(
         "{}",
         match part {
-            Part::One => part1(&input),
-            Part::Two => 0,
+            Part::One => expand(&input, 40),
+            Part::Two => expand(&input, 50),
         }
     )
 }
 
-fn part1(num: &[u8]) -> usize {
+fn expand(num: &[u8], times: usize) -> usize {
     let mut num: Vec<u8> = num.iter().map(|&u| u).collect();
-    for _ in 0..40 {
+    for _ in 0..times {
         num = step(&num);
     }
     num.len()
