@@ -6,7 +6,7 @@ pub fn run(input: &str, part: Part) -> String {
         "{}",
         match part {
             Part::One => part1(&input),
-            Part::Two => 0,
+            Part::Two => part2(&input),
         }
     )
 }
@@ -19,6 +19,13 @@ fn part1(input: &[&[u8]]) -> usize {
     input
         .iter()
         .map(|line| line.len() - decode(line).len())
+        .sum()
+}
+
+fn part2(input: &[&[u8]]) -> usize {
+    input
+        .iter()
+        .map(|line| encode(line).len() - line.len())
         .sum()
 }
 
@@ -60,6 +67,25 @@ fn decode(s: &[u8]) -> Vec<u8> {
     o
 }
 
+fn encode(s: &[u8]) -> Vec<u8> {
+    let mut o: Vec<u8> = vec![b'\"'];
+
+    // println!("s: {}", s.iter().map(|&u| u as char).collect::<String>());
+    for b in s {
+        match b {
+            b'\\' | b'"' => {
+                o.push(b'\\');
+                o.push(*b);
+            }
+            b' '..=b'~' => o.push(*b),
+            _ => panic!("unable to encode: {}", b), // could escape with \x00 but input is printable ascii only
+        }
+    }
+    o.push(b'\"');
+    // println!("o: {}", o.iter().map(|&u| u as char).collect::<String>());
+    o
+}
+
 #[test]
 fn test() {
     let test1 = r#""""#.as_bytes();
@@ -68,11 +94,16 @@ fn test() {
     let test4 = r#""\x27""#.as_bytes();
     assert_eq!(2, test1.len());
     assert_eq!(0, decode(test1).len());
+    assert_eq!(6, encode(test1).len());
     assert_eq!(5, test2.len());
     assert_eq!(3, decode(test2).len());
+    assert_eq!(9, encode(test2).len());
     assert_eq!(10, test3.len());
     assert_eq!(7, decode(test3).len());
+    assert_eq!(16, encode(test3).len());
     assert_eq!(6, test4.len());
     assert_eq!(1, decode(test4).len());
+    assert_eq!(11, encode(test4).len());
     assert_eq!(12, part1(&vec![test1, test2, test3, test4]));
+    assert_eq!(19, part2(&vec![test1, test2, test3, test4]));
 }
