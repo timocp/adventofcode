@@ -10,6 +10,7 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 
 pub enum Part {
     One,
@@ -57,6 +58,7 @@ fn run(day: usize) {
                 6 => day6::run(&input, part),
                 7 => day7::run(&input, part),
                 8 => day8::run(&input, part),
+                9 => day9::run(&input, part),
                 _ => "Not implemented".to_string(),
             };
             println!(
