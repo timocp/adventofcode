@@ -4,12 +4,12 @@ use std::collections::HashMap;
 use std::fmt;
 
 pub fn run(input: &str, part: Part) -> String {
-    let graph = parse_input(input);
+    let minmax = parse_input(input).minmax_distance();
     format!(
         "{}",
         match part {
-            Part::One => graph.shortest_distance(),
-            Part::Two => 0,
+            Part::One => minmax.0,
+            Part::Two => minmax.1,
         }
     )
 }
@@ -20,15 +20,18 @@ struct Graph<'a> {
 }
 
 impl Graph<'_> {
-    fn shortest_distance(&self) -> u32 {
+    fn minmax_distance(&self) -> (u32, u32) {
         // input (8 citites, 40k paths) is small enough to just brute force
-        let mut best = u32::MAX;
+        let mut best = (u32::MAX, u32::MIN);
         for path in (0..self.names.len()).permutations(self.names.len()) {
             let d: u32 = path.windows(2).fold(0, |acc, pair| {
                 acc + *self.distance.get(&(pair[0], pair[1])).unwrap()
             });
-            if d < best {
-                best = d;
+            if d < best.0 {
+                best.0 = d;
+            }
+            if d > best.1 {
+                best.1 = d;
             }
         }
         best
@@ -86,7 +89,5 @@ London to Belfast = 518
 Dublin to Belfast = 141
 ";
     let graph = parse_input(test_input);
-    println!("{}", graph);
-    assert_eq!(605, graph.shortest_distance());
-    // assert_eq!()
+    assert_eq!((605, 982), graph.minmax_distance());
 }
