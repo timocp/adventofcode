@@ -24,22 +24,17 @@ impl Diners {
     }
 
     fn happiest(&self) -> i32 {
-        let mut best = i32::MIN;
-
-        for seating in (0..self.names.len())
+        (0..self.names.len())
             .permutations(self.names.len())
             .filter(|seating| seating[0] == 0)
-        {
-            let d = seating
-                .windows(2)
-                .fold(0, |acc, pair| acc + self.happy_pair(pair[0], pair[1]))
-                + self.happy_pair(seating[0], seating[seating.len() - 1]);
-            if d > best {
-                best = d;
-            }
-        }
-
-        best
+            .map(|seating| {
+                seating
+                    .windows(2)
+                    .fold(0, |acc, pair| acc + self.happy_pair(pair[0], pair[1]))
+                    + self.happy_pair(seating[0], seating[seating.len() - 1])
+            })
+            .max()
+            .unwrap()
     }
 
     fn add_myself(&mut self) {
@@ -49,7 +44,6 @@ impl Diners {
 
 impl fmt::Debug for Diners {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        dbg!(&self.names);
         for i in 0..self.names.len() {
             for j in 0..self.names.len() {
                 if i == j {
