@@ -16,6 +16,7 @@ mod day7;
 mod day8;
 mod day9;
 
+#[derive(Eq, PartialEq)]
 pub enum Part {
     One,
     Two,

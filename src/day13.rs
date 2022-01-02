@@ -6,14 +6,11 @@ use std::collections::HashMap;
 use std::fmt;
 
 pub fn run(input: &str, part: Part) -> String {
-    let diners = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => diners.happiest(),
-            Part::Two => 0,
-        }
-    )
+    let mut diners = parse_input(input);
+    if part == Part::Two {
+        diners.add_myself();
+    }
+    format!("{}", diners.happiest())
 }
 
 struct Diners {
@@ -23,7 +20,7 @@ struct Diners {
 
 impl Diners {
     fn happy_pair(&self, p1: usize, p2: usize) -> i32 {
-        *self.happiness.get(&(p1, p2)).unwrap() + *self.happiness.get(&(p2, p1)).unwrap()
+        *self.happiness.get(&(p1, p2)).unwrap_or(&0) + *self.happiness.get(&(p2, p1)).unwrap_or(&0)
     }
 
     fn happiest(&self) -> i32 {
@@ -43,6 +40,10 @@ impl Diners {
         }
 
         best
+    }
+
+    fn add_myself(&mut self) {
+        self.names.push("Me".to_string());
     }
 }
 
