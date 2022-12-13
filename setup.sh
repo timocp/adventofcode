@@ -2,9 +2,8 @@
 
 set -e
 
-mkdir -p input src
+mkdir -p src
 
-year=2015
 day=$1
 
 if [ "$day" = "" ]; then
@@ -17,16 +16,15 @@ src="src/day$day.rs"
 if ! git diff --exit-code > /dev/null; then
     echo "There are uncommitted changes" 2>&1
     exit 1
-elif [ -e "$input" ]; then
-    echo "Already have day $day" 2>&1
+fi
+if [ -e "$src" ]; then
+    echo "Already exists: $src" 2>&1
     exit 1
 fi
 
-# download input (assumes w3m is already logged in)
-url="https://adventofcode.com/$year/day/$day/input"
-echo "Fetching $url..."
-w3m "$url" > "$input"
-file "$input"
+if [ ! -e "$input" ]; then
+    ./download.sh
+fi
 
 echo "Creating $src..."
 cat > "$src" <<EOF
@@ -50,5 +48,3 @@ fn test() {
     // assert_eq!()
 }
 EOF
-
-less "$input"
