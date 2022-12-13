@@ -3,7 +3,7 @@ name: CI
 "on": [push]
 jobs:
   build:
-    name: Test and run
+    name: Test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -23,12 +23,3 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: clippy
-
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release
-
-      - name: Solve puzzles
-        run: ./target/release/adventofcode-2015
