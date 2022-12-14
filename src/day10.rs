@@ -12,7 +12,7 @@ pub fn run(input: &str, part: Part) -> String {
 }
 
 fn expand(num: &[u8], times: usize) -> usize {
-    let mut num: Vec<u8> = num.iter().copied().collect();
+    let mut num: Vec<u8> = num.to_vec();
     for _ in 0..times {
         num = step(&num);
     }

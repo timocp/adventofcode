@@ -55,7 +55,7 @@ fn next_password(pw: &Password) -> Password {
 }
 
 fn password_to_s(pw: &Password) -> String {
-    String::from_utf8(pw.iter().copied().collect::<Vec<_>>()).unwrap()
+    String::from_utf8(pw.to_vec()).unwrap()
 }
 
 fn parse_input(input: &str) -> Password {

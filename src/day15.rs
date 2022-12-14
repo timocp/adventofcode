@@ -106,9 +106,9 @@ impl From<&str> for Ingredient {
         let def: Vec<&str> = s.split(": ").collect();
         let properties: HashMap<&str, i32> = def[1]
             .split(", ")
-            .map(|d| d.split(" ").collect::<Vec<_>>())
+            .map(|d| d.split(' ').collect::<Vec<_>>())
             .into_iter()
-            .map(|prop| return (prop[0], prop[1].parse().unwrap()))
+            .map(|prop| (prop[0], prop[1].parse().unwrap()))
             .collect();
         Self {
             _name: def[0].to_string(),
@@ -122,7 +122,7 @@ impl From<&str> for Ingredient {
 }
 
 fn parse_input(input: &str) -> Vec<Ingredient> {
-    input.lines().map(|line| Ingredient::from(line)).collect()
+    input.lines().map(Ingredient::from).collect()
 }
 
 #[test]

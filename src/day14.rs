@@ -31,7 +31,7 @@ fn part2(reindeer: &[Reindeer], seconds: u32) -> u32 {
 
 #[derive(Debug)]
 struct Reindeer {
-    name: String,
+    _name: String,
     speed: u32,         // km/s
     flight_period: u32, // seconds
     rest_period: u32,   // seconds
@@ -88,12 +88,6 @@ fn simulate(reindeer: &[Reindeer], seconds: u32) -> Vec<State> {
         for s in state.iter_mut().filter(|s| s.distance == leading_km) {
             s.score += 1;
         }
-        // for (i, r) in reindeer.iter().enumerate() {
-        //     println!(
-        //         "After {} seconds, {} had gone {} km and is {:?} with score {}",
-        //         time, r.name, state[i].distance, state[i].movement, state[i].score
-        //     );
-        // }
     }
 
     state
@@ -107,7 +101,7 @@ impl From<&str> for Reindeer {
         }
         let m = RE.captures(s).unwrap();
         Self {
-            name: m[1].to_string(),
+            _name: m[1].to_string(),
             speed: m[2].parse().unwrap(),
             flight_period: m[3].parse().unwrap(),
             rest_period: m[4].parse().unwrap(),
@@ -116,7 +110,7 @@ impl From<&str> for Reindeer {
 }
 
 fn parse_input(input: &str) -> Vec<Reindeer> {
-    input.lines().map(|line| Reindeer::from(line)).collect()
+    input.lines().map(Reindeer::from).collect()
 }
 
 #[test]
