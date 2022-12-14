@@ -6,59 +6,49 @@ pub fn run(input: &str, part: Part) -> String {
     format!(
         "{}",
         match part {
-            Part::One => part1(&ingredients),
-            Part::Two => part2(&ingredients),
+            Part::One => best_score(&ingredients, None),
+            Part::Two => best_score(&ingredients, Some(500)),
         }
     )
 }
 
-fn part1(ingredients: &[Ingredient]) -> i32 {
+fn best_score(ingredients: &[Ingredient], calories: Option<i32>) -> i32 {
     let len = ingredients.len();
     let mut recipe: Vec<usize> = vec![0; len];
     let mut max = 0;
 
-    // TODO: dynamic based on length of ingredients
-    for r0 in 0..=100 {
-        for r1 in 0..=(100 - r0) {
-            for r2 in 0..=(100 - (r0 + r1)) {
-                recipe[0] = r0;
-                recipe[1] = r1;
-                recipe[2] = r2;
-                recipe[3] = 100 - (r0 + r1 + r2);
-                let score = cookie_score(ingredients, &recipe);
-                if score > max {
-                    max = score;
-                }
+    loop {
+        if match calories {
+            Some(c) => c == cookie_calories(ingredients, &recipe),
+            None => true,
+        } {
+            let score = cookie_score(ingredients, &recipe);
+            if score > max {
+                max = score;
             }
+        } else {
+        }
+        increment(&mut recipe);
+        if recipe[len - 2] == 100 {
+            return max;
         }
     }
-    max
 }
 
-fn part2(ingredients: &[Ingredient]) -> i32 {
-    let len = ingredients.len();
-    let mut recipe: Vec<usize> = vec![0; len];
-    let mut max = 0;
-
-    // TODO: dynamic based on length of ingredients
-    for r0 in 0..=100 {
-        for r1 in 0..=(100 - r0) {
-            for r2 in 0..=(100 - (r0 + r1)) {
-                recipe[0] = r0;
-                recipe[1] = r1;
-                recipe[2] = r2;
-                recipe[3] = 100 - (r0 + r1 + r2);
-                let calories = cookie_calories(ingredients, &recipe);
-                if calories == 500 {
-                    let score = cookie_score(ingredients, &recipe);
-                    if score > max {
-                        max = score;
-                    }
-                }
-            }
+fn increment(recipe: &mut [usize]) {
+    // current sum (apart from final column)
+    let mut current_sum = recipe.iter().take(recipe.len() - 1).sum::<usize>();
+    for d in 0..(recipe.len() - 1) {
+        if current_sum == 100 {
+            current_sum -= recipe[d];
+            recipe[d] = 0;
+        } else {
+            current_sum += 1;
+            recipe[d] += 1;
+            break;
         }
     }
-    max
+    recipe[recipe.len() - 1] = 100 - current_sum;
 }
 
 fn cookie_score(ingredients: &[Ingredient], recipe: &[usize]) -> i32 {
@@ -103,7 +93,7 @@ fn positive(i: i32) -> i32 {
 
 #[derive(Debug)]
 struct Ingredient {
-    name: String,
+    _name: String,
     capacity: i32,
     durability: i32,
     flavor: i32,
@@ -121,7 +111,7 @@ impl From<&str> for Ingredient {
             .map(|prop| return (prop[0], prop[1].parse().unwrap()))
             .collect();
         Self {
-            name: def[0].to_string(),
+            _name: def[0].to_string(),
             capacity: *properties.get("capacity").unwrap(),
             durability: *properties.get("durability").unwrap(),
             flavor: *properties.get("flavor").unwrap(),
@@ -140,10 +130,8 @@ fn test() {
     let test_input = "\
 Butterscotch: capacity -1, durability -2, flavor 6, texture 3, calories 8
 Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3
-Dummy1: capacity 0, durability 0, flavor 0, texture 0, calories 0
-Dummy2: capacity 0, durability 0, flavor 0, texture 0, calories 0
 ";
     let ingredients = parse_input(test_input);
-    assert_eq!(62842880, part1(&ingredients));
-    assert_eq!(57600000, part2(&ingredients));
+    assert_eq!(62842880, best_score(&ingredients, None));
+    assert_eq!(57600000, best_score(&ingredients, Some(500)));
 }
