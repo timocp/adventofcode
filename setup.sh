@@ -10,7 +10,6 @@ if [ "$day" = "" ]; then
     day=$(TZ=US/Eastern date '+%d' | sed 's/^0//')
 fi
 
-input="input/day$day.txt"
 src="src/day$day.rs"
 
 if ! git diff --exit-code > /dev/null; then
@@ -22,9 +21,7 @@ if [ -e "$src" ]; then
     exit 1
 fi
 
-if [ ! -e "$input" ]; then
-    ./download.sh
-fi
+../aoc-input/download.sh
 
 echo "Creating $src..."
 cat > "$src" <<EOF
