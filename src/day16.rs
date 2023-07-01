@@ -6,7 +6,7 @@ pub fn run(input: &str, part: Part) -> String {
         "{}",
         match part {
             Part::One => part1(&input).unwrap(),
-            Part::Two => 0,
+            Part::Two => part2(&input).unwrap(),
         }
     )
 }
@@ -22,6 +22,27 @@ fn part1(input: &Vec<Aunt>) -> Option<u32> {
             "vizslas" => *value == 0,
             "goldfish" => *value == 5,
             "trees" => *value == 3,
+            "cars" => *value == 2,
+            "perfumes" => *value == 1,
+            _ => panic!("unknown item: {}", item),
+        }) {
+            return Some(aunt.number);
+        }
+    }
+    None
+}
+
+fn part2(input: &Vec<Aunt>) -> Option<u32> {
+    for aunt in input {
+        if aunt.items.iter().all(|(item, value)| match item.as_str() {
+            "children" => *value == 3,
+            "cats" => *value > 7,
+            "samoyeds" => *value == 2,
+            "pomeranians" => *value < 3,
+            "akitas" => *value == 0,
+            "vizslas" => *value == 0,
+            "goldfish" => *value < 5,
+            "trees" => *value > 3,
             "cars" => *value == 2,
             "perfumes" => *value == 1,
             _ => panic!("unknown item: {}", item),
