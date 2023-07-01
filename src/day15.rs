@@ -107,7 +107,6 @@ impl From<&str> for Ingredient {
         let properties: HashMap<&str, i32> = def[1]
             .split(", ")
             .map(|d| d.split(' ').collect::<Vec<_>>())
-            .into_iter()
             .map(|prop| (prop[0], prop[1].parse().unwrap()))
             .collect();
         Self {
