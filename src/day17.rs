@@ -62,9 +62,9 @@ fn search_combinations(input: &Vec<i32>, target: i32, stats: &mut Stats, count: 
     if index == input.len() {
         return;
     }
-    // search rest of vector without including this container
-    search_combinations(input, target - input[index], stats, count + 1, index + 1);
     // search rest of vector including this container
+    search_combinations(input, target - input[index], stats, count + 1, index + 1);
+    // search rest of vector without including this container
     search_combinations(input, target, stats, count, index + 1);
 }
 
