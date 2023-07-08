@@ -3,17 +3,13 @@ use std::fmt;
 
 pub fn run(input: &str, part: Part) -> String {
     let mut grid = parse_input(input);
-    // iterate 100 times
+    if part == Part::Two {
+        grid.broken();
+    }
     for _ in 0..100 {
         grid = grid.step();
     }
-    format!(
-        "{}",
-        match part {
-            Part::One => grid.count(),
-            Part::Two => 0,
-        }
-    )
+    format!("{}", grid.count())
 }
 
 #[derive(Debug)]
@@ -21,6 +17,8 @@ struct Grid {
     size: usize,
     // each row is a u128, each bit is a light
     lights: Vec<u128>,
+    // true if corners are permanently on (part 2)
+    broken: bool,
 }
 
 impl Grid {
@@ -28,6 +26,7 @@ impl Grid {
         Self {
             size,
             lights: vec![0; size],
+            broken: false,
         }
     }
 
@@ -41,6 +40,14 @@ impl Grid {
 
     fn count(&self) -> u32 {
         self.lights.iter().map(|l| l.count_ones()).sum()
+    }
+
+    fn broken(&mut self) {
+        self.broken = true;
+        self.turn_on(0, 0);
+        self.turn_on(0, self.size - 1);
+        self.turn_on(self.size - 1, 0);
+        self.turn_on(self.size - 1, self.size - 1);
     }
 
     fn count_neighbours(&self, x: usize, y: usize) -> u32 {
@@ -75,6 +82,9 @@ impl Grid {
                     (false, _) => new_grid.turn_off(x, y),
                 }
             }
+        }
+        if self.broken {
+            new_grid.broken();
         }
         new_grid
     }
@@ -113,14 +123,8 @@ fn parse_input(input: &str) -> Grid {
 }
 
 #[test]
-fn test() {
-    let test_input = ".#.#.#
-...##.
-#....#
-..#...
-#.#..#
-####..";
-    let mut grid = parse_input(test_input);
+fn test_part1() {
+    let mut grid = parse_input(test_input());
     assert_eq!(15, grid.count());
     let expected = vec![
         "..##..\n..##.#\n...##.\n......\n#.....\n#.##..\n",
@@ -133,4 +137,33 @@ fn test() {
         assert_eq!(e, format!("{}", grid));
     }
     assert_eq!(4, grid.count());
+}
+
+#[test]
+fn test_part2() {
+    let mut grid = parse_input(test_input());
+    grid.broken();
+    assert_eq!(17, grid.count());
+    let expected = vec![
+        "#.##.#\n####.#\n...##.\n......\n#...#.\n#.####\n",
+        "#..#.#\n#....#\n.#.##.\n...##.\n.#..##\n##.###\n",
+        "#...##\n####.#\n..##.#\n......\n##....\n####.#\n",
+        "#.####\n#....#\n...#..\n.##...\n#.....\n#.#..#\n",
+        "##.###\n.##..#\n.##...\n.##...\n#.#...\n##...#\n",
+    ];
+    for e in expected {
+        grid = grid.step();
+        assert_eq!(e, format!("{}", grid));
+    }
+    assert_eq!(17, grid.count());
+}
+
+#[cfg(test)]
+fn test_input() -> &'static str {
+    ".#.#.#
+...##.
+#....#
+..#...
+#.#..#
+####.."
 }
