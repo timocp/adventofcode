@@ -1,11 +1,12 @@
 use crate::Part;
 
 pub fn run(input: &str, part: Part) -> String {
+    let min_presents = parse_input(input);
     format!(
         "{}",
         match part {
-            Part::One => part1(parse_input(input)),
-            Part::Two => 0,
+            Part::One => part1(min_presents),
+            Part::Two => part2(min_presents),
         }
     )
 }
@@ -17,6 +18,28 @@ fn part1(min_presents: u32) -> u32 {
             return house;
         }
         house += 1;
+    }
+}
+
+fn part2(min_presents: u32) -> u32 {
+    let mut elf = 1u32;
+    let mut count = vec![0u32]; // house 0 doesn't exist
+
+    loop {
+        if elf as usize * 50 + 1 > count.len() {
+            count.resize(elf as usize * 50 + 1, 0);
+        }
+        for gift in 1..=50u32 {
+            let h = gift * elf;
+            count[h as usize] += elf * 11;
+        }
+
+        // house #elf can no longer receive gifts, so check if it has received enough
+        if count[elf as usize] >= min_presents {
+            return elf;
+        }
+
+        elf += 1;
     }
 }
 
