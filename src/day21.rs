@@ -49,18 +49,11 @@ fn solve(boss: &Boss) -> (i32, i32) {
 
 // return true if player will win this fight
 fn fight(boss: &Boss, player_damage: i32, player_armor: i32) -> bool {
-    let mut player_hp = 100;
-    let mut boss_hp = boss.hit_points;
-    loop {
-        boss_hp -= calc_damage(player_damage, boss.armor);
-        if boss_hp <= 0 {
-            return true;
-        }
-        player_hp -= calc_damage(boss.damage, player_armor);
-        if player_hp <= 0 {
-            return false;
-        }
-    }
+    let rounds_to_kill_boss =
+        (boss.hit_points as f32 / calc_damage(player_damage, boss.armor) as f32).ceil() as i32;
+    let rounds_to_kill_player =
+        (100f32 / calc_damage(boss.damage, player_armor) as f32).ceil() as i32;
+    rounds_to_kill_boss <= rounds_to_kill_player
 }
 
 fn calc_damage(damage: i32, armor: i32) -> i32 {
