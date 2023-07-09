@@ -14,6 +14,7 @@ mod day17;
 mod day18;
 mod day19;
 mod day2;
+mod day20;
 mod day3;
 mod day4;
 mod day5;
@@ -80,6 +81,7 @@ fn run(day: usize) {
                 17 => day17::run(&input, part),
                 18 => day18::run(&input, part),
                 19 => day19::run(&input, part),
+                20 => day20::run(&input, part),
                 _ => "Not implemented".to_string(),
             };
             println!(
