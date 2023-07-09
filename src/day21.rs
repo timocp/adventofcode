@@ -3,13 +3,12 @@ use itertools::Itertools;
 use crate::Part;
 
 pub fn run(input: &str, part: Part) -> String {
-    let boss = parse_input(input);
-
+    let result = solve(&parse_input(input));
     format!(
         "{}",
         match part {
-            Part::One => best_purchase(&boss),
-            Part::Two => 0,
+            Part::One => result.0,
+            Part::Two => result.1,
         }
     )
 }
@@ -21,27 +20,31 @@ struct Boss {
     armor: i32,
 }
 
-fn best_purchase(boss: &Boss) -> i32 {
-    // iterate over all choices to find the cheapest win
+fn solve(boss: &Boss) -> (i32, i32) {
+    // iterate over all choices, there's not that many
     let mut cheapest_win = i32::MAX;
+    let mut most_expensive_loss = 0;
 
     for weapon in weapons() {
         for armor in armors() {
             for rings in rings().iter().combinations(2) {
                 let cost = weapon.cost + armor.cost + rings[0].cost + rings[1].cost;
-                if cost > cheapest_win {
+                if cost >= cheapest_win && cost <= most_expensive_loss {
                     continue;
                 }
                 let player_damage = weapon.damage + rings[0].damage + rings[1].damage;
                 let player_armor = armor.armor + rings[0].armor + rings[1].armor;
-                if fight(boss, player_damage, player_armor) {
+                let player_win = fight(boss, player_damage, player_armor);
+                if player_win && cost < cheapest_win {
                     cheapest_win = cost;
+                } else if !player_win && cost > most_expensive_loss {
+                    most_expensive_loss = cost;
                 }
             }
         }
     }
 
-    cheapest_win
+    (cheapest_win, most_expensive_loss)
 }
 
 // return true if player will win this fight
