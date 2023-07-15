@@ -46,9 +46,7 @@ struct GameState {
     shield_timer: i32,
     poison_timer: i32,
     recharge_timer: i32,
-    trace: bool,
     hard_mode: bool,
-    history: Vec<Spell>, // debugging only.
 }
 
 impl GameState {
@@ -62,9 +60,7 @@ impl GameState {
             shield_timer: 0,
             poison_timer: 0,
             recharge_timer: 0,
-            trace: false,
             hard_mode: false,
-            history: vec![],
         }
     }
 
@@ -94,52 +90,17 @@ impl GameState {
         moves
     }
 
-    fn output_stats(&self) {
-        println!(
-            "- Player has {} hit points, {} armor, {} mana",
-            self.player_hp,
-            self.player_armor(),
-            self.player_mana
-        );
-        println!("- Boss has {} hit points", self.boss_hp);
-    }
-
     fn player_turn(&self, spell: Spell) -> GameState {
-        if self.trace {
-            println!("-- Player turn --");
-            self.output_stats();
-        }
-
         let mut next_state = self.clone();
         if self.hard_mode {
             next_state.player_hp -= 1;
-            if self.trace {
-                println!("Player loses 1 HP to hard mode.");
-            }
             if next_state.player_hp <= 0 {
-                if self.trace {
-                    println!("Player dies to hard mode.");
-                }
                 return next_state;
             }
         }
 
-        next_state.history.push(spell.clone());
         next_state.apply_effects();
         if next_state.boss_hp > 0 {
-            if self.trace {
-                match spell {
-                    Spell::MagicMissile => {
-                        println!("Player casts Magic Missile, dealing 4 damage.")
-                    }
-                    Spell::Drain => {
-                        println!("Player casts Drain, dealing 2 damage, and healing 2 hit points.")
-                    }
-                    Spell::Shield => println!("Player casts Shield, increasing armor by 7."),
-                    Spell::Poison => println!("Player casts Poison."),
-                    Spell::Recharge => println!("Player casts Recharge."),
-                }
-            }
             next_state.player_mana -= spell.cost();
             if next_state.player_mana < 0 {
                 panic!("Player has negative mana!");
@@ -168,26 +129,10 @@ impl GameState {
     }
 
     fn boss_turn(&self) -> GameState {
-        if self.trace {
-            println!("-- Boss turn --");
-            self.output_stats();
-        }
         let mut next_state = self.clone();
         next_state.apply_effects();
         if next_state.boss_hp > 0 {
             let damage = (self.boss_damage - self.player_armor()).max(1);
-            if self.trace {
-                if self.player_armor() > 0 {
-                    println!(
-                        "Boss attacks for {} - {} = {} damage!",
-                        self.boss_damage,
-                        self.player_armor(),
-                        damage
-                    );
-                } else {
-                    println!("Boss attacks for {} damage!", damage);
-                }
-            }
             next_state.player_hp -= damage;
         }
         next_state
@@ -196,35 +141,14 @@ impl GameState {
     fn apply_effects(&mut self) {
         if self.shield_timer > 0 {
             self.shield_timer -= 1;
-            if self.trace {
-                println!("Shield's timer is now {}.", self.shield_timer);
-                if self.shield_timer == 0 {
-                    println!("Shield wears off, decreasing armor by 7.");
-                }
-            }
         }
         if self.poison_timer > 0 {
             self.boss_hp -= 3;
             self.poison_timer -= 1;
-            if self.trace {
-                println!(
-                    "Poison deals 3 damage; its timer is now {}.",
-                    self.poison_timer
-                );
-            }
         }
         if self.recharge_timer > 0 {
             self.player_mana += 101;
             self.recharge_timer -= 1;
-            if self.trace {
-                println!(
-                    "Recharge provides 101 mana; its timer is now {}.",
-                    self.recharge_timer
-                );
-                if self.recharge_timer == 0 {
-                    println!("Recharge wears off.");
-                }
-            }
         }
     }
 }
@@ -244,35 +168,20 @@ impl PartialOrd for GameState {
 fn find_cheapest_mana_win(initial_state: &GameState) -> Option<i32> {
     let mut frontier = BinaryHeap::new();
     frontier.push(initial_state.clone());
-    let mut states = 0;
     while let Some(state) = frontier.pop() {
-        states += 1;
         if state.boss_hp <= 0 {
             panic!("should never pop a state where boss_hp <= 0");
         }
-        let spells = state.valid_spells();
-        if spells.is_empty() {
-            continue;
-        }
         for spell in state.valid_spells() {
             let next_state = state.player_turn(spell);
+            if next_state.player_hp <= 0 {
+                continue;
+            }
             if next_state.boss_hp <= 0 {
-                println!(
-                    "**** found win with spent_mana = {} (A)",
-                    next_state.spent_mana
-                );
-                println!("     history: {:?}", next_state.history);
-                // replay(initial_state, &next_state.history);
                 return Some(next_state.spent_mana);
             }
             let next_state = next_state.boss_turn();
             if next_state.boss_hp <= 0 {
-                println!(
-                    "**** found win with spent_mana = {} (B)",
-                    next_state.spent_mana
-                );
-                println!("     history: {:?}", next_state.history);
-                // replay(initial_state, &next_state.history);
                 return Some(next_state.spent_mana);
             }
             if next_state.player_hp <= 0 {
@@ -281,43 +190,7 @@ fn find_cheapest_mana_win(initial_state: &GameState) -> Option<i32> {
             frontier.push(next_state);
         }
     }
-
-    println!("Exhausted after {} states", states);
     None
-}
-
-// This was only used for debugging the rule implementaion
-fn replay(initial_state: &GameState, history: &[Spell]) {
-    let mut state = initial_state.clone();
-    state.trace = true;
-    for spell in history {
-        state = state.player_turn(spell.clone());
-        if state.player_hp <= 0 {
-            println!("Boss wins!");
-            break;
-        }
-        println!();
-
-        if state.boss_hp <= 0 {
-            println!("Player wins!");
-            break;
-        }
-        state = state.boss_turn();
-        println!();
-        if state.player_hp <= 0 && state.boss_hp <= 0 {
-            println!("Both player and boss are dead!");
-            break;
-        }
-        if state.player_hp <= 0 {
-            println!("Boss wins!");
-            break;
-        }
-        if state.boss_hp <= 0 {
-            println!("Player wins!");
-            break;
-        }
-    }
-    println!("Mana spent was: {}", state.spent_mana);
 }
 
 fn parse_input(input: &str) -> GameState {
@@ -338,10 +211,10 @@ fn parse_input(input: &str) -> GameState {
 
 #[test]
 fn test() {
-    // assert_eq!(
-    //     find_cheapest_mana_win(&GameState::new(10, 250, 13, 8)),
-    //     Some(226)
-    // );
+    assert_eq!(
+        find_cheapest_mana_win(&GameState::new(10, 250, 13, 8)),
+        Some(226)
+    );
     assert_eq!(
         find_cheapest_mana_win(&GameState::new(10, 250, 14, 8)),
         Some(641)
