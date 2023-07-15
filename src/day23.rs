@@ -35,36 +35,48 @@ impl VM {
     fn execute(&mut self, program: &[Instruction]) {
         while self.pc < program.len() {
             match &program[self.pc] {
-                Instruction::Half(r) => {
-                    self.registers[r.index()] /= 2;
-                    self.pc += 1;
-                }
-                Instruction::Triple(r) => {
-                    self.registers[r.index()] *= 3;
-                    self.pc += 1;
-                }
-                Instruction::Increment(r) => {
-                    self.registers[r.index()] += 1;
-                    self.pc += 1;
-                }
-                Instruction::Jump(offset) => {
-                    self.pc = (self.pc as i64 + offset) as usize;
-                }
-                Instruction::JumpIfEven(r, offset) => {
-                    if self.registers[r.index()] % 2 == 0 {
-                        self.pc = (self.pc as i64 + offset) as usize;
-                    } else {
-                        self.pc += 1;
-                    }
-                }
-                Instruction::JumpIfOne(r, offset) => {
-                    if self.registers[r.index()] == 1 {
-                        self.pc = (self.pc as i64 + offset) as usize;
-                    } else {
-                        self.pc += 1;
-                    }
-                }
+                Instruction::Half(r) => self.half(r),
+                Instruction::Triple(r) => self.triple(r),
+                Instruction::Increment(r) => self.increment(r),
+                Instruction::Jump(offset) => self.jump(*offset),
+                Instruction::JumpIfEven(r, offset) => self.jump_if_even(r, *offset),
+                Instruction::JumpIfOne(r, offset) => self.jump_if_one(r, *offset),
             }
+        }
+    }
+
+    fn half(&mut self, r: &Register) {
+        self.registers[r.index()] /= 2;
+        self.pc += 1;
+    }
+
+    fn triple(&mut self, r: &Register) {
+        self.registers[r.index()] *= 3;
+        self.pc += 1;
+    }
+
+    fn increment(&mut self, r: &Register) {
+        self.registers[r.index()] += 1;
+        self.pc += 1;
+    }
+
+    fn jump(&mut self, offset: i64) {
+        self.pc = (self.pc as i64 + offset) as usize;
+    }
+
+    fn jump_if_even(&mut self, r: &Register, offset: i64) {
+        if self.registers[r.index()] % 2 == 0 {
+            self.jump(offset);
+        } else {
+            self.pc += 1;
+        }
+    }
+
+    fn jump_if_one(&mut self, r: &Register, offset: i64) {
+        if self.registers[r.index()] == 1 {
+            self.jump(offset);
+        } else {
+            self.pc += 1;
         }
     }
 }
