@@ -5,29 +5,13 @@ use std::collections::BinaryHeap;
 
 pub fn run(input: &str, part: Part) -> String {
     let state = parse_input(input);
-
-    // manually check stuff is working
-    // if part == Part::One {
-    //     // replay(&state, &[Spell::MagicMissile; 10]);
-    //     replay(
-    //         &state,
-    //         &[
-    //             Spell::Recharge,
-    //             Spell::Shield,
-    //             Spell::MagicMissile,
-    //             Spell::Recharge,
-    //             Spell::Shield,
-    //         ],
-    //     );
-    // }
-    // return "X".to_string();
-
     format!(
         "{}",
-        match part {
-            Part::One => find_cheapest_mana_win(&state).unwrap(),
-            Part::Two => 0,
-        }
+        find_cheapest_mana_win(&match part {
+            Part::One => state,
+            Part::Two => state.hard(),
+        })
+        .unwrap()
     )
 }
 
@@ -63,6 +47,7 @@ struct GameState {
     poison_timer: i32,
     recharge_timer: i32,
     trace: bool,
+    hard_mode: bool,
     history: Vec<Spell>, // debugging only.
 }
 
@@ -78,8 +63,15 @@ impl GameState {
             poison_timer: 0,
             recharge_timer: 0,
             trace: false,
+            hard_mode: false,
             history: vec![],
         }
+    }
+
+    fn hard(&self) -> GameState {
+        let mut state = self.clone();
+        state.hard_mode = true;
+        state
     }
 
     fn valid_spells(&self) -> Vec<Spell> {
@@ -119,6 +111,19 @@ impl GameState {
         }
 
         let mut next_state = self.clone();
+        if self.hard_mode {
+            next_state.player_hp -= 1;
+            if self.trace {
+                println!("Player loses 1 HP to hard mode.");
+            }
+            if next_state.player_hp <= 0 {
+                if self.trace {
+                    println!("Player dies to hard mode.");
+                }
+                return next_state;
+            }
+        }
+
         next_state.history.push(spell.clone());
         next_state.apply_effects();
         if next_state.boss_hp > 0 {
@@ -287,6 +292,10 @@ fn replay(initial_state: &GameState, history: &[Spell]) {
     state.trace = true;
     for spell in history {
         state = state.player_turn(spell.clone());
+        if state.player_hp <= 0 {
+            println!("Boss wins!");
+            break;
+        }
         println!();
 
         if state.boss_hp <= 0 {
