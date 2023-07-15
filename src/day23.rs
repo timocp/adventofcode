@@ -3,14 +3,11 @@ use crate::Part;
 pub fn run(input: &str, part: Part) -> String {
     let program = parse_input(input);
     let mut vm = VM::new();
+    if part == Part::Two {
+        vm.write_register(Register::A, 1);
+    }
     vm.execute(&program);
-    format!(
-        "{}",
-        match part {
-            Part::One => vm.read_register(Register::B),
-            Part::Two => 0,
-        }
-    )
+    format!("{}", vm.read_register(Register::B))
 }
 
 #[derive(Debug)]
@@ -29,6 +26,10 @@ impl VM {
 
     fn read_register(&self, register: Register) -> u64 {
         self.registers[register.index()]
+    }
+
+    fn write_register(&mut self, register: Register, value: u64) {
+        self.registers[register.index()] = value;
     }
 
     fn execute(&mut self, program: &[Instruction]) {
