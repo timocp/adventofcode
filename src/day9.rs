@@ -55,7 +55,7 @@ impl fmt::Display for Graph<'_> {
     }
 }
 
-fn parse_input(input: &str) -> Graph {
+fn parse_input(input: &str) -> Graph<'_> {
     let mut names: Vec<&str> = vec![];
     let mut distance = HashMap::new();
 
