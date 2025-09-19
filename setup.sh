@@ -21,7 +21,7 @@ if [ -e "$src" ]; then
     exit 1
 fi
 
-../aoc-input/download.sh
+./download.sh
 
 echo "Creating $src..."
 cat > "$src" <<EOF
