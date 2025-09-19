@@ -74,12 +74,12 @@ fn parse_input(input: &str) -> Vec<Aunt> {
                 let value: u32 = words
                     .next()
                     .unwrap()
-                    .trim_end_matches(&trailing_chars)
+                    .trim_end_matches(trailing_chars)
                     .parse()
                     .unwrap();
-                match word.trim_end_matches(&trailing_chars) {
+                match word.trim_end_matches(trailing_chars) {
                     "Sue" => number = value,
-                    _ => items.push((word.trim_end_matches(&trailing_chars).to_string(), value)),
+                    _ => items.push((word.trim_end_matches(trailing_chars).to_string(), value)),
                 }
             }
             Aunt { number, items }

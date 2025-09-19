@@ -65,7 +65,7 @@ impl VM {
     }
 
     fn jump_if_even(&mut self, r: &Register, offset: i64) {
-        if self.registers[r.index()] % 2 == 0 {
+        if self.registers[r.index()].is_multiple_of(2) {
             self.jump(offset);
         } else {
             self.pc += 1;

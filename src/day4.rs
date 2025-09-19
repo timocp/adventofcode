@@ -46,10 +46,10 @@ fn search_hash(key: &str, zeros: u32) -> u32 {
                         return Some(num);
                     }
                     iter += 1;
-                    if iter % 10000 == 0 {
-                        if let Ok(n) = rstop.try_recv() {
-                            best = n;
-                        }
+                    if iter % 10000 == 0
+                        && let Ok(n) = rstop.try_recv()
+                    {
+                        best = n;
                     }
                 }
             }),

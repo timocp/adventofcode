@@ -47,7 +47,7 @@ fn presents(house: u32) -> u32 {
     let mut presents = 0;
     let sqrt = (house as f64).sqrt() as u32;
     for elf in 1..=sqrt {
-        if house % elf == 0 {
+        if house.is_multiple_of(elf) {
             if elf * elf == house {
                 presents += elf * 10;
                 continue;
