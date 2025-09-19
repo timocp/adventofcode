@@ -57,11 +57,7 @@ fn fight(boss: &Boss, player_damage: i32, player_armor: i32) -> bool {
 }
 
 fn calc_damage(damage: i32, armor: i32) -> i32 {
-    if damage > armor {
-        damage - armor
-    } else {
-        1
-    }
+    if damage > armor { damage - armor } else { 1 }
 }
 
 #[derive(Debug)]

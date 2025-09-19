@@ -84,11 +84,7 @@ fn cookie_calories(ingredients: &[Ingredient], recipe: &[usize]) -> i32 {
 }
 
 fn positive(i: i32) -> i32 {
-    if i < 0 {
-        0
-    } else {
-        i
-    }
+    if i < 0 { 0 } else { i }
 }
 
 #[derive(Debug)]

@@ -121,11 +121,7 @@ impl GameState {
     }
 
     fn player_armor(&self) -> i32 {
-        if self.shield_timer > 0 {
-            7
-        } else {
-            0
-        }
+        if self.shield_timer > 0 { 7 } else { 0 }
     }
 
     fn boss_turn(&self) -> GameState {
