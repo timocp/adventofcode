@@ -35,7 +35,7 @@ impl Present {
     }
 
     fn smallest_perimeter(&self) -> u32 {
-        2 * vec![self.l + self.w, self.l + self.h, self.w + self.h]
+        2 * [self.l + self.w, self.l + self.h, self.w + self.h]
             .iter()
             .min()
             .unwrap()

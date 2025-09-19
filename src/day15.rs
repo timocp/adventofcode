@@ -26,7 +26,6 @@ fn best_score(ingredients: &[Ingredient], calories: Option<i32>) -> i32 {
             if score > max {
                 max = score;
             }
-        } else {
         }
         increment(&mut recipe);
         if recipe[len - 2] == 100 {
