@@ -47,11 +47,11 @@ fn main() {
     let args: Vec<_> = std::env::args().collect();
 
     if args.len() == 2 {
-        run(args[1].parse().unwrap());
+        run("2015", args[1].parse().unwrap());
     } else {
         let t0 = Instant::now();
         for day in 1..=25 {
-            run(day);
+            run("2015", day);
         }
         println!(
             "{:>80}",
@@ -60,8 +60,8 @@ fn main() {
     }
 }
 
-fn run(day: usize) {
-    let filename = format!("input/day{}.txt", day);
+fn run(year: &str, day: usize) {
+    let filename = format!("input/{}/day{}.txt", year, day);
     if let Ok(input) = read_file(&filename) {
         for part in [Part::One, Part::Two] {
             print!("Day {:02}, part {}:  ", day, part);
@@ -109,6 +109,8 @@ fn run(day: usize) {
                 }
             }
         }
+    } else {
+        eprintln!("Can't read {}", filename);
     }
 }
 
