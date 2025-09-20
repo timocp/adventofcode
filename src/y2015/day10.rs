@@ -1,14 +1,21 @@
-use crate::Part;
+pub struct Solver {
+    input: Vec<u8>,
+}
 
-pub fn run(input: &str, part: Part) -> String {
-    let input = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => expand(&input, 40),
-            Part::Two => expand(&input, 50),
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            input: parse_input(input),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        expand(&self.input, 40).to_string()
+    }
+
+    fn part2(&self) -> String {
+        expand(&self.input, 50).to_string()
+    }
 }
 
 fn expand(num: &[u8], times: usize) -> usize {

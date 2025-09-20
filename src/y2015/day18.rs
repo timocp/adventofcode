@@ -1,18 +1,28 @@
-use crate::Part;
 use std::fmt;
 
-pub fn run(input: &str, part: Part) -> String {
-    let mut grid = parse_input(input);
-    if part == Part::Two {
-        grid.broken();
-    }
-    for _ in 0..100 {
-        grid = grid.step();
-    }
-    format!("{}", grid.count())
+pub struct Solver {
+    grid: Grid,
 }
 
-#[derive(Debug)]
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            grid: parse_input(input),
+        }
+    }
+
+    fn part1(&self) -> String {
+        self.grid.step(100).count().to_string()
+    }
+
+    fn part2(&self) -> String {
+        let mut grid = self.grid.clone();
+        grid.broken();
+        grid.step(100).count().to_string()
+    }
+}
+
+#[derive(Clone, Debug)]
 struct Grid {
     size: usize,
     // each row is a u128, each bit is a light
@@ -70,7 +80,7 @@ impl Grid {
         count
     }
 
-    fn step(&self) -> Grid {
+    fn step(&self, count: usize) -> Grid {
         let mut new_grid = Self::new(self.size);
         for y in 0..self.size {
             for x in 0..self.size {
@@ -86,7 +96,11 @@ impl Grid {
         if self.broken {
             new_grid.broken();
         }
-        new_grid
+        if count > 1 {
+            new_grid.step(count - 1)
+        } else {
+            new_grid
+        }
     }
 }
 
@@ -133,7 +147,7 @@ fn test_part1() {
         "......\n......\n..##..\n..##..\n......\n......\n",
     ];
     for e in expected {
-        grid = grid.step();
+        grid = grid.step(1);
         assert_eq!(e, format!("{}", grid));
     }
     assert_eq!(4, grid.count());
@@ -152,7 +166,7 @@ fn test_part2() {
         "##.###\n.##..#\n.##...\n.##...\n#.#...\n##...#\n",
     ];
     for e in expected {
-        grid = grid.step();
+        grid = grid.step(1);
         assert_eq!(e, format!("{}", grid));
     }
     assert_eq!(17, grid.count());

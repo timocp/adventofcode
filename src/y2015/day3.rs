@@ -1,15 +1,23 @@
-use crate::Part;
 use std::collections::HashSet;
 
-pub fn run(input: &str, part: Part) -> String {
-    let input = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => part1(&input),
-            Part::Two => part2(&input),
+pub struct Solver {
+    directions: Vec<Dir>,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            directions: parse_input(input),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        part1(&self.directions).to_string()
+    }
+
+    fn part2(&self) -> String {
+        part2(&self.directions).to_string() // can i call the other function called part2?
+    }
 }
 
 #[derive(Debug)]

@@ -1,16 +1,24 @@
-use crate::Part;
 use std::sync::mpsc;
 use std::thread;
 
-pub fn run(input: &str, part: Part) -> String {
-    let key = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => part1(&key),
-            Part::Two => part2(&key),
+pub struct Solver {
+    key: String,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            key: parse_input(input),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        part1(&self.key).to_string()
+    }
+
+    fn part2(&self) -> String {
+        part2(&self.key).to_string()
+    }
 }
 
 fn parse_input(input: &str) -> String {

@@ -1,15 +1,23 @@
-use crate::Part;
 use serde_json::Value;
 
-pub fn run(input: &str, part: Part) -> String {
-    let json = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => sum(&json, ""),
-            Part::Two => sum(&json, "red"),
+pub struct Solver {
+    json: Value,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            json: parse_input(input),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        sum(&self.json, "").to_string()
+    }
+
+    fn part2(&self) -> String {
+        sum(&self.json, "red").to_string()
+    }
 }
 
 fn parse_input(input: &str) -> Value {

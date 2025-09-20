@@ -1,23 +1,7 @@
-use std::fmt;
 use std::io::Read;
 use std::time::Instant;
 
 mod y2015;
-
-#[derive(Eq, PartialEq)]
-pub enum Part {
-    One,
-    Two,
-}
-
-impl fmt::Display for Part {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Part::One => write!(f, "1"),
-            Part::Two => write!(f, "2"),
-        }
-    }
-}
 
 pub trait Puzzle {
     fn new(input: &str) -> Self;
@@ -29,15 +13,15 @@ fn main() {
     let args: Vec<_> = std::env::args().collect();
 
     if args.len() == 3 {
-        run(&args[1], args[2].parse().unwrap());
+        run(args[1].parse().unwrap(), args[2].parse().unwrap());
     } else if args.len() == 2 {
         let t0 = Instant::now();
         for day in 1..=25 {
-            run(&args[1], day);
+            run(args[1].parse().unwrap(), day);
         }
         println!(
             "{:>80}",
-            format!("TOTAL: {:.3}s", t0.elapsed().as_secs_f64())
+            format!("TOTAL: {:.2}s", t0.elapsed().as_secs_f64())
         );
     } else {
         eprintln!("Usage: cargo run year [day]");
@@ -45,56 +29,49 @@ fn main() {
     }
 }
 
-type RunFn = fn(usize, &str, Part) -> String;
-
-fn solve<P: Puzzle>(year: &str, day: usize, input: &str) {
+fn solve<P: Puzzle>(year: usize, day: usize, input: &str) {
     let t0 = Instant::now();
     let puzzle: P = P::new(input);
-    measure(&format!("EXP {} day {:01} part 1", year, day), t0, || {
+    measure(&format!("{} day {:02} part 1", year, day), t0, || {
         puzzle.part1()
     });
     let t0 = Instant::now();
-    measure(&format!("EXP {} day {:01} part 2", year, day), t0, || {
+    measure(&format!("{} day {:02} part 2", year, day), t0, || {
         puzzle.part2()
     });
 }
 
-fn run(year: &str, day: usize) {
-    let run: RunFn = match year {
-        "2015" => y2015::run,
-        _ => panic!("Unimplemented year: {}", year),
-    };
-
+fn run(year: usize, day: usize) {
     let filename = format!("input/{}/day{}.txt", year, day);
 
     if let Ok(input) = read_file(&filename) {
-        if year == "2015" && day <= 2 {
-            // experimental puzzle/solver traits
-            match (year, day) {
-                ("2015", 1) => solve::<y2015::day1::Solver>(year, day, &input),
-                ("2015", 2) => solve::<y2015::day2::Solver>(year, day, &input),
-                (&_, _) => todo!(),
-            }
-        } else {
-            for part in [Part::One, Part::Two] {
-                print!("{} Day {:02}, part {}:  ", year, day, part);
-                let t0 = Instant::now();
-                let result = run(day, &input, part);
-                println!(
-                    "{:51} {1:.3}s",
-                    if result.contains('\n') {
-                        result.lines().next().unwrap()
-                    } else {
-                        &result
-                    },
-                    t0.elapsed().as_secs_f64()
-                );
-                if result.contains('\n') {
-                    for line in result.lines().skip(1) {
-                        println!("{:21}{}", "", line);
-                    }
-                }
-            }
+        match (year, day) {
+            (2015, 1) => solve::<y2015::day1::Solver>(year, day, &input),
+            (2015, 2) => solve::<y2015::day2::Solver>(year, day, &input),
+            (2015, 3) => solve::<y2015::day3::Solver>(year, day, &input),
+            (2015, 4) => solve::<y2015::day4::Solver>(year, day, &input),
+            (2015, 5) => solve::<y2015::day5::Solver>(year, day, &input),
+            (2015, 6) => solve::<y2015::day6::Solver>(year, day, &input),
+            (2015, 7) => solve::<y2015::day7::Solver>(year, day, &input),
+            (2015, 8) => solve::<y2015::day8::Solver>(year, day, &input),
+            (2015, 9) => solve::<y2015::day9::Solver>(year, day, &input),
+            (2015, 10) => solve::<y2015::day10::Solver>(year, day, &input),
+            (2015, 11) => solve::<y2015::day11::Solver>(year, day, &input),
+            (2015, 12) => solve::<y2015::day12::Solver>(year, day, &input),
+            (2015, 13) => solve::<y2015::day13::Solver>(year, day, &input),
+            (2015, 14) => solve::<y2015::day14::Solver>(year, day, &input),
+            (2015, 15) => solve::<y2015::day15::Solver>(year, day, &input),
+            (2015, 16) => solve::<y2015::day16::Solver>(year, day, &input),
+            (2015, 17) => solve::<y2015::day17::Solver>(year, day, &input),
+            (2015, 18) => solve::<y2015::day18::Solver>(year, day, &input),
+            (2015, 19) => solve::<y2015::day19::Solver>(year, day, &input),
+            (2015, 20) => solve::<y2015::day20::Solver>(year, day, &input),
+            (2015, 21) => solve::<y2015::day21::Solver>(year, day, &input),
+            (2015, 22) => solve::<y2015::day22::Solver>(year, day, &input),
+            (2015, 23) => solve::<y2015::day23::Solver>(year, day, &input),
+            (2015, 24) => solve::<y2015::day24::Solver>(year, day, &input),
+            (2015, 25) => solve::<y2015::day25::Solver>(year, day, &input),
+            (_, _) => todo!(),
         }
     } else {
         eprintln!("Can't read {}", filename);
@@ -108,7 +85,7 @@ where
     print!("{}: ", label);
     let result = f();
     println!(
-        "{:51} {1:.3}s",
+        "{:54} {1:.2}s",
         if result.contains('\n') {
             result.lines().next().unwrap()
         } else {
@@ -118,7 +95,7 @@ where
     );
     if result.contains('\n') {
         for line in result.lines().skip(1) {
-            println!("{:21}{}", "", line);
+            println!("{:20}{}", "", line);
         }
     }
 }

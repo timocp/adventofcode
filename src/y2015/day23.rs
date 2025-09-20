@@ -1,13 +1,26 @@
-use crate::Part;
+pub struct Solver {
+    program: Vec<Instruction>,
+}
 
-pub fn run(input: &str, part: Part) -> String {
-    let program = parse_input(input);
-    let mut vm = VM::new();
-    if part == Part::Two {
-        vm.write_register(Register::A, 1);
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            program: parse_input(input),
+        }
     }
-    vm.execute(&program);
-    format!("{}", vm.read_register(Register::B))
+
+    fn part1(&self) -> String {
+        let mut vm = VM::new();
+        vm.execute(&self.program);
+        vm.read_register(Register::B).to_string()
+    }
+
+    fn part2(&self) -> String {
+        let mut vm = VM::new();
+        vm.write_register(Register::A, 1);
+        vm.execute(&self.program);
+        vm.read_register(Register::B).to_string()
+    }
 }
 
 #[derive(Debug)]

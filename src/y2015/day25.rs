@@ -1,12 +1,22 @@
-use crate::Part;
-
 use regex::Regex;
 
-pub fn run(input: &str, part: Part) -> String {
-    let input = parse_input(input);
-    match part {
-        Part::One => format!("{}", calc_code(input.0, input.1)),
-        Part::Two => "N/A".to_string(),
+pub struct Solver {
+    input: (u32, u32),
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            input: parse_input(input),
+        }
+    }
+
+    fn part1(&self) -> String {
+        calc_code(self.input.0, self.input.1).to_string()
+    }
+
+    fn part2(&self) -> String {
+        "N/A".to_string()
     }
 }
 

@@ -1,16 +1,23 @@
 use itertools::Itertools;
 
-use crate::Part;
+pub struct Solver {
+    result: (i32, i32),
+}
 
-pub fn run(input: &str, part: Part) -> String {
-    let result = solve(&parse_input(input));
-    format!(
-        "{}",
-        match part {
-            Part::One => result.0,
-            Part::Two => result.1,
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            result: solve(&parse_input(input)),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        self.result.0.to_string()
+    }
+
+    fn part2(&self) -> String {
+        self.result.1.to_string()
+    }
 }
 
 #[derive(Debug)]

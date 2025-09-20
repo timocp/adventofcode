@@ -1,17 +1,23 @@
 use std::collections::HashMap;
 
-use crate::Part;
+pub struct Solver {
+    stats: Stats,
+}
 
-pub fn run(input: &str, part: Part) -> String {
-    let input = parse_input(input);
-    let result = combinations(&input, 150);
-    format!(
-        "{}",
-        match part {
-            Part::One => result.total_combinations(),
-            Part::Two => result.min_combinations(),
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            stats: combinations(&parse_input(input), 150),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        self.stats.total_combinations().to_string()
+    }
+
+    fn part2(&self) -> String {
+        self.stats.min_combinations().to_string()
+    }
 }
 
 struct Stats(HashMap<u32, u32>);
