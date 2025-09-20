@@ -3,6 +3,7 @@ use std::time::Instant;
 
 mod y2015;
 mod y2016;
+mod y2018;
 
 pub trait Puzzle {
     fn new(input: &str) -> Self;
@@ -80,6 +81,22 @@ fn run(year: usize, day: usize) {
             (2016, 6) => solve::<y2016::day6::Solver>(year, day, &input),
             (2016, 7) => solve::<y2016::day7::Solver>(year, day, &input),
             (2016, 8) => solve::<y2016::day8::Solver>(year, day, &input),
+            (2018, 1) => solve::<y2018::day1::Solver>(year, day, &input),
+            (2018, 2) => solve::<y2018::day2::Solver>(year, day, &input),
+            (2018, 3) => solve::<y2018::day3::Solver>(year, day, &input),
+            (2018, 4) => solve::<y2018::day4::Solver>(year, day, &input),
+            (2018, 5) => solve::<y2018::day5::Solver>(year, day, &input),
+            (2018, 6) => solve::<y2018::day6::Solver>(year, day, &input),
+            (2018, 7) => solve::<y2018::day7::Solver>(year, day, &input),
+            (2018, 8) => solve::<y2018::day8::Solver>(year, day, &input),
+            (2018, 9) => solve::<y2018::day9::Solver>(year, day, &input),
+            (2018, 10) => solve::<y2018::day10::Solver>(year, day, &input),
+            (2018, 11) => solve::<y2018::day11::Solver>(year, day, &input),
+            (2018, 12) => solve::<y2018::day12::Solver>(year, day, &input),
+            (2018, 13) => solve::<y2018::day13::Solver>(year, day, &input),
+            (2018, 14) => solve::<y2018::day14::Solver>(year, day, &input),
+            (2018, 15) => solve::<y2018::day15::Solver>(year, day, &input),
+            (2018, 16) => solve::<y2018::day16::Solver>(year, day, &input),
             (_, _) => {}
         }
     } else {
