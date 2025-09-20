@@ -1,5 +1,25 @@
 use crate::Part;
 
+pub struct Solver {
+    directions: Vec<char>,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            directions: parse_input(input),
+        }
+    }
+
+    fn part1(&self) -> String {
+        lift(&self.directions).to_string()
+    }
+
+    fn part2(&self) -> String {
+        find_basement(&self.directions).to_string()
+    }
+}
+
 pub fn run(input: &str, part: Part) -> String {
     let input = parse_input(input);
     format!(
