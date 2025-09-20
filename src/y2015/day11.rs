@@ -1,11 +1,21 @@
-use crate::Part;
+pub struct Solver {
+    password: Password,
+}
 
-pub fn run(input: &str, part: Part) -> String {
-    let pw = parse_input(input);
-    password_to_s(&match part {
-        Part::One => next_password(&pw),
-        Part::Two => next_password(&next_password(&pw)),
-    })
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            password: parse_input(input),
+        }
+    }
+
+    fn part1(&self) -> String {
+        password_to_s(&next_password(&self.password))
+    }
+
+    fn part2(&self) -> String {
+        password_to_s(&next_password(&next_password(&self.password)))
+    }
 }
 
 type Password = [u8; 8];

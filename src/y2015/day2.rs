@@ -1,5 +1,3 @@
-use crate::Part;
-
 pub struct Solver {
     presents: Vec<Present>,
 }
@@ -18,17 +16,6 @@ impl crate::Puzzle for Solver {
     fn part2(&self) -> String {
         total_ribbon(&self.presents).to_string()
     }
-}
-
-pub fn run(input: &str, part: Part) -> String {
-    let input = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => total_paper(&input),
-            Part::Two => total_ribbon(&input),
-        }
-    )
 }
 
 struct Present {

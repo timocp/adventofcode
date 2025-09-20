@@ -1,14 +1,21 @@
-use crate::Part;
+pub struct Solver {
+    input: String,
+}
 
-pub fn run(input: &str, part: Part) -> String {
-    let input = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => part1(&input),
-            Part::Two => part2(&input),
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            input: input.to_owned(),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        part1(&parse_input(&self.input)).to_string()
+    }
+
+    fn part2(&self) -> String {
+        part2(&parse_input(&self.input)).to_string()
+    }
 }
 
 fn parse_input(input: &str) -> Vec<&[u8]> {

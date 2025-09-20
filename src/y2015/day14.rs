@@ -1,16 +1,24 @@
-use crate::Part;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-pub fn run(input: &str, part: Part) -> String {
-    let reindeer = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => part1(&reindeer, 2503),
-            Part::Two => part2(&reindeer, 2503),
+pub struct Solver {
+    reindeer: Vec<Reindeer>,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            reindeer: parse_input(input),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        part1(&self.reindeer, 2503).to_string()
+    }
+
+    fn part2(&self) -> String {
+        part2(&self.reindeer, 2503).to_string()
+    }
 }
 
 fn part1(reindeer: &[Reindeer], seconds: u32) -> u32 {

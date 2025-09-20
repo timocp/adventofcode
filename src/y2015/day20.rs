@@ -1,14 +1,21 @@
-use crate::Part;
+pub struct Solver {
+    min_presents: u32,
+}
 
-pub fn run(input: &str, part: Part) -> String {
-    let min_presents = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => part1(min_presents),
-            Part::Two => part2(min_presents),
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            min_presents: parse_input(input),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        part1(self.min_presents).to_string()
+    }
+
+    fn part2(&self) -> String {
+        part2(self.min_presents).to_string()
+    }
 }
 
 fn part1(min_presents: u32) -> u32 {

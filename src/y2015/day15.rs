@@ -1,15 +1,23 @@
-use crate::Part;
 use std::collections::HashMap;
 
-pub fn run(input: &str, part: Part) -> String {
-    let ingredients = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => best_score(&ingredients, None),
-            Part::Two => best_score(&ingredients, Some(500)),
+pub struct Solver {
+    ingredients: Vec<Ingredient>,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            ingredients: parse_input(input),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        best_score(&self.ingredients, None).to_string()
+    }
+
+    fn part2(&self) -> String {
+        best_score(&self.ingredients, Some(500)).to_string()
+    }
 }
 
 fn best_score(ingredients: &[Ingredient], calories: Option<i32>) -> i32 {

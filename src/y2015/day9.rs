@@ -1,17 +1,26 @@
-use crate::Part;
 use itertools::Itertools;
 use std::collections::HashMap;
 use std::fmt;
 
-pub fn run(input: &str, part: Part) -> String {
-    let minmax = parse_input(input).minmax_distance();
-    format!(
-        "{}",
-        match part {
-            Part::One => minmax.0,
-            Part::Two => minmax.1,
+pub struct Solver {
+    minmax: (u32, u32),
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        let graph = parse_input(input);
+        Self {
+            minmax: graph.minmax_distance(),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        self.minmax.0.to_string()
+    }
+
+    fn part2(&self) -> String {
+        self.minmax.1.to_string()
+    }
 }
 
 struct Graph<'a> {

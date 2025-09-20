@@ -1,18 +1,32 @@
-use crate::Part;
 use itertools::Itertools;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
 use std::fmt;
 
-pub fn run(input: &str, part: Part) -> String {
-    let mut diners = parse_input(input);
-    if part == Part::Two {
-        diners.add_myself();
-    }
-    format!("{}", diners.happiest())
+pub struct Solver {
+    diners: Diners,
 }
 
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            diners: parse_input(input),
+        }
+    }
+
+    fn part1(&self) -> String {
+        self.diners.happiest().to_string()
+    }
+
+    fn part2(&self) -> String {
+        let mut diners = self.diners.clone();
+        diners.add_myself();
+        diners.happiest().to_string()
+    }
+}
+
+#[derive(Clone)]
 struct Diners {
     names: Vec<String>,
     happiness: HashMap<(usize, usize), i32>,

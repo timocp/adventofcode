@@ -1,20 +1,27 @@
-use crate::Part;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
 
-pub fn run(input: &str, part: Part) -> String {
-    let mut wires = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => measure_a(&wires),
-            Part::Two => {
-                wires.insert("b".to_string(), Wire::Signal(measure_a(&wires)));
-                measure_a(&wires)
-            }
+pub struct Solver {
+    wires: HashMap<String, Wire>,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            wires: parse_input(input),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        measure_a(&self.wires).to_string()
+    }
+
+    fn part2(&self) -> String {
+        let mut wires = self.wires.clone();
+        wires.insert("b".to_string(), Wire::Signal(measure_a(&wires)));
+        measure_a(&wires).to_string()
+    }
 }
 
 fn measure_a(wires: &HashMap<String, Wire>) -> u16 {

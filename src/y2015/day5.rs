@@ -1,14 +1,21 @@
-use crate::Part;
+pub struct Solver {
+    words: Vec<String>,
+}
 
-pub fn run(input: &str, part: Part) -> String {
-    let words = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => part1(&words),
-            Part::Two => part2(&words),
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            words: parse_input(input),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        part1(&self.words).to_string()
+    }
+
+    fn part2(&self) -> String {
+        part2(&self.words).to_string()
+    }
 }
 
 fn count_vowels(chars: &[char]) -> usize {
@@ -52,15 +59,15 @@ fn is_nice2(s: &str) -> bool {
     contains_non_overlapping_pair(&chars) && contains_sandwiched_letter(&chars)
 }
 
-fn parse_input(input: &str) -> Vec<&str> {
-    input.lines().collect()
+fn parse_input(input: &str) -> Vec<String> {
+    input.lines().map(|s| s.to_owned()).collect()
 }
 
-fn part1(words: &[&str]) -> usize {
+fn part1(words: &[String]) -> usize {
     words.iter().filter(|word| is_nice(word)).count()
 }
 
-fn part2(words: &[&str]) -> usize {
+fn part2(words: &[String]) -> usize {
     words.iter().filter(|word| is_nice2(word)).count()
 }
 

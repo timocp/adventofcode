@@ -1,18 +1,26 @@
-use crate::Part;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-pub fn run(input: &str, part: Part) -> String {
-    let instructions = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => part1(&instructions),
-            Part::Two => part2(&instructions),
+pub struct Solver {
+    instructions: Vec<Instruction>,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            instructions: parse_input(input),
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        part1(&self.instructions).to_string()
+    }
+
+    fn part2(&self) -> String {
+        part2(&self.instructions).to_string()
+    }
 }
 
 #[derive(Debug)]

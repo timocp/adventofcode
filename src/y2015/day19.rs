@@ -1,15 +1,26 @@
-use crate::Part;
 use std::collections::HashSet;
 
-pub fn run(input: &str, part: Part) -> String {
-    let (replacements, molecule) = parse_input(input);
-    format!(
-        "{}",
-        match part {
-            Part::One => part1(&replacements, &molecule),
-            Part::Two => part2(&replacements, &molecule),
+pub struct Solver {
+    replacements: Vec<Replacement>,
+    molecule: String,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        let (replacements, molecule) = parse_input(input);
+        Self {
+            replacements,
+            molecule,
         }
-    )
+    }
+
+    fn part1(&self) -> String {
+        part1(&self.replacements, &self.molecule).to_string()
+    }
+
+    fn part2(&self) -> String {
+        part2(&self.replacements, &self.molecule).to_string()
+    }
 }
 
 fn part1(replacements: &Vec<Replacement>, molecule: &str) -> u32 {

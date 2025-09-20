@@ -1,18 +1,25 @@
-use crate::Part;
+pub struct Solver {
+    weights: Vec<u32>,
+}
 
-pub fn run(input: &str, part: Part) -> String {
-    let weights = parse_input(input);
-    format!(
-        "{}",
-        find_group1(
-            &weights,
-            match part {
-                Part::One => 3,
-                Part::Two => 4,
-            },
-        )
-        .quantum_entanglement(&weights)
-    )
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            weights: parse_input(input),
+        }
+    }
+
+    fn part1(&self) -> String {
+        find_group1(&self.weights, 3)
+            .quantum_entanglement(&self.weights)
+            .to_string()
+    }
+
+    fn part2(&self) -> String {
+        find_group1(&self.weights, 4)
+            .quantum_entanglement(&self.weights)
+            .to_string()
+    }
 }
 
 // A bitmap representing a group of packages

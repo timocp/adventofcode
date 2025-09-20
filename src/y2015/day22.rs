@@ -1,18 +1,26 @@
-use crate::Part;
-
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
-pub fn run(input: &str, part: Part) -> String {
-    let state = parse_input(input);
-    format!(
-        "{}",
-        find_cheapest_mana_win(&match part {
-            Part::One => state,
-            Part::Two => state.hard(),
-        })
-        .unwrap()
-    )
+pub struct Solver {
+    state: GameState,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            state: parse_input(input),
+        }
+    }
+
+    fn part1(&self) -> String {
+        find_cheapest_mana_win(&self.state).unwrap().to_string()
+    }
+
+    fn part2(&self) -> String {
+        find_cheapest_mana_win(&self.state.hard())
+            .unwrap()
+            .to_string()
+    }
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
