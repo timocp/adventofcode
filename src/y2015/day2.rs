@@ -1,5 +1,25 @@
 use crate::Part;
 
+pub struct Solver {
+    presents: Vec<Present>,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            presents: parse_input(input),
+        }
+    }
+
+    fn part1(&self) -> String {
+        total_paper(&self.presents).to_string()
+    }
+
+    fn part2(&self) -> String {
+        total_ribbon(&self.presents).to_string()
+    }
+}
+
 pub fn run(input: &str, part: Part) -> String {
     let input = parse_input(input);
     format!(
