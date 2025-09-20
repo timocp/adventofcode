@@ -1,3 +1,4 @@
+use md5::{Digest, Md5};
 use std::sync::mpsc;
 use std::thread;
 
@@ -44,7 +45,10 @@ fn search_hash(key: &str, zeros: u32) -> u32 {
                     if num > best {
                         return None;
                     }
-                    let digest = md5::compute(format!("{}{}", key, num).as_bytes());
+                    let digest = Md5::new()
+                        .chain_update(&key)
+                        .chain_update(num.to_string().as_bytes())
+                        .finalize();
                     if match zeros {
                         5 => digest[0] == 0 && digest[1] == 0 && digest[2] < 16,
                         6 => digest[0] == 0 && digest[1] == 0 && digest[2] == 0,

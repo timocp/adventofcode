@@ -2,6 +2,7 @@ use std::io::Read;
 use std::time::Instant;
 
 mod y2015;
+mod y2016;
 
 pub trait Puzzle {
     fn new(input: &str) -> Self;
@@ -71,7 +72,15 @@ fn run(year: usize, day: usize) {
             (2015, 23) => solve::<y2015::day23::Solver>(year, day, &input),
             (2015, 24) => solve::<y2015::day24::Solver>(year, day, &input),
             (2015, 25) => solve::<y2015::day25::Solver>(year, day, &input),
-            (_, _) => todo!(),
+            (2016, 1) => solve::<y2016::day1::Solver>(year, day, &input),
+            (2016, 2) => solve::<y2016::day2::Solver>(year, day, &input),
+            (2016, 3) => solve::<y2016::day3::Solver>(year, day, &input),
+            (2016, 4) => solve::<y2016::day4::Solver>(year, day, &input),
+            (2016, 5) => solve::<y2016::day5::Solver>(year, day, &input),
+            (2016, 6) => solve::<y2016::day6::Solver>(year, day, &input),
+            (2016, 7) => solve::<y2016::day7::Solver>(year, day, &input),
+            (2016, 8) => solve::<y2016::day8::Solver>(year, day, &input),
+            (_, _) => {}
         }
     } else {
         eprintln!("Can't read {}", filename);
@@ -85,7 +94,7 @@ where
     print!("{}: ", label);
     let result = f();
     println!(
-        "{:54} {1:.2}s",
+        "{:53} {1:5.2}s",
         if result.contains('\n') {
             result.lines().next().unwrap()
         } else {
