@@ -12,26 +12,29 @@ impl crate::Puzzle for Solver {
     }
 
     fn part1(&self) -> String {
-        let mut vm = self.vm.clone();
-        vm.write(1, 12);
-        vm.write(2, 2);
-        vm.run();
-        vm.read(0).to_string()
+        self.get_result(12, 2).to_string()
     }
 
     fn part2(&self) -> String {
         for noun in 0..100 {
             for verb in 0..100 {
-                let mut vm = self.vm.clone();
-                vm.write(1, noun);
-                vm.write(2, verb);
-                vm.run();
-                if vm.read(0) == 19690720 {
+                if self.get_result(noun, verb) == 19690720 {
                     return (100 * noun + verb).to_string();
                 }
             }
         }
         panic!("No solution found");
+    }
+}
+
+impl Solver {
+    // Return the final value at address 0 if the program is run to completion
+    fn get_result(&self, noun: i32, verb: i32) -> i32 {
+        let mut vm = self.vm.clone();
+        vm.write(1, noun);
+        vm.write(2, verb);
+        vm.run();
+        vm.read(0)
     }
 }
 
