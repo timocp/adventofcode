@@ -20,11 +20,11 @@ impl crate::Puzzle for Solver {
     }
 }
 
-fn sum_lines(input: &Vec<i32>) -> i32 {
+fn sum_lines(input: &[i32]) -> i32 {
     input.iter().sum()
 }
 
-fn first_reached_twice(input: &Vec<i32>) -> i32 {
+fn first_reached_twice(input: &[i32]) -> i32 {
     let mut sum = 0;
     let mut seen = HashSet::new();
     seen.insert(sum);

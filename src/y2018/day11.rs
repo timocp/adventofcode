@@ -83,7 +83,7 @@ fn max_powers(grid_serial: usize) -> Answer {
     answer
 }
 
-fn summed_area(grid: &Vec<Vec<i32>>) -> Vec<Vec<i32>> {
+fn summed_area(grid: &[Vec<i32>]) -> Vec<Vec<i32>> {
     let mut sums = vec![vec![0; 300]; 300];
     for x in 0..300 {
         for y in 0..300 {
@@ -101,6 +101,7 @@ fn summed_area(grid: &Vec<Vec<i32>>) -> Vec<Vec<i32>> {
     sums
 }
 
+#[allow(clippy::needless_range_loop)]
 fn init_grid(grid_serial: usize) -> Vec<Vec<i32>> {
     let mut grid = vec![vec![0; 300]; 300];
     for x in 0..300 {

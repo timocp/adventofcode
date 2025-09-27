@@ -33,6 +33,7 @@ enum Team {
 }
 
 impl Team {
+    #[allow(clippy::wrong_self_convention)]
     fn to_char(&self) -> char {
         match &self {
             Team::Elves => 'E',
