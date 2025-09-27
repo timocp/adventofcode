@@ -4,6 +4,7 @@ use std::time::Instant;
 mod y2015;
 mod y2016;
 mod y2018;
+mod y2021;
 
 pub trait Puzzle {
     fn new(input: &str) -> Self;
@@ -97,6 +98,31 @@ fn run(year: usize, day: usize) {
             (2018, 14) => solve::<y2018::day14::Solver>(year, day, &input),
             (2018, 15) => solve::<y2018::day15::Solver>(year, day, &input),
             (2018, 16) => solve::<y2018::day16::Solver>(year, day, &input),
+            (2021, 1) => solve::<y2021::day1::Solver>(year, day, &input),
+            (2021, 2) => solve::<y2021::day2::Solver>(year, day, &input),
+            (2021, 3) => solve::<y2021::day3::Solver>(year, day, &input),
+            (2021, 4) => solve::<y2021::day4::Solver>(year, day, &input),
+            (2021, 5) => solve::<y2021::day5::Solver>(year, day, &input),
+            (2021, 6) => solve::<y2021::day6::Solver>(year, day, &input),
+            (2021, 7) => solve::<y2021::day7::Solver>(year, day, &input),
+            (2021, 8) => solve::<y2021::day8::Solver>(year, day, &input),
+            (2021, 9) => solve::<y2021::day9::Solver>(year, day, &input),
+            (2021, 10) => solve::<y2021::day10::Solver>(year, day, &input),
+            (2021, 11) => solve::<y2021::day11::Solver>(year, day, &input),
+            (2021, 12) => solve::<y2021::day12::Solver>(year, day, &input),
+            (2021, 13) => solve::<y2021::day13::Solver>(year, day, &input),
+            (2021, 14) => solve::<y2021::day14::Solver>(year, day, &input),
+            (2021, 15) => solve::<y2021::day15::Solver>(year, day, &input),
+            (2021, 16) => solve::<y2021::day16::Solver>(year, day, &input),
+            (2021, 17) => solve::<y2021::day17::Solver>(year, day, &input),
+            (2021, 18) => solve::<y2021::day18::Solver>(year, day, &input),
+            (2021, 19) => solve::<y2021::day19::Solver>(year, day, &input),
+            (2021, 20) => solve::<y2021::day20::Solver>(year, day, &input),
+            (2021, 21) => solve::<y2021::day21::Solver>(year, day, &input),
+            (2021, 22) => solve::<y2021::day22::Solver>(year, day, &input),
+            (2021, 23) => solve::<y2021::day23::Solver>(year, day, &input),
+            (2021, 24) => solve::<y2021::day24::Solver>(year, day, &input),
+            (2021, 25) => solve::<y2021::day25::Solver>(year, day, &input),
             (_, _) => {}
         }
     } else {
