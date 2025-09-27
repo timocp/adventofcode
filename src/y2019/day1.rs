@@ -10,20 +10,16 @@ impl crate::Puzzle for Solver {
     }
 
     fn part1(&self) -> String {
-        self.module_masses
-            .iter()
-            .map(|&m| fuel_required(m))
-            .sum::<i32>()
-            .to_string()
+        sum_fuel(&self.module_masses, fuel_required).to_string()
     }
 
     fn part2(&self) -> String {
-        self.module_masses
-            .iter()
-            .map(|&m| real_fuel_required(m))
-            .sum::<i32>()
-            .to_string()
+        sum_fuel(&self.module_masses, real_fuel_required).to_string()
     }
+}
+
+fn sum_fuel(masses: &[i32], f: impl Fn(i32) -> i32) -> i32 {
+    masses.iter().map(|&m| f(m)).sum()
 }
 
 fn fuel_required(mass: i32) -> i32 {
