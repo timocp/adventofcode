@@ -208,11 +208,11 @@ impl SfNumber {
         let mut target: Option<usize> = None;
 
         for (i, c) in self.n.iter().enumerate() {
-            if let Token::Number(v) = c {
-                if *v > 9 {
-                    target = Some(i);
-                    break;
-                }
+            if let Token::Number(v) = c
+                && *v > 9
+            {
+                target = Some(i);
+                break;
             }
         }
 
@@ -225,7 +225,7 @@ impl SfNumber {
                     Token::LeftBracket,
                     Token::Number(v / 2),
                     Token::Comma,
-                    Token::Number((v + 1) / 2),
+                    Token::Number(v.div_ceil(2)),
                     Token::RightBracket,
                 ],
             );

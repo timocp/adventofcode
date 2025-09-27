@@ -21,7 +21,6 @@ impl crate::Puzzle for Solver {
     }
 }
 
-
 fn part1(input: &str, generations: i64) -> i64 {
     let (rules, mut s1) = parse_input(input);
     let mut s2 = State {
@@ -105,7 +104,7 @@ struct State {
 impl fmt::Debug for State {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut s = String::new();
-        for (_, &b) in self.plants.iter().enumerate() {
+        for &b in self.plants.iter() {
             if b {
                 s.push('#');
             } else {
@@ -171,7 +170,7 @@ impl State {
 }
 
 fn grow(rules: u32, s1: &State, s2: &mut State) {
-    s2.expand(&s1);
+    s2.expand(s1);
 
     let mut v = 0u32;
     for i in s2.start()..=s2.end() {

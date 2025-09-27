@@ -209,14 +209,13 @@ impl Game {
                 self.move_unit(u);
                 self.attack(u);
             }
-            if let Some(team) = require_total_victory {
-                if self
+            if let Some(team) = require_total_victory
+                && self
                     .units
                     .iter()
                     .any(|unit| unit.team == team && !unit.is_alive())
-                {
-                    return;
-                }
+            {
+                return;
             }
             self.units.retain(|unit| unit.is_alive());
             self.sort_units();
@@ -438,7 +437,7 @@ impl fmt::Debug for Game {
                     .unwrap();
                 }
             }
-            if annot.len() > 0 {
+            if !annot.is_empty() {
                 f.write_str(&annot).unwrap();
                 annot.clear();
             }

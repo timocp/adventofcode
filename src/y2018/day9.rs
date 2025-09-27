@@ -22,7 +22,7 @@ impl crate::Puzzle for Solver {
 
 fn simulate_game(players: usize, last_marble: usize) -> usize {
     let mut game: VecDeque<usize> = VecDeque::with_capacity(last_marble);
-    let mut scores = vec![0; players as usize];
+    let mut scores = vec![0; players];
     game.push_front(0);
 
     for marble in 1..=last_marble {

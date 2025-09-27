@@ -23,7 +23,7 @@ impl crate::Puzzle for Solver {
 
 fn react(input: &str) -> String {
     let mut input = VecDeque::from_iter(input.chars());
-    if *input.get(input.len() - 1).unwrap() == '\n' {
+    if *input.back().unwrap() == '\n' {
         input.pop_back();
     }
     let mut output = VecDeque::new();
@@ -64,7 +64,7 @@ fn shortest_polymer(input: &str) -> String {
 }
 
 fn is_pair(a: char, b: char) -> bool {
-    a != b && a.to_ascii_uppercase() == b.to_ascii_uppercase()
+    a != b && a.eq_ignore_ascii_case(&b)
 }
 
 #[test]

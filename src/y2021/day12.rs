@@ -106,7 +106,7 @@ impl CaveSystem {
             return 1; // reached the end, this path counts
         }
 
-        let v = self.links[this_cave_id]
+        self.links[this_cave_id]
             .iter()
             .map(|to_cave_id| {
                 let to_cave = self.cave(*to_cave_id);
@@ -132,8 +132,7 @@ impl CaveSystem {
                     }
                 }
             })
-            .sum();
-        v
+            .sum()
     }
 }
 

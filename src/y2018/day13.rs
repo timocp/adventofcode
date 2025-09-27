@@ -247,8 +247,8 @@ fn parse_input(input: &str) -> Mine {
                     mine.map[y][x] = Cell::EW;
                 }
                 mine.carts.push(Cart {
-                    x: x,
-                    y: y,
+                    x,
+                    y,
                     facing: Direction::from_char(c).unwrap(),
                     next_turn: Turn::Left,
                     destroyed: false,

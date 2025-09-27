@@ -49,20 +49,17 @@ fn process(fabric: &mut HashMap<(usize, usize), Square>, claims: &Vec<Claim>) ->
             }
         }
     }
-    return overlap_count;
+    overlap_count
 }
 
 fn intact_claim(fabric: &HashMap<(usize, usize), Square>, claims: &Vec<Claim>) -> usize {
     'claim: for claim in claims {
         for x in claim.left..(claim.left + claim.width) {
             for y in claim.top..(claim.top + claim.height) {
-                match fabric.get(&(x, y)) {
-                    Some(sq) => {
-                        if sq.overlaps {
-                            continue 'claim;
-                        }
-                    }
-                    None => {}
+                if let Some(sq) = fabric.get(&(x, y))
+                    && sq.overlaps
+                {
+                    continue 'claim;
                 }
             }
         }

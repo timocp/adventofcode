@@ -25,10 +25,7 @@ fn least_fuel(crabs: &[usize], fuel: impl Fn(&[usize], usize) -> usize) -> Optio
 
 // measure fuel needed to move all crabs to a specific position
 fn measure_fuel(crabs: &[usize], pos: usize) -> usize {
-    crabs
-        .iter()
-        .map(|&crab| if crab > pos { crab - pos } else { pos - crab })
-        .sum()
+    crabs.iter().map(|&crab| crab.abs_diff(pos)).sum()
 }
 
 fn triangle_number(n: usize) -> usize {

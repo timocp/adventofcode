@@ -120,7 +120,7 @@ impl Sample {
         let mut results = HashSet::new();
         for op in Op::each() {
             let mut vm = self.before.clone();
-            vm.exec(*op, self.instr[1], self.instr[2], self.instr[3] as usize);
+            vm.exec(*op, self.instr[1], self.instr[2], self.instr[3]);
             if vm == self.after {
                 results.insert(*op);
             }
@@ -152,12 +152,10 @@ fn reverse_engineer(samples: &Vec<Sample>) -> Vec<Op> {
         for i in 0..maybe.len() {
             if maybe[i].len() == 1 && !elim[i] {
                 elim[i] = true;
-                let op = maybe[i].iter().nth(0).unwrap().clone();
+                let op = *maybe[i].iter().next().unwrap();
                 for j in 0..maybe.len() {
-                    if i != j {
-                        if maybe[j].remove(&op) {
-                            done = false;
-                        }
+                    if i != j && maybe[j].remove(&op) {
+                        done = false;
                     }
                 }
             }
@@ -167,7 +165,7 @@ fn reverse_engineer(samples: &Vec<Sample>) -> Vec<Op> {
     // each maybe is now a set of 1
     maybe
         .iter()
-        .map(|set| *set.iter().nth(0).unwrap())
+        .map(|set| *set.iter().next().unwrap())
         .collect()
 }
 
@@ -198,8 +196,8 @@ fn parse_input(input: &str) -> (Vec<Sample>, Vec<Inst>) {
             }
             samples.push(sample.clone());
             in_samples = false;
-        } else if line.len() > 0 {
-            let numbers = parse_numbers(&line, " ");
+        } else if !line.is_empty() {
+            let numbers = parse_numbers(line, " ");
             if in_samples {
                 for (i, n) in numbers.into_iter().enumerate() {
                     sample.instr[i] = n;

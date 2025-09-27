@@ -210,7 +210,7 @@ impl fmt::Debug for Op {
             match self {
                 Op::Var(v) => format!("{}", (v + 119) as char),
                 Op::Lit(i) => format!("{}", i),
-                Op::None => format!(""),
+                Op::None => String::new(),
             }
         )
     }

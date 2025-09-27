@@ -108,7 +108,7 @@ fn parse_input(input: &str) -> Vec<Event> {
             let guard: i32 = event
                 .chars()
                 .skip(7)
-                .take_while(|c| c.is_digit(10))
+                .take_while(|c| c.is_ascii_digit())
                 .collect::<String>()
                 .parse()
                 .unwrap();
