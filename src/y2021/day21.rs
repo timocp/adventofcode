@@ -1,0 +1,174 @@
+use std::collections::HashMap;
+use std::iter::Cycle;
+use std::ops::RangeInclusive;
+
+pub struct Solver {
+    game: Game,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            game: Game::from(input),
+        }
+    }
+
+    fn part1(&self) -> String {
+        let mut game = self.game.clone();
+        game.part1().to_string()
+    }
+
+    fn part2(&self) -> String {
+        self.game.part2().to_string()
+    }
+}
+
+#[derive(Debug, Clone)]
+struct Game {
+    state: State,
+    turn: usize,
+    dice: Cycle<RangeInclusive<usize>>,
+}
+
+#[derive(Debug, Eq, Hash, PartialEq, Clone)]
+struct State {
+    pos: [usize; 2],
+    score: [usize; 2],
+}
+
+impl Game {
+    fn turn(&mut self) {
+        let player = self.turn % 2;
+        for _ in 0..3 {
+            self.state.pos[player] += self.dice.next().unwrap();
+        }
+        self.state.pos[player] = (self.state.pos[player] - 1) % 10 + 1;
+        self.state.score[player] += self.state.pos[player];
+        self.turn += 1;
+    }
+
+    fn play_until_end(&mut self) {
+        while self.winner().is_none() {
+            self.turn();
+        }
+    }
+
+    fn rolls(&self) -> usize {
+        self.turn * 3
+    }
+
+    fn winner(&self) -> Option<usize> {
+        self.state.score.iter().position(|&s| s >= 1000)
+    }
+
+    fn part1(&mut self) -> usize {
+        self.play_until_end();
+        self.state.score[self.winner().unwrap() + 1 % 2] * self.rolls()
+    }
+
+    fn part2(&self) -> usize {
+        let mut seen: HashMap<State, (usize, usize)> = HashMap::new();
+
+        let (p0_wins, p1_wins) = self.count_wins(
+            State {
+                pos: self.state.pos,
+                score: self.state.score,
+            },
+            &mut seen,
+        );
+
+        if p0_wins > p1_wins { p0_wins } else { p1_wins }
+    }
+
+    fn count_wins(
+        &self,
+        state: State,
+        seen: &mut HashMap<State, (usize, usize)>,
+    ) -> (usize, usize) {
+        if state.score[1] >= 21 {
+            return (0, 1);
+        }
+
+        if let Some(&wins) = seen.get(&state) {
+            return wins;
+        }
+
+        let mut counts = (0, 0);
+        for d1 in 1..=3 {
+            for d2 in 1..=3 {
+                for d3 in 1..=3 {
+                    let next_pos = (state.pos[0] + d1 + d2 + d3 - 1) % 10 + 1;
+                    let next_state = State {
+                        pos: [state.pos[1], next_pos],
+                        score: [state.score[1], state.score[0] + next_pos],
+                    };
+                    let next_score = self.count_wins(next_state, seen);
+                    counts.0 += next_score.1;
+                    counts.1 += next_score.0;
+                }
+            }
+        }
+
+        seen.insert(state, counts);
+
+        counts
+    }
+}
+
+impl From<&str> for Game {
+    fn from(s: &str) -> Self {
+        let start_pos = s
+            .lines()
+            .map(|line| line.chars().last().unwrap() as usize - 48)
+            .collect::<Vec<_>>();
+        Self {
+            state: State {
+                pos: [start_pos[0], start_pos[1]],
+                score: [0, 0],
+            },
+            turn: 0,
+            dice: (1..=100).cycle(),
+        }
+    }
+}
+
+#[test]
+fn test() {
+    let test_input = "\
+Player 1 starting position: 4
+Player 2 starting position: 8
+";
+    let mut game = Game::from(test_input);
+    assert_eq!(4, game.state.pos[0]);
+    assert_eq!(0, game.state.score[0]);
+    assert_eq!(8, game.state.pos[1]);
+    assert_eq!(0, game.state.score[1]);
+    assert_eq!(0, game.turn);
+
+    game.turn();
+    assert_eq!(10, game.state.pos[0]);
+    assert_eq!(10, game.state.score[0]);
+    assert_eq!(8, game.state.pos[1]);
+    assert_eq!(0, game.state.score[1]);
+    assert_eq!(1, game.turn);
+
+    game.turn();
+    assert_eq!(10, game.state.pos[0]);
+    assert_eq!(10, game.state.score[0]);
+    assert_eq!(3, game.state.pos[1]);
+    assert_eq!(3, game.state.score[1]);
+    assert_eq!(2, game.turn);
+
+    game.play_until_end();
+    assert_eq!(10, game.state.pos[0]);
+    assert_eq!(1000, game.state.score[0]);
+    assert_eq!(3, game.state.pos[1]);
+    assert_eq!(745, game.state.score[1]);
+    assert_eq!(331, game.turn);
+
+    let mut game = Game::from(test_input);
+    assert_eq!(739785, game.part1());
+
+    let game = Game::from(test_input);
+    assert_eq!(444356092776315, game.part2());
+}
