@@ -55,8 +55,7 @@ struct Core {}
 fn build_coords(index: Vec<(i32, i32)>) -> Vec<i32> {
     let mut numbers: Vec<i32> = index
         .iter()
-        .map(|p| vec![p.0, p.1 + 1])
-        .flatten()
+        .flat_map(|p| vec![p.0, p.1 + 1])
         .collect::<HashSet<i32>>()
         .into_iter()
         .collect();

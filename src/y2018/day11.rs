@@ -37,7 +37,7 @@ fn largest_power(grid_serial: usize) -> Answer {
         x: 0,
         y: 0,
         size: 3,
-        value: -6 * (3 * 3) as i32,
+        value: -6 * (3 * 3),
     };
     for x in 0..=(300 - 3) {
         for y in 0..=(300 - 3) {

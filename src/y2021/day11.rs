@@ -65,14 +65,14 @@ impl Grid {
             for col in 0..next.cols {
                 next.state[row][col] += 1;
                 if next.state[row][col] > 9 {
-                    queue.push((row as usize, col as usize));
+                    queue.push((row, col));
                 }
             }
         }
         // process flashes until none left
-        while !queue.is_empty() {
+        while let Some(flash) = queue.pop() {
             // dbg!(&next, &queue);
-            let flash = queue.pop().unwrap();
+
             // println!("FLASH: {:?}", flash);
             for dr in -1..=1isize {
                 for dc in -1..=1isize {

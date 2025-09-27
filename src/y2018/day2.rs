@@ -44,9 +44,8 @@ fn checksum(input: &Vec<&str>) -> i32 {
 fn common_letters(input: &Vec<&str>) -> String {
     for (i, id1) in input.iter().enumerate() {
         for id2 in input.iter().skip(i + 1) {
-            match compare(id1, id2) {
-                Some(s) => return s,
-                None => (),
+            if let Some(s) = compare(id1, id2) {
+                return s;
             }
         }
     }

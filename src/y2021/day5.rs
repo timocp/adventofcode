@@ -109,8 +109,7 @@ fn parse_input(input: &str) -> Vec<Line> {
         .lines()
         .map(|line| {
             line.split(" -> ")
-                .map(|coords| coords.split(','))
-                .flatten()
+                .flat_map(|coords| coords.split(','))
                 .map(|num| num.parse().unwrap())
                 .collect::<Vec<usize>>()
         })

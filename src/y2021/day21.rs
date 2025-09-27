@@ -63,7 +63,7 @@ impl Game {
 
     fn part1(&mut self) -> usize {
         self.play_until_end();
-        self.state.score[self.winner().unwrap() + 1 % 2] * self.rolls()
+        self.state.score[self.winner().unwrap() + 1] * self.rolls()
     }
 
     fn part2(&self) -> usize {

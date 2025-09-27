@@ -41,7 +41,7 @@ fn largest_finite_area(coords: &Vec<Point>) -> usize {
         for x in min.x..=max.x {
             for y in min.y..=max.y {
                 let distance = ((coord.x - x).abs() + (coord.y - y).abs()) as usize;
-                match closest.entry(Point { x: x, y: y }) {
+                match closest.entry(Point { x, y }) {
                     Entry::Occupied(ent) => {
                         let ent = ent.into_mut();
                         if distance < ent.distance {
@@ -53,7 +53,7 @@ fn largest_finite_area(coords: &Vec<Point>) -> usize {
                     }
                     Entry::Vacant(ent) => {
                         ent.insert(Closest {
-                            distance: distance,
+                            distance,
                             coord: Some(c),
                         });
                     }
@@ -66,7 +66,7 @@ fn largest_finite_area(coords: &Vec<Point>) -> usize {
     let mut areas: Vec<Option<usize>> = vec![Some(0); coords.len()];
     for y in min.y..=max.y {
         for x in min.x..=max.x {
-            let closest = closest.get(&Point { x: x, y: y }).unwrap();
+            let closest = closest.get(&Point { x, y }).unwrap();
             if let Some(c) = closest.coord {
                 if y == min.y || y == max.y || x == min.x || x == max.x {
                     areas[c] = None;
@@ -76,7 +76,7 @@ fn largest_finite_area(coords: &Vec<Point>) -> usize {
             }
         }
     }
-    areas.into_iter().filter_map(|area| area).max().unwrap()
+    areas.into_iter().flatten().max().unwrap()
 }
 
 fn safe_area(coords: &Vec<Point>, limit: usize) -> usize {
