@@ -37,7 +37,7 @@ struct Star {
     dy: i64,
 }
 
-fn find_message(stars: &mut Vec<Star>, write_image: bool) -> i32 {
+fn find_message(stars: &mut [Star], write_image: bool) -> i32 {
     let mut s = 0;
     let mut last_area = area(stars);
     loop {
@@ -57,21 +57,21 @@ fn find_message(stars: &mut Vec<Star>, write_image: bool) -> i32 {
     s
 }
 
-fn tick_forward(stars: &mut Vec<Star>) {
+fn tick_forward(stars: &mut [Star]) {
     for star in stars.iter_mut() {
         star.point.x += star.dx;
         star.point.y += star.dy;
     }
 }
 
-fn tick_backwards(stars: &mut Vec<Star>) {
+fn tick_backwards(stars: &mut [Star]) {
     for star in stars.iter_mut() {
         star.point.x -= star.dx;
         star.point.y -= star.dy;
     }
 }
 
-fn to_image(stars: &Vec<Star>) {
+fn to_image(stars: &[Star]) {
     let (min, max) = boxsize(stars);
     let width = max.x - min.x + 3; // 2 is border
     let height = max.y - min.y + 3;
@@ -84,12 +84,12 @@ fn to_image(stars: &Vec<Star>) {
     img.save(IMAGE_FILENAME).unwrap();
 }
 
-fn area(stars: &Vec<Star>) -> u64 {
+fn area(stars: &[Star]) -> u64 {
     let (min, max) = boxsize(stars);
     ((max.x - min.x + 1).abs() * (max.y - min.y + 1).abs()) as u64
 }
 
-fn boxsize(stars: &Vec<Star>) -> (Point, Point) {
+fn boxsize(stars: &[Star]) -> (Point, Point) {
     let mut min = stars.first().unwrap().point;
     let mut max = stars.first().unwrap().point;
     for star in stars.iter().skip(1) {

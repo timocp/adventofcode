@@ -72,10 +72,10 @@ fn time_simulation(mut g: DiGraphMap<char, ()>, num_workers: usize, base_time: u
 }
 
 fn next_step(g: &DiGraphMap<char, ()>) -> Option<char> {
-    next_step_except(g, &vec![])
+    next_step_except(g, &[])
 }
 
-fn next_step_except(g: &DiGraphMap<char, ()>, except: &Vec<char>) -> Option<char> {
+fn next_step_except(g: &DiGraphMap<char, ()>, except: &[char]) -> Option<char> {
     let mut next: Vec<_> = g
         .nodes()
         .filter(|n| g.neighbors_directed(*n, Incoming).count() == 0)

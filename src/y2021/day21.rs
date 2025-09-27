@@ -80,6 +80,7 @@ impl Game {
         if p0_wins > p1_wins { p0_wins } else { p1_wins }
     }
 
+    #[allow(clippy::only_used_in_recursion)]
     fn count_wins(
         &self,
         state: State,

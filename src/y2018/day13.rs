@@ -63,6 +63,7 @@ impl Direction {
         }
     }
 
+    #[allow(clippy::wrong_self_convention)]
     fn to_char(&self) -> char {
         match self {
             Direction::North => '^',
@@ -121,7 +122,7 @@ impl Cart {
         }
     }
 
-    fn move_turn(&mut self, map: &Vec<Vec<Cell>>) {
+    fn move_turn(&mut self, map: &[Vec<Cell>]) {
         match self.facing {
             Direction::North => self.y -= 1,
             Direction::East => self.x += 1,

@@ -68,7 +68,7 @@ impl Device {
         Device { reg: [0, 0, 0, 0] }
     }
 
-    fn run_program(&mut self, map: &Vec<Op>, program: &Vec<Inst>) {
+    fn run_program(&mut self, map: &[Op], program: &[Inst]) {
         for inst in program.iter() {
             self.exec(map[inst.opcode], inst.a, inst.b, inst.c);
         }
@@ -129,6 +129,7 @@ impl Sample {
     }
 }
 
+#[allow(clippy::needless_range_loop)]
 fn reverse_engineer(samples: &Vec<Sample>) -> Vec<Op> {
     // an array of sets of possible matching opcodes, indexed by the input opcode
     let mut maybe: Vec<HashSet<Op>> = vec![HashSet::new(); 16];

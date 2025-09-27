@@ -33,7 +33,7 @@ struct Closest {
     coord: Option<usize>,
 }
 
-fn largest_finite_area(coords: &Vec<Point>) -> usize {
+fn largest_finite_area(coords: &[Point]) -> usize {
     let (min, max) = box_size(coords);
 
     let mut closest: HashMap<Point, Closest> = HashMap::new();
@@ -79,7 +79,7 @@ fn largest_finite_area(coords: &Vec<Point>) -> usize {
     areas.into_iter().flatten().max().unwrap()
 }
 
-fn safe_area(coords: &Vec<Point>, limit: usize) -> usize {
+fn safe_area(coords: &[Point], limit: usize) -> usize {
     let (min, max) = box_size(coords);
     let mut area = 0;
     for x in min.x..=max.x {
@@ -97,7 +97,7 @@ fn safe_area(coords: &Vec<Point>, limit: usize) -> usize {
     area
 }
 
-fn box_size(coords: &Vec<Point>) -> (Point, Point) {
+fn box_size(coords: &[Point]) -> (Point, Point) {
     let mut min = *coords.first().unwrap();
     let mut max = *coords.first().unwrap();
     for c in coords.iter().skip(1) {
