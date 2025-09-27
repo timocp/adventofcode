@@ -4,6 +4,7 @@ use std::time::Instant;
 mod y2015;
 mod y2016;
 mod y2018;
+mod y2019;
 mod y2021;
 
 pub trait Puzzle {
@@ -98,6 +99,7 @@ fn run(year: usize, day: usize) {
             (2018, 14) => solve::<y2018::day14::Solver>(year, day, &input),
             (2018, 15) => solve::<y2018::day15::Solver>(year, day, &input),
             (2018, 16) => solve::<y2018::day16::Solver>(year, day, &input),
+            (2019, 1) => solve::<y2019::day1::Solver>(year, day, &input),
             (2021, 1) => solve::<y2021::day1::Solver>(year, day, &input),
             (2021, 2) => solve::<y2021::day2::Solver>(year, day, &input),
             (2021, 3) => solve::<y2021::day3::Solver>(year, day, &input),
