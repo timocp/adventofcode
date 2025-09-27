@@ -1,5 +1,5 @@
 pub struct Solver {
-    module_masses: Vec<u32>,
+    module_masses: Vec<i32>,
 }
 
 impl crate::Puzzle for Solver {
@@ -13,20 +13,30 @@ impl crate::Puzzle for Solver {
         self.module_masses
             .iter()
             .map(|&m| fuel_required(m))
-            .sum::<u32>()
+            .sum::<i32>()
             .to_string()
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        self.module_masses
+            .iter()
+            .map(|&m| real_fuel_required(m))
+            .sum::<i32>()
+            .to_string()
     }
 }
 
-fn fuel_required(mass: u32) -> u32 {
-    mass / 3 - 2
+fn fuel_required(mass: i32) -> i32 {
+    let f = mass / 3 - 2;
+    if f >= 0 { f } else { 0 }
 }
 
-fn parse_input(input: &str) -> Vec<u32> {
+fn real_fuel_required(mass: i32) -> i32 {
+    let f = fuel_required(mass);
+    f + if f > 0 { real_fuel_required(f) } else { 0 }
+}
+
+fn parse_input(input: &str) -> Vec<i32> {
     input.lines().map(|line| line.parse().unwrap()).collect()
 }
 
@@ -36,4 +46,11 @@ fn test_fuel_required() {
     assert_eq!(2, fuel_required(14));
     assert_eq!(654, fuel_required(1969));
     assert_eq!(33583, fuel_required(100756));
+}
+
+#[test]
+fn test_real_fuel_required() {
+    assert_eq!(2, real_fuel_required(14));
+    assert_eq!(966, real_fuel_required(1969));
+    assert_eq!(50346, real_fuel_required(100756));
 }
