@@ -5,7 +5,7 @@
 
 set -e
 
-cd "$(dirname "$(realpath "$0")")"
+cd "$(dirname "$(realpath "$0")")/.."
 
 export TZ=US/Eastern
 
