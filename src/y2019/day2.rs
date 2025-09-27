@@ -20,7 +20,18 @@ impl crate::Puzzle for Solver {
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        for noun in 0..100 {
+            for verb in 0..100 {
+                let mut vm = self.vm.clone();
+                vm.write(1, noun);
+                vm.write(2, verb);
+                vm.run();
+                if vm.read(0) == 19690720 {
+                    return (100 * noun + verb).to_string();
+                }
+            }
+        }
+        panic!("No solution found");
     }
 }
 

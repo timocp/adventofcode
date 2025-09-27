@@ -44,14 +44,10 @@ impl Vm {
     }
 
     fn indirect_read(&self, pos: usize) -> i32 {
-        //let index = self.intcode[pos] as usize;
-        //self.intcode[index]
         self.read(self.intcode[pos] as usize)
     }
 
     fn indirect_write(&mut self, pos: usize, value: i32) {
-        //let index = self.intcode[pos] as usize;
-        //self.intcode[index] = value;
         self.write(self.intcode[pos] as usize, value);
     }
 
