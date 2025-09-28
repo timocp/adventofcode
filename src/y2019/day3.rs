@@ -1,5 +1,5 @@
 use crate::Puzzle;
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 #[derive(Debug)]
 pub struct Solver {
@@ -21,7 +21,7 @@ impl Puzzle for Solver {
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        fewest_steps(&self.wire0, &self.wire1).to_string()
     }
 }
 
@@ -29,8 +29,8 @@ fn closest_intersection(wire0: &Wire, wire1: &Wire) -> u32 {
     let seen0 = follow_seen(wire0);
     let mut distance = u32::MAX;
 
-    follow(wire1, |pos| {
-        if seen0.contains(&pos) {
+    follow(wire1, |pos, _count| {
+        if seen0.contains_key(&pos) {
             let this_distance = manhatten_distance(pos);
             if this_distance > 0 && this_distance < distance {
                 distance = this_distance
@@ -41,17 +41,33 @@ fn closest_intersection(wire0: &Wire, wire1: &Wire) -> u32 {
     distance
 }
 
-fn follow_seen(wire: &Wire) -> HashSet<(i32, i32)> {
-    let mut seen = HashSet::new();
-    follow(wire, |pos| {
-        seen.insert(pos);
+fn fewest_steps(wire0: &Wire, wire1: &Wire) -> u32 {
+    let seen0 = follow_seen(wire0);
+    let mut steps = u32::MAX;
+
+    follow(wire1, |pos, count1| {
+        if let Some(count0) = seen0.get(&pos) {
+            let this_steps = count0 + count1;
+            if this_steps < steps {
+                steps = this_steps;
+            }
+        }
+    });
+
+    steps
+}
+
+fn follow_seen(wire: &Wire) -> HashMap<(i32, i32), u32> {
+    let mut seen = HashMap::new();
+    follow(wire, |pos, count| {
+        seen.insert(pos, count);
     });
     seen
 }
 
-fn follow(wire: &Wire, mut f: impl FnMut((i32, i32))) {
+fn follow(wire: &Wire, mut f: impl FnMut((i32, i32), u32)) {
     let mut pos = (0, 0);
-    f(pos);
+    let mut count = 0;
 
     for step in wire {
         for _ in 0..step.len {
@@ -61,7 +77,8 @@ fn follow(wire: &Wire, mut f: impl FnMut((i32, i32))) {
                 Dir::Down => (pos.0, pos.1 + 1),
                 Dir::Left => (pos.0 - 1, pos.1),
             };
-            f(pos);
+            count += 1;
+            f(pos, count);
         }
     }
 }
@@ -139,6 +156,28 @@ fn test_closest_intersection() {
     assert_eq!(
         135,
         closest_intersection(
+            &wire_from_str("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"),
+            &wire_from_str("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7")
+        )
+    );
+}
+
+#[test]
+fn test_fewest_steps() {
+    assert_eq!(
+        30,
+        fewest_steps(&wire_from_str("R8,U5,L5,D3"), &wire_from_str("U7,R6,D4,L4"))
+    );
+    assert_eq!(
+        610,
+        fewest_steps(
+            &wire_from_str("R75,D30,R83,U83,L12,D49,R71,U7,L72"),
+            &wire_from_str("U62,R66,U55,R34,D71,R55,D58,R83")
+        )
+    );
+    assert_eq!(
+        410,
+        fewest_steps(
             &wire_from_str("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"),
             &wire_from_str("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7")
         )
