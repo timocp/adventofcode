@@ -15,6 +15,10 @@ impl Vm {
             2 => self.mul(),
             3 => self.inp(),
             4 => self.out(),
+            5 => self.jit(),
+            6 => self.jif(),
+            7 => self.lt(),
+            8 => self.eq(),
             99 => {}
             _ => panic!("invalid instruction: {} at {}", self.mem[self.ip], self.ip),
         }
@@ -113,6 +117,36 @@ impl Vm {
         self.output.push(self.read(1));
         self.ip += 2;
     }
+
+    fn jit(&mut self) {
+        //println!("JIT {:?}", &self.mem[self.ip..(self.ip + 3)]);
+        if self.read(1) != 0 {
+            self.ip = self.read(2) as usize;
+        } else {
+            self.ip += 3;
+        }
+    }
+
+    fn jif(&mut self) {
+        //println!("JIF {:?}", &self.mem[self.ip..(self.ip + 3)]);
+        if self.read(1) == 0 {
+            self.ip = self.read(2) as usize;
+        } else {
+            self.ip += 3;
+        }
+    }
+
+    fn lt(&mut self) {
+        //println!("LT  {:?}", &self.mem[self.ip..(self.ip + 4)]);
+        self.write(3, if self.read(1) < self.read(2) { 1 } else { 0 });
+        self.ip += 4;
+    }
+
+    fn eq(&mut self) {
+        //println!("EQ  {:?}", &self.mem[self.ip..(self.ip + 4)]);
+        self.write(3, if self.read(1) == self.read(2) { 1 } else { 0 });
+        self.ip += 4;
+    }
 }
 
 // parameter modes
@@ -205,4 +239,67 @@ fn test_input_output() {
     vm.run();
     assert_eq!(vec![1234], vm.output);
     assert_eq!(1234, vm.mem[0]);
+}
+
+#[test]
+fn test_eq() {
+    // Using position mode, consider whether the input is equal to 8; output 1 (if it is) or 0 (if it is not)
+    let program = "3,9,8,9,10,9,4,9,99,-1,8";
+    for (input, expected_output) in [(7, vec![0]), (8, vec![1]), (9, vec![0])] {
+        let mut vm = Vm::from(program);
+        vm.push_input(input);
+        vm.run();
+        assert_eq!(expected_output, vm.read_output());
+    }
+
+    // Using immediate mode, consider whether the input is equal to 8; output 1 (if it is) or 0 (if it is not).
+    let program = "3,3,1108,-1,8,3,4,3,99";
+    for (input, expected_output) in [(7, vec![0]), (8, vec![1]), (9, vec![0])] {
+        let mut vm = Vm::from(program);
+        vm.push_input(input);
+        vm.run();
+        assert_eq!(expected_output, vm.read_output());
+    }
+}
+
+#[test]
+fn test_lt() {
+    // Using position mode, consider whether the input is less than 8; output 1 (if it is) or 0 (if it is not).
+    let program = "3,9,7,9,10,9,4,9,99,-1,8";
+    for (input, expected_output) in [(7, vec![1]), (8, vec![0]), (9, vec![0])] {
+        let mut vm = Vm::from(program);
+        vm.push_input(input);
+        vm.run();
+        assert_eq!(expected_output, vm.read_output());
+    }
+
+    // Using immediate mode, consider whether the input is less than 8; output 1 (if it is) or 0 (if it is not).
+    let program = "3,3,1107,-1,8,3,4,3,99";
+    for (input, expected_output) in [(7, vec![1]), (8, vec![0]), (9, vec![0])] {
+        let mut vm = Vm::from(program);
+        vm.push_input(input);
+        vm.run();
+        assert_eq!(expected_output, vm.read_output());
+    }
+}
+
+#[test]
+fn test_jump() {
+    // output 0 if the input was zero or 1 if the input was non-zero (using position mode and JIF)
+    let program = "3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9";
+    for (input, expected_output) in [(-1, vec![1]), (0, vec![0]), (1, vec![1])] {
+        let mut vm = Vm::from(program);
+        vm.push_input(input);
+        vm.run();
+        assert_eq!(expected_output, vm.read_output());
+    }
+
+    // (using immediate mode and JIT)
+    let program = "3,3,1105,-1,9,1101,0,0,12,4,12,99,1";
+    for (input, expected_output) in [(-1, vec![1]), (0, vec![0]), (1, vec![1])] {
+        let mut vm = Vm::from(program);
+        vm.push_input(input);
+        vm.run();
+        assert_eq!(expected_output, vm.read_output());
+    }
 }
