@@ -31,10 +31,10 @@ impl Solver {
     // Return the final value at address 0 if the program is run to completion
     fn get_result(&self, noun: i32, verb: i32) -> i32 {
         let mut vm = self.vm.clone();
-        vm.write(1, noun);
-        vm.write(2, verb);
+        vm.direct_write(1, noun);
+        vm.direct_write(2, verb);
         vm.run();
-        vm.read(0)
+        vm.direct_read(0)
     }
 }
 
@@ -43,6 +43,6 @@ fn test() {
     let test_input = "1,9,10,3,2,3,11,0,99,30,40,50";
     let mut vm = Vm::from(test_input);
     vm.run();
-    assert_eq!(3500, vm.read(0));
-    assert_eq!(70, vm.read(3));
+    assert_eq!(3500, vm.direct_read(0));
+    assert_eq!(70, vm.direct_read(3));
 }
