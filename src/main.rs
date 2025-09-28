@@ -103,6 +103,7 @@ fn run(year: usize, day: usize) {
             (2019, 2) => solve::<y2019::day2::Solver>(year, day, &input),
             (2019, 3) => solve::<y2019::day3::Solver>(year, day, &input),
             (2019, 4) => solve::<y2019::day4::Solver>(year, day, &input),
+            (2019, 5) => solve::<y2019::day5::Solver>(year, day, &input),
             (2021, 1) => solve::<y2021::day1::Solver>(year, day, &input),
             (2021, 2) => solve::<y2021::day2::Solver>(year, day, &input),
             (2021, 3) => solve::<y2021::day3::Solver>(year, day, &input),
