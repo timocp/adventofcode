@@ -19,6 +19,9 @@ impl crate::Puzzle for Solver {
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        let mut vm = self.vm.clone();
+        vm.push_input(5);
+        vm.run();
+        vm.read_output().last().unwrap().to_string()
     }
 }
