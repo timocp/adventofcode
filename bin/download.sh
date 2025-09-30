@@ -12,8 +12,21 @@ export TZ=US/Eastern
 this_year=$(date '+%Y')
 today=$(date '+%Y%m%d')
 
+MOZ1="$HOME/.var/app/org.mozilla.firefox/.mozilla"
+MOZ2="$HOME/.mozilla"
+
 cookies=$(mktemp /tmp/XXXXXXXXXX.sqlite)
-find "$HOME/.var/app/org.mozilla.firefox/.mozilla/firefox" -name cookies.sqlite -exec cp {} "$cookies" \;
+
+if test -d "$MOZ1"; then
+  find "$MOZ1/firefox" -name cookies.sqlite -exec cp {} "$cookies" \;
+elif test -d "$MOZ2"; then
+  find "$MOZ2/firefox" -name cookies.sqlite -exec cp {} "$cookies" \;
+else
+  echo "Help, where is .mozilla?" 1>&2
+  rm -f "$cookies"
+  exit 1
+fi
+
 session=$(sqlite3 "$cookies" "select value from moz_cookies where name = 'session' and host = '.adventofcode.com'")
 rm -f "$cookies"
 
