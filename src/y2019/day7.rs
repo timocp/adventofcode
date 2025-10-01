@@ -36,7 +36,8 @@ fn maximise_amps(vm: &Vm) -> i32 {
 }
 
 fn amp(vm: &Vm, phase_setting: i32, input_signal: i32) -> i32 {
-    *vm.runio(&[phase_setting, input_signal])
+    *vm.clone()
+        .run(&[phase_setting, input_signal])
         .first()
         .unwrap()
 }
