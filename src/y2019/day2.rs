@@ -33,7 +33,7 @@ impl Solver {
         let mut vm = self.vm.clone();
         vm.direct_write(1, noun);
         vm.direct_write(2, verb);
-        vm.run();
+        vm.exec();
         vm.direct_read(0)
     }
 }
@@ -42,7 +42,7 @@ impl Solver {
 fn test() {
     let test_input = "1,9,10,3,2,3,11,0,99,30,40,50";
     let mut vm = Vm::from(test_input);
-    vm.run();
+    vm.exec();
     assert_eq!(3500, vm.direct_read(0));
     assert_eq!(70, vm.direct_read(3));
 }
