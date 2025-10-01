@@ -24,9 +24,9 @@ impl Vm {
         }
     }
 
-    // run VM until it halts
+    // run VM until it halts OR needs input but has none available
     pub fn exec(&mut self) {
-        while !self.is_halted() {
+        while !self.is_halted() && !self.is_paused() {
             self.exec_op();
         }
     }
@@ -34,6 +34,7 @@ impl Vm {
     // run VM with specific input and return its output
     pub fn run(&mut self, input: &[i32]) -> Vec<i32> {
         self.set_input(input);
+        self.output = vec![];
         self.exec();
         self.output.clone()
     }
@@ -50,8 +51,13 @@ impl Vm {
         self.input = input.to_vec().into();
     }
 
-    fn is_halted(&self) -> bool {
+    pub fn is_halted(&self) -> bool {
         self.mem[self.ip] == 99
+    }
+
+    // true if next op is INP but there is no input ready
+    fn is_paused(&self) -> bool {
+        self.opcode() == 3 && self.input.is_empty()
     }
 
     fn current(&self) -> i32 {
