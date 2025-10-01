@@ -84,7 +84,7 @@ fn follow(wire: &Wire, mut f: impl FnMut((i32, i32), u32)) {
 }
 
 fn manhatten_distance(pos: (i32, i32)) -> u32 {
-    pos.0.abs() as u32 + pos.1.abs() as u32
+    pos.0.unsigned_abs() + pos.1.unsigned_abs()
 }
 
 #[derive(Debug, PartialEq)]
