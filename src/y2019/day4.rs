@@ -32,7 +32,7 @@ impl crate::Puzzle for Solver {
 }
 
 fn valid_password(p: u32, strict: bool) -> bool {
-    if p < 100000 || p > 999999 {
+    if !(100000..=999999).contains(&p) {
         // must be 6 digit number
         return false;
     }
@@ -55,12 +55,12 @@ fn valid_password(p: u32, strict: bool) -> bool {
         histogram[digit as usize] += 1;
 
         prev_digit = digit;
-        p = p / 10;
+        p /= 10;
     }
 
     if strict {
         // must be at least one double which is not part of a larger group
-        histogram.iter().any(|c| *c == 2)
+        histogram.contains(&2)
     } else {
         // must contain at least 1 doubled digit
         histogram.iter().any(|c| *c > 1)
