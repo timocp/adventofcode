@@ -30,6 +30,13 @@ impl Vm {
         }
     }
 
+    pub fn runio(&self, input: &[i32]) -> Vec<i32> {
+        let mut vm = self.clone();
+        vm.set_input(input);
+        vm.run();
+        vm.output
+    }
+
     pub fn direct_write(&mut self, pos: usize, value: i32) {
         self.mem[pos] = value;
     }
@@ -40,6 +47,10 @@ impl Vm {
 
     pub fn push_input(&mut self, input: i32) {
         self.input.push_back(input);
+    }
+
+    pub fn set_input(&mut self, input: &[i32]) {
+        self.input = input.to_vec().into();
     }
 
     pub fn read_output(&self) -> Vec<i32> {
