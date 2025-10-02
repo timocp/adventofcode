@@ -136,8 +136,7 @@ fold along x=5
         "\
 ▛▀▌
 ▌ ▌
-▀▀▘
-",
+▀▀▘",
         print_paper(&paper)
     );
 }
