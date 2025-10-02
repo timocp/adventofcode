@@ -1,7 +1,6 @@
-use image::ImageBuffer;
 use regex::Regex;
 
-const IMAGE_FILENAME: &str = "tmp/2018day11.png";
+use crate::pixel_buffer::PixelBuffer;
 
 pub struct Solver {
     stars: Vec<Star>,
@@ -15,12 +14,13 @@ impl crate::Puzzle for Solver {
     }
 
     fn part1(&self) -> String {
-        find_message(&mut self.stars.clone(), true);
-        format!("Answer written to {}", IMAGE_FILENAME)
+        let mut stars = self.stars.clone();
+        find_message(&mut stars);
+        to_pixel_buffer(&stars).to_string()
     }
 
     fn part2(&self) -> String {
-        find_message(&mut self.stars.clone(), false).to_string()
+        find_message(&mut self.stars.clone()).to_string()
     }
 }
 
@@ -37,7 +37,7 @@ struct Star {
     dy: i64,
 }
 
-fn find_message(stars: &mut [Star], write_image: bool) -> i32 {
+fn find_message(stars: &mut [Star]) -> i32 {
     let mut s = 0;
     let mut last_area = area(stars);
     loop {
@@ -50,9 +50,6 @@ fn find_message(stars: &mut [Star], write_image: bool) -> i32 {
             break;
         }
         last_area = a;
-    }
-    if write_image {
-        to_image(stars);
     }
     s
 }
@@ -71,17 +68,17 @@ fn tick_backwards(stars: &mut [Star]) {
     }
 }
 
-fn to_image(stars: &[Star]) {
+fn to_pixel_buffer(stars: &[Star]) -> PixelBuffer {
     let (min, max) = boxsize(stars);
-    let width = max.x - min.x + 3; // 2 is border
-    let height = max.y - min.y + 3;
-    let mut img = ImageBuffer::from_fn(width as u32, height as u32, |_x, _y| image::Luma([0u8]));
+    let width = max.x - min.x + 1;
+    let height = max.y - min.y + 1;
+    let mut buffer = PixelBuffer::new(width as u32, height as u32);
     for star in stars.iter() {
-        let x = star.point.x - min.x + 1;
-        let y = star.point.y - min.y + 1;
-        img.put_pixel(x as u32, y as u32, image::Luma([255u8]));
+        let x = star.point.x - min.x;
+        let y = star.point.y - min.y;
+        buffer.set(x as u32, y as u32, true);
     }
-    img.save(IMAGE_FILENAME).unwrap();
+    buffer
 }
 
 fn area(stars: &[Star]) -> u64 {

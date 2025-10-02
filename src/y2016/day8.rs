@@ -1,6 +1,7 @@
 use std::collections::VecDeque;
 use std::fmt;
 
+use crate::pixel_buffer::PixelBuffer;
 use crate::Puzzle;
 
 pub struct Solver {
@@ -46,13 +47,16 @@ impl Screen {
 
 impl fmt::Display for Screen {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for row in self.pixels.iter() {
-            for pixel in row.iter() {
-                write!(f, "{}", if *pixel { '█' } else { ' ' })?;
+        let mut buffer = PixelBuffer::new(
+            self.pixels.first().unwrap().len() as u32,
+            self.pixels.len() as u32,
+        );
+        for (y, row) in self.pixels.iter().enumerate() {
+            for (x, &pixel) in row.iter().enumerate() {
+                buffer.set(x as u32, y as u32, pixel);
             }
-            writeln!(f)?;
         }
-        Ok(())
+        write!(f, "{}", buffer)
     }
 }
 
