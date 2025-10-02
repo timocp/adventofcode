@@ -47,6 +47,9 @@ const BR: u32 = 1;
 impl fmt::Display for PixelBuffer {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for y in (0..self.height).step_by(2) {
+            if y > 0 {
+                writeln!(f)?;
+            }
             for x in (0..self.width).step_by(2) {
                 write!(
                     f,
@@ -72,7 +75,6 @@ impl fmt::Display for PixelBuffer {
                     }
                 )?;
             }
-            writeln!(f)?;
         }
         Ok(())
     }
