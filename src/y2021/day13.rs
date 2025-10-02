@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use crate::pixel_buffer::PixelBuffer;
+
 pub struct Solver {
     paper: Paper,
     folds: Vec<Fold>,
@@ -34,20 +36,17 @@ enum Fold {
 type Paper = HashSet<(usize, usize)>;
 
 fn print_paper(paper: &Paper) -> String {
-    let mut s = String::new();
-    let maxrow = *paper.iter().map(|(row, _)| row).max().unwrap();
-    let maxcol = *paper.iter().map(|(_, col)| col).max().unwrap();
+    let maxrow = *paper.iter().map(|(row, _)| row).max().unwrap() as u32;
+    let maxcol = *paper.iter().map(|(_, col)| col).max().unwrap() as u32;
+    let mut buffer = PixelBuffer::new(maxcol + 1, maxrow + 1);
     for row in 0..=maxrow {
         for col in 0..=maxcol {
-            if paper.contains(&(row, col)) {
-                s += "█";
-            } else {
-                s += " ";
+            if paper.contains(&(row as usize, col as usize)) {
+                buffer.set(col, row, true);
             }
         }
-        s += "\n";
     }
-    s
+    buffer.to_string()
 }
 
 fn fold_paper(paper: &Paper, fold: Fold) -> Paper {
@@ -135,11 +134,9 @@ fold along x=5
     let paper = fold_paper(&paper, folds[1]);
     assert_eq!(
         "\
-█████
-█   █
-█   █
-█   █
-█████
+▛▀▌
+▌ ▌
+▀▀▘
 ",
         print_paper(&paper)
     );

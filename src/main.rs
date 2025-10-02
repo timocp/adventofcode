@@ -1,6 +1,7 @@
 use std::io::Read;
 use std::time::Instant;
 
+mod pixel_buffer;
 mod y2015;
 mod y2016;
 mod y2018;
