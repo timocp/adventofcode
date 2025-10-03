@@ -29,7 +29,7 @@ impl crate::Puzzle for Solver {
 
 impl Solver {
     // Return the final value at address 0 if the program is run to completion
-    fn get_result(&self, noun: i32, verb: i32) -> i32 {
+    fn get_result(&self, noun: i64, verb: i64) -> i64 {
         let mut vm = self.vm.clone();
         vm.direct_write(1, noun);
         vm.direct_write(2, verb);

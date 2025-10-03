@@ -21,7 +21,7 @@ impl crate::Puzzle for Solver {
     }
 }
 
-fn maximise_amps(vm: &Vm) -> i32 {
+fn maximise_amps(vm: &Vm) -> i64 {
     (0..5)
         .permutations(5)
         .map(|phase| {
@@ -35,15 +35,15 @@ fn maximise_amps(vm: &Vm) -> i32 {
         .unwrap()
 }
 
-fn run(vm: &mut Vm, inputs: &[i32]) -> i32 {
+fn run(vm: &mut Vm, inputs: &[i64]) -> i64 {
     *vm.run(inputs).first().unwrap()
 }
 
-fn amp(vm: &Vm, phase_setting: i32, input_signal: i32) -> i32 {
+fn amp(vm: &Vm, phase_setting: i64, input_signal: i64) -> i64 {
     run(&mut vm.clone(), &[phase_setting, input_signal])
 }
 
-fn maximise_feedback(vm: &Vm) -> i32 {
+fn maximise_feedback(vm: &Vm) -> i64 {
     (5..10)
         .permutations(5)
         .map(|phase| {

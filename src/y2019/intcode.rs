@@ -2,14 +2,16 @@ use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct Vm {
-    mem: Vec<i32>,        // memory
+    mem: Vec<i64>,        // memory
     ip: usize,            // instruction pointer
-    input: VecDeque<i32>, // input queue
-    output: Vec<i32>,     // output
+    input: VecDeque<i64>, // input queue
+    output: Vec<i64>,     // output
+    relbase: i64,         // offset for relative mode parameters
 }
 
 impl Vm {
     fn exec_op(&mut self) {
+        // println!("{}", self.dump_state());
         match self.opcode() {
             1 => self.add(),
             2 => self.mul(),
@@ -19,6 +21,7 @@ impl Vm {
             6 => self.jif(),
             7 => self.lt(),
             8 => self.eq(),
+            9 => self.arb(),
             99 => {}
             _ => panic!("invalid instruction: {} at {}", self.mem[self.ip], self.ip),
         }
@@ -32,22 +35,22 @@ impl Vm {
     }
 
     // run VM with specific input and return its output
-    pub fn run(&mut self, input: &[i32]) -> Vec<i32> {
+    pub fn run(&mut self, input: &[i64]) -> Vec<i64> {
         self.set_input(input);
         self.output = vec![];
         self.exec();
         self.output.clone()
     }
 
-    pub fn direct_write(&mut self, pos: usize, value: i32) {
+    pub fn direct_write(&mut self, pos: usize, value: i64) {
         self.mem[pos] = value;
     }
 
-    pub fn direct_read(&self, pos: usize) -> i32 {
+    pub fn direct_read(&self, pos: usize) -> i64 {
         self.mem[pos]
     }
 
-    pub fn set_input(&mut self, input: &[i32]) {
+    pub fn set_input(&mut self, input: &[i64]) {
         self.input = input.to_vec().into();
     }
 
@@ -60,12 +63,12 @@ impl Vm {
         self.opcode() == 3 && self.input.is_empty()
     }
 
-    fn current(&self) -> i32 {
+    fn current(&self) -> i64 {
         self.mem[self.ip]
     }
 
     // ones and tens digit determines opcode
-    fn opcode(&self) -> i32 {
+    fn opcode(&self) -> i64 {
         self.current() % 100
     }
 
@@ -82,54 +85,59 @@ impl Vm {
         } {
             0 => Mode::Position,
             1 => Mode::Immediate,
+            2 => Mode::Relative,
             _ => panic!(),
         }
     }
 
-    // returns the real address that a param (reletive to IP) refers to given its mode
+    // returns the real address that a param (relative to IP) refers to given its mode
     fn address(&self, param: u8) -> usize {
         match self.mode(param) {
-            Mode::Position => self.mem[self.ip + param as usize].try_into().unwrap(),
+            Mode::Position => self.mem[self.ip + param as usize] as usize,
             Mode::Immediate => self.ip + param as usize,
+            Mode::Relative => (self.relbase + self.mem[self.ip + param as usize]) as usize,
         }
     }
 
-    fn read(&self, param: u8) -> i32 {
-        self.mem[self.address(param)]
+    fn read(&self, param: u8) -> i64 {
+        let addr = self.address(param);
+        if addr < self.mem.len() {
+            self.mem[self.address(param)]
+        } else {
+            0
+        }
     }
 
-    fn write(&mut self, param: u8, value: i32) {
+    fn write(&mut self, param: u8, value: i64) {
         let addr = self.address(param);
+        if addr >= self.mem.len() {
+            self.mem.resize(addr + 1, 0);
+        }
         self.mem[addr] = value;
     }
 
     fn add(&mut self) {
-        //println!("ADD {:?}", &self.mem[self.ip..(self.ip + 4)]);
         self.write(3, self.read(1) + self.read(2));
         self.ip += 4;
     }
 
     fn mul(&mut self) {
-        //println!("MUL {:?}", &self.mem[self.ip..(self.ip + 4)]);
         self.write(3, self.read(1) * self.read(2));
         self.ip += 4;
     }
 
     fn inp(&mut self) {
-        //println!("INP {:?}", &self.mem[self.ip..(self.ip + 2)]);
         let value = self.input.pop_front().unwrap();
         self.write(1, value);
         self.ip += 2;
     }
 
     fn out(&mut self) {
-        //println!("OUT {:?}", &self.mem[self.ip..(self.ip + 2)]);
         self.output.push(self.read(1));
         self.ip += 2;
     }
 
     fn jit(&mut self) {
-        //println!("JIT {:?}", &self.mem[self.ip..(self.ip + 3)]);
         if self.read(1) != 0 {
             self.ip = self.read(2) as usize;
         } else {
@@ -138,7 +146,6 @@ impl Vm {
     }
 
     fn jif(&mut self) {
-        //println!("JIF {:?}", &self.mem[self.ip..(self.ip + 3)]);
         if self.read(1) == 0 {
             self.ip = self.read(2) as usize;
         } else {
@@ -147,22 +154,61 @@ impl Vm {
     }
 
     fn lt(&mut self) {
-        //println!("LT  {:?}", &self.mem[self.ip..(self.ip + 4)]);
         self.write(3, if self.read(1) < self.read(2) { 1 } else { 0 });
         self.ip += 4;
     }
 
     fn eq(&mut self) {
-        //println!("EQ  {:?}", &self.mem[self.ip..(self.ip + 4)]);
         self.write(3, if self.read(1) == self.read(2) { 1 } else { 0 });
         self.ip += 4;
+    }
+
+    // Adjust Relative Base
+    fn arb(&mut self) {
+        self.relbase += self.read(1);
+        self.ip += 2;
+    }
+
+    //fn debug_address(&self, param: u8) -> String {
+    //    format!(
+    //        "{}({})",
+    //        match self.mode(param) {
+    //            Mode::Position => 'P',
+    //            Mode::Immediate => 'I',
+    //            Mode::Relative => 'R',
+    //        },
+    //        self.address(param)
+    //    )
+    //}
+
+    #[allow(dead_code)]
+    fn dump_state(&self) -> String {
+        let mut s = String::new();
+        s.push('[');
+        for (i, mem) in self.mem.iter().enumerate() {
+            if i == self.ip {
+                s.push('*');
+            } else {
+                s.push(' ');
+            }
+            s.push_str(&mem.to_string());
+        }
+
+        s.push(']');
+        s.push_str(&format!(" IP={}", self.ip));
+        s.push_str(&format!(" RB={}", self.relbase));
+        s.push_str(&format!(" I={:?}", self.input));
+        s.push_str(&format!(" O={:?}", self.output));
+        s
     }
 }
 
 // parameter modes
+#[derive(Debug)]
 enum Mode {
     Position,
     Immediate,
+    Relative,
 }
 
 impl From<&str> for Vm {
@@ -172,6 +218,7 @@ impl From<&str> for Vm {
             ip: 0,
             input: [].into(),
             output: [].into(),
+            relbase: 0,
         }
     }
 }
@@ -202,6 +249,7 @@ fn test_mul() {
         ip: 4,
         input: [].into(),
         output: [].into(),
+        relbase: 0,
     };
     assert_eq!(1, vm.mem[0]);
     vm.exec_op();
@@ -216,7 +264,7 @@ fn test_is_halted() {
 }
 
 #[test]
-fn test_run() {
+fn test_exec() {
     for (program, expected_mem) in [
         ("1,0,0,0,99", vec![2, 0, 0, 0, 99]),         // (1 + 1 = 2)
         ("2,3,0,3,99", vec![2, 3, 0, 6, 99]),         // (3 * 2 = 6).
@@ -288,4 +336,20 @@ fn test_jump() {
     for (input, expected_output) in [(-1, vec![1]), (0, vec![0]), (1, vec![1])] {
         assert_eq!(expected_output, Vm::from(program).run(&[input]));
     }
+}
+
+#[test]
+fn test_relative_mode() {
+    assert_eq!(
+        vec![109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99],
+        Vm::from("109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99").run(&[])
+    );
+    assert_eq!(
+        vec![1219070632396864],
+        Vm::from("1102,34915192,34915192,7,4,7,99,0").run(&[])
+    );
+    assert_eq!(
+        vec![1125899906842624],
+        Vm::from("104,1125899906842624,99").run(&[])
+    );
 }
