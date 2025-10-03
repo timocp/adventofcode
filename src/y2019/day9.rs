@@ -20,6 +20,6 @@ impl crate::Puzzle for Solver {
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        self.boost_vm.clone().run(&[2])[0].to_string()
     }
 }
