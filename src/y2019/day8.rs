@@ -61,7 +61,7 @@ impl Image {
 
     fn is_lit(&self, x: u32, y: u32) -> bool {
         for layer in 0..(self.bytes.len() as u32 / self.area) {
-            match self.get(x, y, layer as u32) {
+            match self.get(x, y, layer) {
                 0 => return false,
                 1 => return true,
                 _ => {}
