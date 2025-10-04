@@ -1,8 +1,8 @@
 use std::collections::VecDeque;
 use std::fmt;
 
-use crate::pixel_buffer::PixelBuffer;
 use crate::Puzzle;
+use crate::pixel_buffer::PixelBuffer;
 
 pub struct Solver {
     input: Vec<Instruction>,
