@@ -1,4 +1,6 @@
 use self::Dir::*;
+use crate::grid::{Grid, P, parse_each_char};
+use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt;
 use std::fmt::Write;
@@ -49,37 +51,41 @@ impl Team {
     }
 }
 
-// order is important for derived ordering (reading order = row first)
-#[derive(Clone, Copy, Eq, PartialEq, PartialOrd, Ord, Hash)]
-struct Pos {
-    y: usize,
-    x: usize,
+// order is important (reading order = row first)
+impl Ord for P {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.y.cmp(&other.y).then(self.x.cmp(&other.x))
+    }
 }
 
-impl Pos {
-    fn in_range(&self, other: Pos) -> bool {
+impl PartialOrd for P {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl P {
+    fn in_range(&self, other: Self) -> bool {
         self.x == other.x && ((other.y > 0 && self.y == other.y - 1) || self.y == other.y + 1)
             || self.y == other.y
                 && ((other.x > 0 && self.x == other.x - 1) || self.x == other.x + 1)
     }
 
-    // note: this assumes it won't be asked for x=0 or y=0 which is ok for
-    // our inputs as they are always walls
-    fn step(&self, dir: Dir) -> Pos {
+    fn step(&self, dir: Dir) -> Self {
         match dir {
-            North => Pos {
+            North => P {
                 x: self.x,
                 y: self.y - 1,
             },
-            East => Pos {
+            East => P {
                 x: self.x + 1,
                 y: self.y,
             },
-            South => Pos {
+            South => P {
                 x: self.x,
                 y: self.y + 1,
             },
-            West => Pos {
+            West => P {
                 x: self.x - 1,
                 y: self.y,
             },
@@ -87,16 +93,10 @@ impl Pos {
     }
 }
 
-impl fmt::Debug for Pos {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{},{}", self.x, self.y)
-    }
-}
-
 #[derive(Debug)]
 struct Unit {
     hp: u8,
-    pos: Pos,
+    p: P,
     team: Team,
     power: u8,
 }
@@ -118,7 +118,7 @@ enum Tile {
 }
 
 struct Game {
-    map: Vec<Vec<Tile>>,
+    grid: Grid<Tile>,
     units: Vec<Unit>,
     rounds: u32,
     debug: bool,
@@ -145,35 +145,39 @@ impl Dir {
 #[derive(Debug)]
 struct Path {
     start_dir: Dir,
-    pos: Pos,
+    p: P,
     inrange: bool,
 }
 
 impl Game {
     fn new(input: &str) -> Game {
+        let width = input.lines().next().unwrap().len() as u32;
+        let height = input.lines().count() as u32;
         let mut game = Game {
-            map: vec![],
+            grid: Grid::new(width, height, Tile::Wall),
             units: vec![],
             rounds: 0,
             debug: false,
             elf_power: 3,
             winner: None,
         };
-        for (y, line) in input.lines().enumerate() {
-            game.map.push(vec![Tile::Open; line.len()]);
-            for (x, c) in line.chars().enumerate() {
-                if c == '#' {
-                    game.map[y][x] = Tile::Wall;
-                } else if c == '.' {
-                    game.map[y][x] = Tile::Open;
-                } else if c == 'E' || c == 'G' {
-                    game.map[y][x] = Tile::Open;
+        for (p, c) in parse_each_char(input) {
+            match c {
+                '#' => {}
+                '.' => {
+                    game.grid.set(p, Tile::Open);
+                }
+                'E' | 'G' => {
+                    game.grid.set(p, Tile::Open);
                     game.units.push(Unit {
                         team: if c == 'E' { Team::Elves } else { Team::Goblins },
                         hp: 200,
-                        pos: Pos { x, y },
+                        p,
                         power: 3,
-                    })
+                    });
+                }
+                _ => {
+                    panic!("Unhandled input character: {}", c);
                 }
             }
         }
@@ -247,7 +251,7 @@ impl Game {
         // follow the correctly ordered path to any target square.
         let mut paths: Vec<Path> = vec![Path {
             start_dir: North, // ignored
-            pos: unit.pos,
+            p: unit.p,
             inrange: false,
         }];
 
@@ -263,19 +267,19 @@ impl Game {
             let mut new_paths: Vec<Path> = vec![];
             for old_path in paths.into_iter() {
                 for dir in Dir::each() {
-                    let pos = old_path.pos.step(*dir);
-                    if seen.contains(&pos) {
+                    let p = old_path.p.step(*dir);
+                    if seen.contains(&p) {
                         continue;
                     }
-                    seen.insert(pos);
-                    if self.is_empty(pos) {
-                        let inrange = self.in_range(pos, unit.other());
+                    seen.insert(p);
+                    if self.is_empty(p) {
+                        let inrange = self.in_range(p, unit.other());
                         if inrange {
                             stop = true;
                         }
                         new_paths.push(Path {
                             start_dir: if depth == 1 { *dir } else { old_path.start_dir },
-                            pos,
+                            p,
                             inrange,
                         });
                     }
@@ -293,7 +297,7 @@ impl Game {
         let target_tile = paths
             .iter()
             .filter(|node| node.inrange)
-            .map(|node| node.pos)
+            .map(|node| node.p)
             .min()
             .unwrap();
 
@@ -301,7 +305,7 @@ impl Game {
         // move in that direction.
         let dir = paths
             .iter()
-            .find(|node| node.pos == target_tile)
+            .find(|node| node.p == target_tile)
             .unwrap()
             .start_dir;
 
@@ -311,7 +315,7 @@ impl Game {
                 u, dir, target_tile
             );
         }
-        self.units[u].pos = unit.pos.step(dir);
+        self.units[u].p = unit.p.step(dir);
     }
 
     fn is_victory(&self, team: &Team) -> bool {
@@ -327,13 +331,13 @@ impl Game {
             return;
         }
         let other_team = unit.team.other();
-        let neighbours: Vec<Pos> = Dir::each().map(|dir| unit.pos.step(*dir)).collect();
+        let neighbours: Vec<P> = Dir::each().map(|dir| unit.p.step(*dir)).collect();
         let mut enemies: Vec<(usize, &mut Unit)> = self
             .units
             .iter_mut()
             .enumerate()
             .filter(|(_, other)| other.is_alive() && other.team == other_team)
-            .filter(|(_, enemy)| neighbours.contains(&enemy.pos))
+            .filter(|(_, enemy)| neighbours.contains(&enemy.p))
             .collect();
         if enemies.is_empty() {
             if self.debug {
@@ -343,7 +347,7 @@ impl Game {
         }
         let min_hp = enemies.iter().map(|(_, enemy)| enemy.hp).min().unwrap();
         enemies.retain(|(_, enemy)| enemy.hp == min_hp);
-        let target = enemies.iter().min_by_key(|(_, enemy)| enemy.pos).unwrap().0;
+        let target = enemies.iter().min_by_key(|(_, enemy)| enemy.p).unwrap().0;
         let power = self.units[u].power;
         if self.debug {
             print!("  Attacks unit {} with power {}.", target, power);
@@ -386,27 +390,27 @@ impl Game {
         self.units
             .iter()
             .filter(|other| other.is_alive() && other.team == other_team)
-            .any(|enemy| enemy.pos.in_range(unit.pos))
+            .any(|enemy| enemy.p.in_range(unit.p))
     }
 
-    fn is_empty(&self, pos: Pos) -> bool {
-        match self.map[pos.y][pos.x] {
+    fn is_empty(&self, p: P) -> bool {
+        match self.grid.get(p) {
             Tile::Wall => false,
-            Tile::Open => !self.units.iter().any(|unit| unit.hp > 0 && unit.pos == pos),
+            Tile::Open => !self.units.iter().any(|unit| unit.hp > 0 && unit.p == p),
         }
     }
 
-    // return true if position `pos` in in range of a unit of team team
-    fn in_range(&self, pos: Pos, team: Team) -> bool {
+    // return true if position `p` in in range of a unit of team team
+    fn in_range(&self, p: P, team: Team) -> bool {
         self.units
             .iter()
             .filter(|unit| unit.is_alive() && unit.team == team)
-            .any(|enemy| enemy.pos.in_range(pos))
+            .any(|enemy| enemy.p.in_range(p))
     }
 
     // sort units into reading order
     fn sort_units(&mut self) {
-        self.units.sort_by_key(|u| u.pos);
+        self.units.sort_by_key(|u| u.p);
     }
 
     fn outcome(&self) -> u32 {
@@ -418,31 +422,30 @@ impl fmt::Debug for Game {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut u = 0;
         let mut annot = "".to_string();
-        for (y, row) in self.map.iter().enumerate() {
-            for (x, tile) in row.iter().enumerate() {
-                let pos = Pos { x, y };
-                if u < self.units.len() && self.units[u].pos == pos {
-                    f.write_char(self.units[u].team.to_char()).unwrap();
-                    annot.push_str(&format!(
-                        " {} {}({})",
-                        u,
-                        self.units[u].team.to_char(),
-                        self.units[u].hp
-                    ));
-                    u += 1;
-                } else {
-                    f.write_char(match tile {
-                        Tile::Open => '.',
-                        Tile::Wall => '#',
-                    })
-                    .unwrap();
+        for (p, tile) in self.grid.iter() {
+            if u < self.units.len() && self.units[u].p == p {
+                // a unit is in this position
+                f.write_char(self.units[u].team.to_char())?;
+                annot.push_str(&format!(
+                    " {} {}({})",
+                    u,
+                    self.units[u].team.to_char(),
+                    self.units[u].hp
+                ));
+                u += 1;
+            } else {
+                f.write_char(match tile {
+                    Tile::Open => '.',
+                    Tile::Wall => '#',
+                })?;
+            }
+            if p.x >= self.grid.maxx() {
+                if !annot.is_empty() {
+                    f.write_str(&annot)?;
+                    annot.clear();
                 }
+                f.write_char('\n')?;
             }
-            if !annot.is_empty() {
-                f.write_str(&annot).unwrap();
-                annot.clear();
-            }
-            f.write_char('\n').unwrap();
         }
         Ok(())
     }
@@ -565,12 +568,12 @@ mod tests {
         let mut game = Game::new(test_input());
         println!("{:?}", game);
         game.move_unit(0);
-        assert_eq!(Pos { x: 2, y: 1 }, game.units[0].pos);
+        assert_eq!(P { x: 2, y: 1 }, game.units[0].p);
 
         let mut game = Game::new(test_input2());
         println!("{:?}", game);
         game.move_unit(0);
-        assert_eq!(Pos { x: 3, y: 1 }, game.units[0].pos);
+        assert_eq!(P { x: 3, y: 1 }, game.units[0].p);
 
         let mut game = Game::new(test_input3());
         println!("{:?}", game);
@@ -589,7 +592,7 @@ mod tests {
         .enumerate()
         {
             game.move_unit(u);
-            assert_eq!(Pos { x, y }, game.units[u].pos);
+            assert_eq!(P { x, y }, game.units[u].p);
         }
         game.sort_units();
 
@@ -610,7 +613,7 @@ mod tests {
         .enumerate()
         {
             game.move_unit(u);
-            assert_eq!(Pos { x, y }, game.units[u].pos);
+            assert_eq!(P { x, y }, game.units[u].p);
         }
         game.sort_units();
 
@@ -631,7 +634,7 @@ mod tests {
         .enumerate()
         {
             game.move_unit(u);
-            assert_eq!(Pos { x, y }, game.units[u].pos);
+            assert_eq!(P { x, y }, game.units[u].p);
         }
         game.sort_units();
 
@@ -652,7 +655,7 @@ mod tests {
         .enumerate()
         {
             game.move_unit(u);
-            assert_eq!(Pos { x, y }, game.units[u].pos);
+            assert_eq!(P { x, y }, game.units[u].p);
         }
         game.sort_units();
     }

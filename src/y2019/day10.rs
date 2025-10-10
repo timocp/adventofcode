@@ -50,7 +50,7 @@ fn direction(from: P, to: P) -> (i32, i32) {
 }
 
 fn parse_input(input: &str) -> Vec<P> {
-    grid::each_char(input)
+    grid::parse_each_char(input)
         .filter_map(|(p, c)| if c == '#' { Some(p) } else { None })
         .collect()
 }
