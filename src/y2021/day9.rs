@@ -1,13 +1,15 @@
+use crate::grid::Compass::*;
+use crate::grid::{Grid, P};
 use std::collections::HashSet;
 
 pub struct Solver {
-    grid: Grid,
+    grid: Grid<u8>,
 }
 
 impl crate::Puzzle for Solver {
     fn new(input: &str) -> Self {
         Self {
-            grid: Grid::new(input),
+            grid: Grid::from_input(input, 9, char_to_u8),
         }
     }
 
@@ -20,68 +22,34 @@ impl crate::Puzzle for Solver {
     }
 }
 
-struct Grid {
-    data: Vec<Vec<u32>>,
-    width: i32,
-    height: i32,
-}
-
-impl Grid {
-    fn new(input: &str) -> Grid {
-        let data = input
-            .lines()
-            .map(|line| line.chars().map(|c| c.to_digit(10).unwrap()).collect())
-            .collect::<Vec<Vec<u32>>>();
-        let width = data[0].len();
-        let height = data.len();
-        Grid {
-            data,
-            width: width as i32,
-            height: height as i32,
-        }
-    }
-
-    fn get(&self, x: i32, y: i32) -> u32 {
-        if x < 0 || x >= self.width || y < 0 || y >= self.height {
-            9
-        } else {
-            self.data[y as usize][x as usize]
-        }
-    }
-
-    fn lowpoints(&self) -> Vec<(i32, i32)> {
-        let mut points = vec![];
-        for x in 0..self.width {
-            for y in 0..self.height {
-                let this = self.get(x, y);
-                if self.get(x - 1, y) > this
-                    && self.get(x + 1, y) > this
-                    && self.get(x, y - 1) > this
-                    && self.get(x, y + 1) > this
-                {
-                    points.push((x, y));
-                }
+impl Grid<u8> {
+    fn lowpoints(&self) -> impl Iterator<Item = P> {
+        self.iter().filter_map(|(p, value)| {
+            if self.look(p, North) > value
+                && self.look(p, East) > value
+                && self.look(p, South) > value
+                && self.look(p, West) > value
+            {
+                Some(p)
+            } else {
+                None
             }
-        }
-        points
+        })
     }
 
     fn part1(&self) -> u32 {
-        self.lowpoints()
-            .iter()
-            .map(|p| self.get(p.0, p.1) + 1)
-            .sum()
+        self.lowpoints().map(|p| (*self.get(p) + 1) as u32).sum()
     }
 
     // recursively measure the size of a basin, including this point
-    fn basin_size(&self, from: (i32, i32), seen: &mut HashSet<(i32, i32)>) -> usize {
+    fn basin_size(&self, from: P, seen: &mut HashSet<P>) -> usize {
         seen.insert(from);
         let mut size = 1;
-        let this = self.get(from.0, from.1);
-        for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
-            let to = (from.0 + dx, from.1 + dy);
-            let that = self.get(to.0, to.1);
-            if that >= this && that != 9 && !seen.contains(&to) {
+        let value = self.get(from);
+        for dir in [North, East, South, West] {
+            let to = from.step(dir);
+            let other = self.get(to);
+            if other >= value && *other != 9 && !seen.contains(&to) {
                 size += self.basin_size(to, seen);
             }
         }
@@ -89,13 +57,21 @@ impl Grid {
     }
 
     fn part2(&self) -> usize {
-        let mut seen: HashSet<(i32, i32)> = HashSet::new();
+        let mut seen: HashSet<P> = HashSet::new();
         let mut basins: Vec<usize> = vec![];
         for start in self.lowpoints() {
             basins.push(self.basin_size(start, &mut seen));
         }
         basins.sort_unstable();
         basins.iter().rev().take(3).product()
+    }
+}
+
+fn char_to_u8(c: char) -> u8 {
+    if c.is_ascii_digit() {
+        (c as u8) - 48
+    } else {
+        panic!("Unexpected character: {}", c);
     }
 }
 
@@ -108,7 +84,7 @@ fn test() {
 8767896789
 9899965678
 ";
-    let map = Grid::new(&test_input);
+    let map = Grid::from_input(&test_input, 9, char_to_u8);
     assert_eq!(15, map.part1());
     assert_eq!(1134, map.part2());
 }

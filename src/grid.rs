@@ -243,6 +243,10 @@ where
         p2
     }
 
+    pub fn look(&self, p: P, dir: Compass) -> &T {
+        self.get(p.step(dir))
+    }
+
     fn index(&self, p: P) -> Option<usize> {
         if p.x < 0 || p.x > self.maxx() || p.y < 0 || p.y > self.maxy() {
             None
