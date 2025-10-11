@@ -116,8 +116,8 @@ pub fn parse_each_char(input: &str) -> impl Iterator<Item = (P, char)> + '_ {
 }
 
 pub struct Grid<T> {
-    width: u32,
-    height: u32,
+    maxx: i32,
+    maxy: i32,
     default: T,
     data: Vec<T>,
 }
@@ -129,8 +129,8 @@ where
     #[allow(dead_code)]
     pub fn new(width: u32, height: u32, default: T) -> Self {
         Self {
-            width,
-            height,
+            maxx: width as i32 - 1,
+            maxy: height as i32 - 1,
             default: default.clone(),
             data: vec![default; (width * height) as usize],
         }
@@ -153,8 +153,8 @@ where
             last_p = p;
         }
         Grid {
-            width: last_p.x as u32 + 1,
-            height: last_p.y as u32 + 1,
+            maxx: last_p.x,
+            maxy: last_p.y,
             default: default.clone(),
             data,
         }
@@ -185,17 +185,17 @@ where
 
     #[allow(dead_code)]
     pub fn get_width(&self) -> u32 {
-        self.width
+        (self.maxx + 1).try_into().unwrap()
     }
 
     #[allow(dead_code)]
     pub fn get_height(&self) -> u32 {
-        self.height
+        (self.maxy + 1).try_into().unwrap()
     }
 
     #[allow(dead_code)]
-    pub fn len(&self) -> u32 {
-        self.width * self.height
+    pub fn len(&self) -> usize {
+        self.data.len()
     }
 
     #[allow(dead_code)]
@@ -204,7 +204,7 @@ where
     }
 
     pub fn maxx(&self) -> i32 {
-        (self.width - 1).try_into().unwrap()
+        self.maxx
     }
 
     #[allow(dead_code)]
@@ -212,15 +212,16 @@ where
         0
     }
 
+    #[allow(dead_code)]
     pub fn maxy(&self) -> i32 {
-        (self.height - 1).try_into().unwrap()
+        self.maxy
     }
 
     // get neighbouring position (None if it would move off grid)
     #[allow(dead_code)]
     pub fn bounded_pos(&self, p: P, dir: Compass) -> Option<P> {
         let p2 = p.step(dir);
-        if p2.x < 0 || p2.x > self.maxx() || p2.y < 0 || p2.y > self.maxy() {
+        if p2.x < 0 || p2.x > self.maxx || p2.y < 0 || p2.y > self.maxy {
             None
         } else {
             Some(p2)
@@ -231,13 +232,13 @@ where
     pub fn wrapped_pos(&self, p: P, dir: Compass) -> P {
         let mut p2 = p.step(dir);
         if p2.x < 0 {
-            p2.x = self.maxx();
-        } else if p2.x > self.maxx() {
+            p2.x = self.maxx;
+        } else if p2.x > self.maxx {
             p2.x = 0;
         }
         if p2.y < 0 {
-            p2.y = self.maxy();
-        } else if p2.y > self.maxy() {
+            p2.y = self.maxy;
+        } else if p2.y > self.maxy {
             p2.y = 0;
         }
         p2
@@ -248,10 +249,10 @@ where
     }
 
     fn index(&self, p: P) -> Option<usize> {
-        if p.x < 0 || p.x > self.maxx() || p.y < 0 || p.y > self.maxy() {
+        if p.x < 0 || p.x > self.maxx || p.y < 0 || p.y > self.maxy {
             None
         } else {
-            Some(p.y as usize * self.width as usize + p.x as usize)
+            Some((p.y * (self.maxx + 1) + p.x) as usize)
         }
     }
 }
@@ -270,7 +271,7 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(i) = self.grid.index(self.p) {
             let p = self.p;
-            if self.p.x + 1 == self.grid.width as i32 {
+            if self.p.x == self.grid.maxx {
                 self.p.y += 1;
                 self.p.x = 0;
             } else {
