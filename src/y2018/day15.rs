@@ -1,5 +1,5 @@
-use self::Dir::*;
-use crate::grid::{Grid, P, parse_each_char};
+use crate::grid::Compass::*;
+use crate::grid::{Compass, Grid, P, parse_each_char};
 use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt;
@@ -70,27 +70,6 @@ impl P {
             || self.y == other.y
                 && ((other.x > 0 && self.x == other.x - 1) || self.x == other.x + 1)
     }
-
-    fn step(&self, dir: Dir) -> Self {
-        match dir {
-            North => P {
-                x: self.x,
-                y: self.y - 1,
-            },
-            East => P {
-                x: self.x + 1,
-                y: self.y,
-            },
-            South => P {
-                x: self.x,
-                y: self.y + 1,
-            },
-            West => P {
-                x: self.x - 1,
-                y: self.y,
-            },
-        }
-    }
 }
 
 #[derive(Debug)]
@@ -127,24 +106,14 @@ struct Game {
 }
 
 // Order is important for derived ordering (NWES is reading order)
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-enum Dir {
-    North,
-    West,
-    East,
-    South,
-}
-
-impl Dir {
-    fn each() -> Iter<'static, Dir> {
-        static DIRS: [Dir; 4] = [North, West, East, South];
-        DIRS.iter()
-    }
+fn each_dir() -> Iter<'static, Compass> {
+    static DIRS: [Compass; 4] = [North, West, East, South];
+    DIRS.iter()
 }
 
 #[derive(Debug)]
 struct Path {
-    start_dir: Dir,
+    start_dir: Compass,
     p: P,
     inrange: bool,
 }
@@ -266,7 +235,7 @@ impl Game {
             depth += 1;
             let mut new_paths: Vec<Path> = vec![];
             for old_path in paths.into_iter() {
-                for dir in Dir::each() {
+                for dir in each_dir() {
                     let p = old_path.p.step(*dir);
                     if seen.contains(&p) {
                         continue;
@@ -331,7 +300,7 @@ impl Game {
             return;
         }
         let other_team = unit.team.other();
-        let neighbours: Vec<P> = Dir::each().map(|dir| unit.p.step(*dir)).collect();
+        let neighbours: Vec<P> = each_dir().map(|dir| unit.p.step(*dir)).collect();
         let mut enemies: Vec<(usize, &mut Unit)> = self
             .units
             .iter_mut()
