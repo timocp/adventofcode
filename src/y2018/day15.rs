@@ -1,5 +1,5 @@
 use crate::grid::Compass::*;
-use crate::grid::{Compass, Grid, P, parse_each_char};
+use crate::grid::{Compass, Grid, P};
 use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt;
@@ -120,37 +120,31 @@ struct Path {
 
 impl Game {
     fn new(input: &str) -> Game {
-        let width = input.lines().next().unwrap().len() as u32;
-        let height = input.lines().count() as u32;
-        let mut game = Game {
-            grid: Grid::new(width, height, Tile::Wall),
-            units: vec![],
+        let mut units: Vec<Unit> = vec![];
+        let grid = Grid::from_input_by(input, Tile::Wall, |p, c| match c {
+            '#' => Tile::Wall,
+            '.' => Tile::Open,
+            'E' | 'G' => {
+                units.push(Unit {
+                    team: if c == 'E' { Team::Elves } else { Team::Goblins },
+                    hp: 200,
+                    p,
+                    power: 3,
+                });
+                Tile::Open
+            }
+            _ => {
+                panic!("Unhandled input character: {}", c);
+            }
+        });
+        Game {
+            grid,
+            units,
             rounds: 0,
             debug: false,
             elf_power: 3,
             winner: None,
-        };
-        for (p, c) in parse_each_char(input) {
-            match c {
-                '#' => {}
-                '.' => {
-                    game.grid.set(p, Tile::Open);
-                }
-                'E' | 'G' => {
-                    game.grid.set(p, Tile::Open);
-                    game.units.push(Unit {
-                        team: if c == 'E' { Team::Elves } else { Team::Goblins },
-                        hp: 200,
-                        p,
-                        power: 3,
-                    });
-                }
-                _ => {
-                    panic!("Unhandled input character: {}", c);
-                }
-            }
         }
-        game
     }
 
     // part 2, brute-force the minimal attack strength elves would need to win

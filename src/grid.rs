@@ -126,6 +126,7 @@ impl<T> Grid<T>
 where
     T: Clone,
 {
+    #[allow(dead_code)]
     pub fn new(width: u32, height: u32, default: T) -> Self {
         Self {
             width,
@@ -141,9 +142,9 @@ where
     }
 
     // input -> Grid using a closure that converts (P, char) to T
-    pub fn from_input_by<F>(input: &str, default: T, from_char: F) -> Self
+    pub fn from_input_by<F>(input: &str, default: T, mut from_char: F) -> Self
     where
-        F: Fn(P, char) -> T,
+        F: FnMut(P, char) -> T,
     {
         let mut last_p = ORIGIN;
         let mut data = vec![];
