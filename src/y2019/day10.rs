@@ -5,24 +5,29 @@ use std::collections::HashSet;
 
 pub struct Solver {
     asteroids: Vec<P>,
+    best_station_position: P,
+    best_station_visible: u32,
 }
 
 impl crate::Puzzle for Solver {
     fn new(input: &str) -> Self {
+        let asteroids = parse_input(input);
+        let (best_station_position, best_station_visible) = best_monitoring_station(&asteroids);
         Self {
-            asteroids: parse_input(input),
+            asteroids,
+            best_station_position,
+            best_station_visible,
         }
     }
 
     fn part1(&self) -> String {
-        best_monitoring_station(&self.asteroids).1.to_string()
+        self.best_station_visible.to_string()
     }
 
     fn part2(&self) -> String {
-        let boom =
-            each_vaporised_asteroid(best_monitoring_station(&self.asteroids).0, &self.asteroids)
-                .nth(199)
-                .unwrap();
+        let boom = each_vaporised_asteroid(self.best_station_position, &self.asteroids)
+            .nth(199)
+            .unwrap();
         (boom.x * 100 + boom.y).to_string()
     }
 }
