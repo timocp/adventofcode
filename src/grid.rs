@@ -125,10 +125,9 @@ impl P {
         if rad < 0.0 {
             rad += 2.0 * PI;
         }
-        rad *= 360.0;
-        rad /= 2.0 * PI;
-        // rotate counter clockwise so that up is 0
-        (rad + 90.0) % 360.0
+        let degrees = rad * 360.0 / (2.0 * PI);
+        // rotate clockwise so that up is 0
+        (degrees + 90.0) % 360.0
     }
 
     pub fn manhattan_distance(&self, other: &Self) -> u32 {
