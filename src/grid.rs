@@ -1,3 +1,5 @@
+use gcd::Gcd;
+use std::f32::consts::PI;
 use std::fmt;
 use std::ops::{Add, Sub};
 
@@ -104,6 +106,34 @@ impl P {
                 y: self.y - 1,
             },
         }
+    }
+
+    // direction as (dx, dy), normalised by dividing by gcd
+    pub fn direction_dxdy(&self, other: &Self) -> (i32, i32) {
+        if self == other {
+            panic!("Attemted to calculate direction from {} to itself", self);
+        }
+        let diff = *other - *self;
+        let gcd = diff.x.unsigned_abs().gcd(diff.y.unsigned_abs()) as i32;
+        (diff.x / gcd, diff.y / gcd)
+    }
+
+    // direction in degrees (0° is north)
+    pub fn direction(&self, other: &Self) -> f32 {
+        let (dx, dy) = self.direction_dxdy(other);
+        let mut rad = (dy as f32).atan2(dx as f32);
+        if rad < 0.0 {
+            rad += 2.0 * PI;
+        }
+        rad *= 360.0;
+        rad /= 2.0 * PI;
+        // rotate counter clockwise so that up is 0
+        (rad + 90.0) % 360.0
+    }
+
+    pub fn manhattan_distance(&self, other: &Self) -> u32 {
+        let diff = *other - *self;
+        diff.x.unsigned_abs() + diff.y.unsigned_abs()
     }
 }
 
