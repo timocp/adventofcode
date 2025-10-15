@@ -1,5 +1,7 @@
 use super::intcode::Vm;
 use crate::grid::{Compass, ORIGIN, P, SparseGrid};
+use crate::pixel_buffer::PixelBuffer;
+use std::fmt;
 
 pub struct Solver {
     paint_vm: Vm,
@@ -13,15 +15,23 @@ impl crate::Puzzle for Solver {
     }
 
     fn part1(&self) -> String {
-        self.paint().len().to_string()
+        let mut hull = new_hull(Paint::Black);
+        self.paint(&mut hull);
+        hull.len().to_string()
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        let mut hull = new_hull(Paint::White);
+        self.paint(&mut hull);
+        hull.to_string()
     }
 }
 
-#[derive(Clone)]
+fn new_hull(start: Paint) -> SparseGrid<Paint> {
+    SparseGrid::new(start)
+}
+
+#[derive(Clone, PartialEq)]
 enum Paint {
     Black,
     White,
@@ -66,9 +76,8 @@ impl Robot {
 }
 
 impl Solver {
-    fn paint(&self) -> SparseGrid<Paint> {
+    fn paint(&self, hull: &mut SparseGrid<Paint>) {
         let mut vm = self.paint_vm.clone();
-        let mut hull = SparseGrid::new(Paint::Black);
         let mut robot = Robot {
             pos: ORIGIN,
             facing: Compass::North,
@@ -85,6 +94,25 @@ impl Solver {
                 robot.move_forward()
             }
         }
-        hull
+    }
+}
+
+impl fmt::Display for SparseGrid<Paint> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut buffer = PixelBuffer::new(self.width(), self.height());
+        for p in self.iter().filter_map(|(p, paint)| {
+            if *paint == Paint::White {
+                Some(p)
+            } else {
+                None
+            }
+        }) {
+            buffer.set(
+                (p.x + self.minx()).try_into().unwrap(),
+                (p.y + self.miny()).try_into().unwrap(),
+                true,
+            )
+        }
+        write!(f, "{}", buffer)
     }
 }

@@ -394,6 +394,10 @@ where
         self.data.insert(p, v);
     }
 
+    pub fn iter(&self) -> impl Iterator<Item = (&P, &T)> {
+        self.data.iter()
+    }
+
     pub fn width(&self) -> u32 {
         if self.data.is_empty() {
             0
@@ -420,6 +424,7 @@ where
         self.nw.x
     }
 
+    #[allow(dead_code)]
     pub fn maxx(&self) -> i32 {
         self.se.x
     }
@@ -428,10 +433,12 @@ where
         self.nw.y
     }
 
+    #[allow(dead_code)]
     pub fn maxy(&self) -> i32 {
         self.se.y
     }
 
+    #[allow(dead_code)]
     pub fn look(&self, p: P, dir: Compass) -> &T {
         self.get(p.step(dir))
     }
