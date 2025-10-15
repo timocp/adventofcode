@@ -1,0 +1,90 @@
+use super::intcode::Vm;
+use crate::grid::{Compass, ORIGIN, P, SparseGrid};
+
+pub struct Solver {
+    paint_vm: Vm,
+}
+
+impl crate::Puzzle for Solver {
+    fn new(input: &str) -> Self {
+        Self {
+            paint_vm: Vm::from(input),
+        }
+    }
+
+    fn part1(&self) -> String {
+        self.paint().len().to_string()
+    }
+
+    fn part2(&self) -> String {
+        "unimplemented".to_string()
+    }
+}
+
+#[derive(Clone)]
+enum Paint {
+    Black,
+    White,
+}
+
+impl From<i64> for Paint {
+    fn from(i: i64) -> Self {
+        match i {
+            0 => Self::Black,
+            1 => Self::White,
+            _ => panic!("Invalid colour: {}", i),
+        }
+    }
+}
+
+impl From<Paint> for i64 {
+    fn from(paint: Paint) -> Self {
+        match paint {
+            Paint::Black => 0,
+            Paint::White => 1,
+        }
+    }
+}
+
+struct Robot {
+    pos: P,
+    facing: Compass,
+}
+
+impl Robot {
+    fn turn_left(&mut self) {
+        self.facing = self.facing.left90();
+    }
+
+    fn turn_right(&mut self) {
+        self.facing = self.facing.right90();
+    }
+
+    fn move_forward(&mut self) {
+        self.pos = self.pos.step(self.facing);
+    }
+}
+
+impl Solver {
+    fn paint(&self) -> SparseGrid<Paint> {
+        let mut vm = self.paint_vm.clone();
+        let mut hull = SparseGrid::new(Paint::Black);
+        let mut robot = Robot {
+            pos: ORIGIN,
+            facing: Compass::North,
+        };
+        while !vm.is_halted() {
+            let commands = vm.run(&[hull.get(robot.pos).clone().into()]);
+            for cmd in commands.chunks(2) {
+                hull.set(robot.pos, Paint::from(cmd[0]));
+                match cmd[1] {
+                    0 => robot.turn_left(),
+                    1 => robot.turn_right(),
+                    _ => panic!(),
+                }
+                robot.move_forward()
+            }
+        }
+        hull
+    }
+}

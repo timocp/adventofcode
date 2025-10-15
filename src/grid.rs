@@ -1,19 +1,17 @@
 use gcd::Gcd;
+use std::collections::HashMap;
 use std::f32::consts::PI;
 use std::fmt;
 use std::ops::{Add, Sub};
 
 // xy pair (position) used as index into a grid
-// using i32 as index instead of usize because even for positive only,
-// some puzzles need to ask for items outside the grid.
-// also a future sparse grid may reasonably use negative indexes
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct P {
     pub x: i32,
     pub y: i32,
 }
 
-const ORIGIN: P = P { x: 0, y: 0 };
+pub const ORIGIN: P = P { x: 0, y: 0 };
 
 impl From<(usize, usize)> for P {
     fn from(pair: (usize, usize)) -> Self {
@@ -68,6 +66,34 @@ pub enum Compass {
     SouthWest,
     West,
     NorthWest,
+}
+
+impl Compass {
+    pub fn left90(&self) -> Self {
+        match self {
+            Compass::North => Compass::West,
+            Compass::NorthEast => Compass::NorthWest,
+            Compass::East => Compass::North,
+            Compass::SouthEast => Compass::NorthEast,
+            Compass::South => Compass::East,
+            Compass::SouthWest => Compass::SouthEast,
+            Compass::West => Compass::South,
+            Compass::NorthWest => Compass::SouthWest,
+        }
+    }
+
+    pub fn right90(&self) -> Self {
+        match self {
+            Compass::North => Compass::East,
+            Compass::NorthEast => Compass::SouthEast,
+            Compass::East => Compass::South,
+            Compass::SouthEast => Compass::SouthWest,
+            Compass::South => Compass::West,
+            Compass::SouthWest => Compass::NorthWest,
+            Compass::West => Compass::North,
+            Compass::NorthWest => Compass::NorthEast,
+        }
+    }
 }
 
 impl P {
@@ -144,6 +170,10 @@ pub fn parse_each_char(input: &str) -> impl Iterator<Item = (P, char)> + '_ {
     })
 }
 
+// 2d grid with fixed width and height
+// top-left / NW corner is (0, 0)
+// setting outside of bounds panics
+// reading outside of bounds returns default
 pub struct Grid<T> {
     maxx: i32,
     maxy: i32,
@@ -213,12 +243,12 @@ where
     }
 
     #[allow(dead_code)]
-    pub fn get_width(&self) -> u32 {
+    pub fn width(&self) -> u32 {
         (self.maxx + 1).try_into().unwrap()
     }
 
     #[allow(dead_code)]
-    pub fn get_height(&self) -> u32 {
+    pub fn height(&self) -> u32 {
         (self.maxy + 1).try_into().unwrap()
     }
 
@@ -310,5 +340,99 @@ where
         } else {
             None
         }
+    }
+}
+
+// 2d grid without fixed width and height
+// unbounded, indexes may be negative
+// reading a cell that hasn't been set returns default
+// interface is as close to Grid as possible
+pub struct SparseGrid<T> {
+    nw: P, // NW or top-left corner
+    se: P, // SE or bottom-right corner
+    default: T,
+    data: HashMap<P, T>,
+}
+
+impl<T> SparseGrid<T>
+where
+    T: Clone,
+{
+    pub fn new(default: T) -> Self {
+        Self {
+            nw: ORIGIN,
+            se: ORIGIN,
+            default: default.clone(),
+            data: HashMap::new(),
+        }
+    }
+
+    pub fn get(&self, p: P) -> &T {
+        if let Some(t) = self.data.get(&p) {
+            t
+        } else {
+            &self.default
+        }
+    }
+
+    pub fn set(&mut self, p: P, v: T) {
+        if self.data.is_empty() {
+            self.nw = p;
+            self.se = p;
+        } else {
+            if p.x < self.nw.x {
+                self.nw.x = p.x;
+            } else if p.x > self.se.x {
+                self.se.x = p.x;
+            }
+            if p.y < self.nw.y {
+                self.nw.y = p.y;
+            } else if p.y > self.se.y {
+                self.se.y = p.y;
+            }
+        }
+        self.data.insert(p, v);
+    }
+
+    pub fn width(&self) -> u32 {
+        if self.data.is_empty() {
+            0
+        } else {
+            (self.se.x - self.nw.x + 1).try_into().unwrap()
+        }
+    }
+
+    pub fn height(&self) -> u32 {
+        if self.data.is_empty() {
+            0
+        } else {
+            (self.se.y - self.nw.y + 1).try_into().unwrap()
+        }
+    }
+
+    pub fn len(&self) -> u32 {
+        self.data.len().try_into().unwrap()
+    }
+
+    // min/max functions return 0 if the grid is empty (not accurate but simpler)
+
+    pub fn minx(&self) -> i32 {
+        self.nw.x
+    }
+
+    pub fn maxx(&self) -> i32 {
+        self.se.x
+    }
+
+    pub fn miny(&self) -> i32 {
+        self.nw.y
+    }
+
+    pub fn maxy(&self) -> i32 {
+        self.se.y
+    }
+
+    pub fn look(&self, p: P, dir: Compass) -> &T {
+        self.get(p.step(dir))
     }
 }
