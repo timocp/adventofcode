@@ -1,3 +1,4 @@
+use num_integer::lcm;
 use std::cmp::Ordering;
 use std::fmt;
 
@@ -19,7 +20,8 @@ impl crate::Puzzle for Solver {
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        let mut system = System::new(self.moons.clone());
+        system.count_to_repeat().to_string()
     }
 }
 
@@ -57,6 +59,50 @@ impl System {
 
     fn total_energy(&self) -> u16 {
         self.moons.iter().map(|moon| moon.total_energy()).sum()
+    }
+
+    fn count_to_repeat(&mut self) -> u64 {
+        // step until we see a repeated state in x, y and z axis individually
+        let start = [self.state_x(), self.state_y(), self.state_z()];
+        let mut repeats: [Option<u64>; 3] = [None, None, None];
+        while repeats[0].is_none() || repeats[1].is_none() || repeats[2].is_none() {
+            self.step(1);
+            if repeats[0].is_none() && start[0] == self.state_x() {
+                repeats[0] = Some(self.steps.into());
+            }
+            if repeats[1].is_none() && start[1] == self.state_y() {
+                repeats[1] = Some(self.steps.into());
+            }
+            if repeats[2].is_none() && start[2] == self.state_z() {
+                repeats[2] = Some(self.steps.into());
+            }
+        }
+        // the entire system repeats at the least common multiple of each axis
+        lcm(
+            repeats[0].unwrap(),
+            lcm(repeats[1].unwrap(), repeats[2].unwrap()),
+        )
+    }
+
+    fn state_x(&self) -> Vec<i16> {
+        self.moons
+            .iter()
+            .flat_map(|moon| [moon.x, moon.dx])
+            .collect()
+    }
+
+    fn state_y(&self) -> Vec<i16> {
+        self.moons
+            .iter()
+            .flat_map(|moon| [moon.y, moon.dy])
+            .collect()
+    }
+
+    fn state_z(&self) -> Vec<i16> {
+        self.moons
+            .iter()
+            .flat_map(|moon| [moon.z, moon.dz])
+            .collect()
     }
 }
 
@@ -128,7 +174,7 @@ impl From<&str> for Moon {
         let s = &s[1..(s.len() - 1)];
         let coords: Vec<_> = s
             .split(", ")
-            .map(|ex| ex.split('=').last().unwrap().parse().unwrap())
+            .map(|ex| ex.split('=').next_back().unwrap().parse().unwrap())
             .collect();
         Moon {
             x: coords[0],
@@ -161,9 +207,8 @@ fn test_moon_system() {
     assert_eq!(0, moons[0].dy);
     assert_eq!(0, moons[0].dz);
 
-    let mut system = System { steps: 0, moons };
+    let mut system = System::new(moons);
     system.step(1);
-    println!("{:?}", system);
     assert_eq!(2, system.moons[0].x);
     assert_eq!(-1, system.moons[0].y);
     assert_eq!(1, system.moons[0].z);
@@ -172,6 +217,17 @@ fn test_moon_system() {
     assert_eq!(-1, system.moons[0].dz);
 
     system.step(9);
-    println!("{:?}", system);
     assert_eq!(179, system.total_energy())
+}
+
+#[test]
+fn test_count_to_repeat() {
+    let test_input = "\
+<x=-8, y=-10, z=0>
+<x=5, y=5, z=10>
+<x=2, y=-7, z=3>
+<x=9, y=-8, z=-3>
+";
+    let mut system = System::new(parse_input(test_input));
+    assert_eq!(4686774924, system.count_to_repeat());
 }
