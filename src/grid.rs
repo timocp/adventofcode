@@ -1,4 +1,3 @@
-use gcd::Gcd;
 use std::collections::HashMap;
 use std::f32::consts::PI;
 use std::fmt;
@@ -140,7 +139,7 @@ impl Pos {
             panic!("Attemted to calculate direction from {} to itself", self);
         }
         let diff = *other - *self;
-        let gcd = diff.x.unsigned_abs().gcd(diff.y.unsigned_abs()) as i32;
+        let gcd = num_integer::gcd(diff.x.unsigned_abs(), diff.y.unsigned_abs()) as i32;
         (diff.x / gcd, diff.y / gcd)
     }
 
