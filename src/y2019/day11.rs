@@ -17,6 +17,7 @@ impl crate::Puzzle for Solver {
     fn part1(&self) -> String {
         let mut hull = new_hull(Paint::Black);
         self.paint(&mut hull);
+        // hull.to_string()
         hull.len().to_string()
     }
 
@@ -108,8 +109,8 @@ impl fmt::Display for SparseGrid<Paint> {
             }
         }) {
             buffer.set(
-                (p.x + self.minx()).try_into().unwrap(),
-                (p.y + self.miny()).try_into().unwrap(),
+                (p.x - self.minx()).try_into().unwrap(),
+                (p.y - self.miny()).try_into().unwrap(),
                 true,
             )
         }
