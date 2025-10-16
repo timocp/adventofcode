@@ -1,5 +1,5 @@
 use crate::grid::Compass::*;
-use crate::grid::{Grid, P};
+use crate::grid::{Grid, Pos};
 use std::collections::HashSet;
 
 pub struct Solver {
@@ -23,7 +23,7 @@ impl crate::Puzzle for Solver {
 }
 
 impl Grid<u8> {
-    fn lowpoints(&self) -> impl Iterator<Item = P> {
+    fn lowpoints(&self) -> impl Iterator<Item = Pos> {
         self.iter().filter_map(|(p, value)| {
             if self.look(p, North) > value
                 && self.look(p, East) > value
@@ -42,7 +42,7 @@ impl Grid<u8> {
     }
 
     // recursively measure the size of a basin, including this point
-    fn basin_size(&self, from: P, seen: &mut HashSet<P>) -> usize {
+    fn basin_size(&self, from: Pos, seen: &mut HashSet<Pos>) -> usize {
         seen.insert(from);
         let mut size = 1;
         let value = self.get(from);
@@ -57,7 +57,7 @@ impl Grid<u8> {
     }
 
     fn part2(&self) -> usize {
-        let mut seen: HashSet<P> = HashSet::new();
+        let mut seen: HashSet<Pos> = HashSet::new();
         let mut basins: Vec<usize> = vec![];
         for start in self.lowpoints() {
             basins.push(self.basin_size(start, &mut seen));

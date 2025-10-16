@@ -1,5 +1,5 @@
 use crate::grid::Compass::*;
-use crate::grid::{Compass, Grid, P};
+use crate::grid::{Compass, Grid, Pos};
 use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt;
@@ -52,19 +52,19 @@ impl Team {
 }
 
 // order is important (reading order = row first)
-impl Ord for P {
+impl Ord for Pos {
     fn cmp(&self, other: &Self) -> Ordering {
         self.y.cmp(&other.y).then(self.x.cmp(&other.x))
     }
 }
 
-impl PartialOrd for P {
+impl PartialOrd for Pos {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl P {
+impl Pos {
     fn in_range(&self, other: Self) -> bool {
         self.x == other.x && ((other.y > 0 && self.y == other.y - 1) || self.y == other.y + 1)
             || self.y == other.y
@@ -75,7 +75,7 @@ impl P {
 #[derive(Debug)]
 struct Unit {
     hp: u8,
-    p: P,
+    p: Pos,
     team: Team,
     power: u8,
 }
@@ -114,7 +114,7 @@ fn each_dir() -> Iter<'static, Compass> {
 #[derive(Debug)]
 struct Path {
     start_dir: Compass,
-    p: P,
+    p: Pos,
     inrange: bool,
 }
 
@@ -294,7 +294,7 @@ impl Game {
             return;
         }
         let other_team = unit.team.other();
-        let neighbours: Vec<P> = each_dir().map(|dir| unit.p.step(*dir)).collect();
+        let neighbours: Vec<Pos> = each_dir().map(|dir| unit.p.step(*dir)).collect();
         let mut enemies: Vec<(usize, &mut Unit)> = self
             .units
             .iter_mut()
@@ -356,7 +356,7 @@ impl Game {
             .any(|enemy| enemy.p.in_range(unit.p))
     }
 
-    fn is_empty(&self, p: P) -> bool {
+    fn is_empty(&self, p: Pos) -> bool {
         match self.grid.get(p) {
             Tile::Wall => false,
             Tile::Open => !self.units.iter().any(|unit| unit.hp > 0 && unit.p == p),
@@ -364,7 +364,7 @@ impl Game {
     }
 
     // return true if position `p` in in range of a unit of team team
-    fn in_range(&self, p: P, team: Team) -> bool {
+    fn in_range(&self, p: Pos, team: Team) -> bool {
         self.units
             .iter()
             .filter(|unit| unit.is_alive() && unit.team == team)
@@ -531,12 +531,12 @@ mod tests {
         let mut game = Game::new(test_input());
         println!("{:?}", game);
         game.move_unit(0);
-        assert_eq!(P { x: 2, y: 1 }, game.units[0].p);
+        assert_eq!(Pos { x: 2, y: 1 }, game.units[0].p);
 
         let mut game = Game::new(test_input2());
         println!("{:?}", game);
         game.move_unit(0);
-        assert_eq!(P { x: 3, y: 1 }, game.units[0].p);
+        assert_eq!(Pos { x: 3, y: 1 }, game.units[0].p);
 
         let mut game = Game::new(test_input3());
         println!("{:?}", game);
@@ -555,7 +555,7 @@ mod tests {
         .enumerate()
         {
             game.move_unit(u);
-            assert_eq!(P { x, y }, game.units[u].p);
+            assert_eq!(Pos { x, y }, game.units[u].p);
         }
         game.sort_units();
 
@@ -576,7 +576,7 @@ mod tests {
         .enumerate()
         {
             game.move_unit(u);
-            assert_eq!(P { x, y }, game.units[u].p);
+            assert_eq!(Pos { x, y }, game.units[u].p);
         }
         game.sort_units();
 
@@ -597,7 +597,7 @@ mod tests {
         .enumerate()
         {
             game.move_unit(u);
-            assert_eq!(P { x, y }, game.units[u].p);
+            assert_eq!(Pos { x, y }, game.units[u].p);
         }
         game.sort_units();
 
@@ -618,7 +618,7 @@ mod tests {
         .enumerate()
         {
             game.move_unit(u);
-            assert_eq!(P { x, y }, game.units[u].p);
+            assert_eq!(Pos { x, y }, game.units[u].p);
         }
         game.sort_units();
     }

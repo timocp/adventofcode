@@ -6,35 +6,35 @@ use std::ops::{Add, Sub};
 
 // xy pair (position) used as index into a grid
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
-pub struct P {
+pub struct Pos {
     pub x: i32,
     pub y: i32,
 }
 
-pub const ORIGIN: P = P { x: 0, y: 0 };
+pub const ORIGIN: Pos = Pos { x: 0, y: 0 };
 
-impl From<(usize, usize)> for P {
+impl From<(usize, usize)> for Pos {
     fn from(pair: (usize, usize)) -> Self {
-        P {
+        Pos {
             x: pair.0 as i32,
             y: pair.1 as i32,
         }
     }
 }
 
-impl fmt::Debug for P {
+impl fmt::Debug for Pos {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         fmt::Display::fmt(self, f)
     }
 }
 
-impl fmt::Display for P {
+impl fmt::Display for Pos {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "({},{})", self.x, self.y)
     }
 }
 
-impl Add for P {
+impl Add for Pos {
     type Output = Self;
     fn add(self, other: Self) -> Self {
         Self {
@@ -44,7 +44,7 @@ impl Add for P {
     }
 }
 
-impl Sub for P {
+impl Sub for Pos {
     type Output = Self;
     fn sub(self, other: Self) -> Self {
         Self {
@@ -96,38 +96,38 @@ impl Compass {
     }
 }
 
-impl P {
+impl Pos {
     pub fn step(&self, dir: Compass) -> Self {
         match dir {
-            Compass::North => P {
+            Compass::North => Self {
                 x: self.x,
                 y: self.y - 1,
             },
-            Compass::NorthEast => P {
+            Compass::NorthEast => Self {
                 x: self.x + 1,
                 y: self.y - 1,
             },
-            Compass::East => P {
+            Compass::East => Self {
                 x: self.x + 1,
                 y: self.y,
             },
-            Compass::SouthEast => P {
+            Compass::SouthEast => Self {
                 x: self.x + 1,
                 y: self.y + 1,
             },
-            Compass::South => P {
+            Compass::South => Self {
                 x: self.x,
                 y: self.y + 1,
             },
-            Compass::SouthWest => P {
+            Compass::SouthWest => Self {
                 x: self.x - 1,
                 y: self.y + 1,
             },
-            Compass::West => P {
+            Compass::West => Self {
                 x: self.x - 1,
                 y: self.y,
             },
-            Compass::NorthWest => P {
+            Compass::NorthWest => Self {
                 x: self.x - 1,
                 y: self.y - 1,
             },
@@ -162,11 +162,11 @@ impl P {
     }
 }
 
-pub fn parse_each_char(input: &str) -> impl Iterator<Item = (P, char)> + '_ {
+pub fn parse_each_char(input: &str) -> impl Iterator<Item = (Pos, char)> + '_ {
     input.lines().enumerate().flat_map(|(y, line)| {
         line.chars()
             .enumerate()
-            .map(move |(x, c)| (P::from((x, y)), c))
+            .map(move |(x, c)| (Pos::from((x, y)), c))
     })
 }
 
@@ -200,10 +200,10 @@ where
         Self::from_input_by(input, default, |_p, c| from_char(c))
     }
 
-    // input -> Grid using a closure that converts (P, char) to T
+    // input -> Grid using a closure that converts (Pos, char) to T
     pub fn from_input_by<F>(input: &str, default: T, mut from_char: F) -> Self
     where
-        F: FnMut(P, char) -> T,
+        F: FnMut(Pos, char) -> T,
     {
         let mut last_p = ORIGIN;
         let mut data = vec![];
@@ -219,7 +219,7 @@ where
         }
     }
 
-    pub fn get(&self, p: P) -> &T {
+    pub fn get(&self, p: Pos) -> &T {
         if let Some(i) = self.index(p) {
             &self.data[i]
         } else {
@@ -227,7 +227,7 @@ where
         }
     }
 
-    pub fn set(&mut self, p: P, v: T) {
+    pub fn set(&mut self, p: Pos, v: T) {
         if let Some(i) = self.index(p) {
             self.data[i] = v;
         } else {
@@ -235,10 +235,10 @@ where
         }
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = (P, &T)> {
+    pub fn iter(&self) -> impl Iterator<Item = (Pos, &T)> {
         GridIter {
             grid: self,
-            p: P { x: 0, y: 0 },
+            p: Pos { x: 0, y: 0 },
         }
     }
 
@@ -278,7 +278,7 @@ where
 
     // get neighbouring position (None if it would move off grid)
     #[allow(dead_code)]
-    pub fn bounded_pos(&self, p: P, dir: Compass) -> Option<P> {
+    pub fn bounded_pos(&self, p: Pos, dir: Compass) -> Option<Pos> {
         let p2 = p.step(dir);
         if p2.x < 0 || p2.x > self.maxx || p2.y < 0 || p2.y > self.maxy {
             None
@@ -288,7 +288,7 @@ where
     }
 
     // get neightbouring position (wrap around edges of grid)
-    pub fn wrapped_pos(&self, p: P, dir: Compass) -> P {
+    pub fn wrapped_pos(&self, p: Pos, dir: Compass) -> Pos {
         let mut p2 = p.step(dir);
         if p2.x < 0 {
             p2.x = self.maxx;
@@ -303,11 +303,11 @@ where
         p2
     }
 
-    pub fn look(&self, p: P, dir: Compass) -> &T {
+    pub fn look(&self, p: Pos, dir: Compass) -> &T {
         self.get(p.step(dir))
     }
 
-    fn index(&self, p: P) -> Option<usize> {
+    fn index(&self, p: Pos) -> Option<usize> {
         if p.x < 0 || p.x > self.maxx || p.y < 0 || p.y > self.maxy {
             None
         } else {
@@ -318,14 +318,14 @@ where
 
 struct GridIter<'a, T> {
     grid: &'a Grid<T>,
-    p: P,
+    p: Pos,
 }
 
 impl<'a, T> Iterator for GridIter<'a, T>
 where
     T: Clone,
 {
-    type Item = (P, &'a T);
+    type Item = (Pos, &'a T);
 
     fn next(&mut self) -> Option<Self::Item> {
         if let Some(i) = self.grid.index(self.p) {
@@ -348,10 +348,10 @@ where
 // reading a cell that hasn't been set returns default
 // interface is as close to Grid as possible
 pub struct SparseGrid<T> {
-    nw: P, // NW or top-left corner
-    se: P, // SE or bottom-right corner
+    nw: Pos, // NW or top-left corner
+    se: Pos, // SE or bottom-right corner
     default: T,
-    data: HashMap<P, T>,
+    data: HashMap<Pos, T>,
 }
 
 impl<T> SparseGrid<T>
@@ -367,7 +367,7 @@ where
         }
     }
 
-    pub fn get(&self, p: P) -> &T {
+    pub fn get(&self, p: Pos) -> &T {
         if let Some(t) = self.data.get(&p) {
             t
         } else {
@@ -375,7 +375,7 @@ where
         }
     }
 
-    pub fn set(&mut self, p: P, v: T) {
+    pub fn set(&mut self, p: Pos, v: T) {
         if self.data.is_empty() {
             self.nw = p;
             self.se = p;
@@ -394,7 +394,7 @@ where
         self.data.insert(p, v);
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = (&P, &T)> {
+    pub fn iter(&self) -> impl Iterator<Item = (&Pos, &T)> {
         self.data.iter()
     }
 
@@ -439,7 +439,7 @@ where
     }
 
     #[allow(dead_code)]
-    pub fn look(&self, p: P, dir: Compass) -> &T {
+    pub fn look(&self, p: Pos, dir: Compass) -> &T {
         self.get(p.step(dir))
     }
 }
