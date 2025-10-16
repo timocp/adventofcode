@@ -1,11 +1,11 @@
 use crate::grid;
-use crate::grid::P;
+use crate::grid::Pos;
 use ordered_float::NotNan;
 use std::collections::HashSet;
 
 pub struct Solver {
-    asteroids: Vec<P>,
-    best_station_position: P,
+    asteroids: Vec<Pos>,
+    best_station_position: Pos,
     best_station_visible: u32,
 }
 
@@ -32,7 +32,7 @@ impl crate::Puzzle for Solver {
     }
 }
 
-fn best_monitoring_station(asteroids: &[P]) -> (P, u32) {
+fn best_monitoring_station(asteroids: &[Pos]) -> (Pos, u32) {
     asteroids
         .iter()
         .map(|&a| (a, count_visible(a, asteroids)))
@@ -40,7 +40,7 @@ fn best_monitoring_station(asteroids: &[P]) -> (P, u32) {
         .unwrap()
 }
 
-fn count_visible(from: P, asteroids: &[P]) -> u32 {
+fn count_visible(from: Pos, asteroids: &[Pos]) -> u32 {
     asteroids
         .iter()
         .filter(|&&b| b != from)
@@ -51,7 +51,7 @@ fn count_visible(from: P, asteroids: &[P]) -> u32 {
 
 #[derive(Debug)]
 struct AsteroidState {
-    p: P,
+    p: Pos,
     destroyed: bool,
     // direction in degree
     direction: NotNan<f32>,
@@ -67,7 +67,7 @@ struct VaporisationIter {
 }
 
 // iterator that returns each asteroid position in turn until there are none left
-fn each_vaporised_asteroid(from: P, asteroids: &[P]) -> impl Iterator<Item = P> + '_ {
+fn each_vaporised_asteroid(from: Pos, asteroids: &[Pos]) -> impl Iterator<Item = Pos> + '_ {
     VaporisationIter {
         asteroids: asteroids
             .iter()
@@ -84,7 +84,7 @@ fn each_vaporised_asteroid(from: P, asteroids: &[P]) -> impl Iterator<Item = P> 
 }
 
 impl Iterator for VaporisationIter {
-    type Item = P;
+    type Item = Pos;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self
@@ -119,7 +119,7 @@ fn rotation_angle(laser: f32, target: f32) -> f32 {
     angle
 }
 
-fn parse_input(input: &str) -> Vec<P> {
+fn parse_input(input: &str) -> Vec<Pos> {
     grid::parse_each_char(input)
         .filter_map(|(p, c)| if c == '#' { Some(p) } else { None })
         .collect()
@@ -220,7 +220,7 @@ fn test_best_monitoring_station() {
         ),
     ] {
         assert_eq!(
-            (P { x, y }, count),
+            (Pos { x, y }, count),
             best_monitoring_station(&parse_input(example)),
         );
     }
@@ -238,28 +238,28 @@ fn test_each_vaporised_asteroid() {
 ",
     );
     let best = best_monitoring_station(&asteroids).0;
-    assert_eq!(P::from((8, 3)), best);
-    let destroyed: Vec<P> = each_vaporised_asteroid(best, &asteroids).collect();
+    assert_eq!(Pos::from((8, 3)), best);
+    let destroyed: Vec<Pos> = each_vaporised_asteroid(best, &asteroids).collect();
 
     // first none to be vaporised
-    assert_eq!(P::from((8, 1)), destroyed[0]);
-    assert_eq!(P::from((9, 0)), destroyed[1]);
-    assert_eq!(P::from((9, 1)), destroyed[2]);
-    assert_eq!(P::from((10, 0)), destroyed[3]);
-    assert_eq!(P::from((9, 2)), destroyed[4]);
-    assert_eq!(P::from((11, 1)), destroyed[5]);
-    assert_eq!(P::from((12, 1)), destroyed[6]);
-    assert_eq!(P::from((11, 2)), destroyed[7]);
-    assert_eq!(P::from((15, 1)), destroyed[8]);
+    assert_eq!(Pos::from((8, 1)), destroyed[0]);
+    assert_eq!(Pos::from((9, 0)), destroyed[1]);
+    assert_eq!(Pos::from((9, 1)), destroyed[2]);
+    assert_eq!(Pos::from((10, 0)), destroyed[3]);
+    assert_eq!(Pos::from((9, 2)), destroyed[4]);
+    assert_eq!(Pos::from((11, 1)), destroyed[5]);
+    assert_eq!(Pos::from((12, 1)), destroyed[6]);
+    assert_eq!(Pos::from((11, 2)), destroyed[7]);
+    assert_eq!(Pos::from((15, 1)), destroyed[8]);
 
     // last nine to be destroyed
-    assert_eq!(P::from((6, 1)), destroyed[27]);
-    assert_eq!(P::from((6, 0)), destroyed[28]);
-    assert_eq!(P::from((7, 0)), destroyed[29]);
-    assert_eq!(P::from((8, 0)), destroyed[30]);
-    assert_eq!(P::from((10, 1)), destroyed[31]);
-    assert_eq!(P::from((14, 0)), destroyed[32]);
-    assert_eq!(P::from((16, 1)), destroyed[33]);
-    assert_eq!(P::from((13, 3)), destroyed[34]);
-    assert_eq!(P::from((14, 3)), destroyed[35]);
+    assert_eq!(Pos::from((6, 1)), destroyed[27]);
+    assert_eq!(Pos::from((6, 0)), destroyed[28]);
+    assert_eq!(Pos::from((7, 0)), destroyed[29]);
+    assert_eq!(Pos::from((8, 0)), destroyed[30]);
+    assert_eq!(Pos::from((10, 1)), destroyed[31]);
+    assert_eq!(Pos::from((14, 0)), destroyed[32]);
+    assert_eq!(Pos::from((16, 1)), destroyed[33]);
+    assert_eq!(Pos::from((13, 3)), destroyed[34]);
+    assert_eq!(Pos::from((14, 3)), destroyed[35]);
 }

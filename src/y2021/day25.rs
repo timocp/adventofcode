@@ -1,4 +1,4 @@
-use crate::grid::{Compass, Grid, P};
+use crate::grid::{Compass, Grid, Pos};
 use std::fmt;
 
 pub struct Solver {
@@ -61,7 +61,7 @@ impl Map {
         let mut changed = false;
 
         // east facing herd moves first
-        let mut mvlist: Vec<(P, P)> = vec![];
+        let mut mvlist: Vec<(Pos, Pos)> = vec![];
         for (p, c) in self.grid.iter() {
             if matches!(c, Cucumber::EastFacing) {
                 let east = self.grid.wrapped_pos(p, Compass::East);
@@ -77,7 +77,7 @@ impl Map {
         }
 
         // south facing herd moves next
-        let mut mvlist: Vec<(P, P)> = vec![];
+        let mut mvlist: Vec<(Pos, Pos)> = vec![];
         for (p, c) in self.grid.iter() {
             if matches!(c, Cucumber::SouthFacing) {
                 let south = self.grid.wrapped_pos(p, Compass::South);

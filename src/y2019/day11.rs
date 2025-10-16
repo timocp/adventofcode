@@ -1,5 +1,5 @@
 use super::intcode::Vm;
-use crate::grid::{Compass, ORIGIN, P, SparseGrid};
+use crate::grid::{Compass, ORIGIN, Pos, SparseGrid};
 use crate::pixel_buffer::PixelBuffer;
 use std::fmt;
 
@@ -57,7 +57,7 @@ impl From<Paint> for i64 {
 }
 
 struct Robot {
-    pos: P,
+    pos: Pos,
     facing: Compass,
 }
 
