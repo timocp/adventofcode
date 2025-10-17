@@ -1,6 +1,8 @@
 use super::intcode::Vm;
 use crate::grid::{Grid, Pos};
 use core::fmt;
+use std::cmp::Ordering;
+use std::{thread, time};
 
 pub struct Solver {
     arcade_vm: Vm,
@@ -15,18 +17,23 @@ impl crate::Puzzle for Solver {
 
     fn part1(&self) -> String {
         let mut game = Game::new(self.arcade_vm.clone());
-        game.run();
+        game.step(&[]);
         game.count(Tile::Block).to_string()
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        let mut game = Game::new(self.arcade_vm.clone());
+        game.play(false); // change to true to watch game play
+        game.score.to_string()
     }
 }
 
 struct Game {
     vm: Vm,
     screen: Grid<Tile>,
+    score: i64,  // most recent score
+    paddle: i32, // x position of paddle
+    ball: i32,   // x position of ball
 }
 
 impl Game {
@@ -40,26 +47,63 @@ impl Game {
         Game {
             vm,
             screen: Grid::new(width, height, Tile::Empty),
+            score: -1,
+            paddle: -1,
+            ball: -1,
         }
     }
 
-    fn run(&mut self) {
-        for slice in self.vm.run(&[]).chunks_exact(3) {
-            self.draw(slice[0] as i32, slice[1] as i32, slice[2].into());
+    fn step(&mut self, input: &[i64]) {
+        for slice in self.vm.run(input).chunks_exact(3) {
+            if slice[0] == -1 {
+                self.score = slice[2];
+            } else {
+                self.draw(slice[0] as i32, slice[1] as i32, slice[2].into());
+            }
+        }
+    }
+
+    fn play(&mut self, watch: bool) {
+        self.vm.direct_write(0, 2); // play for free
+        self.step(&[]);
+        if watch {
+            println!("{}", self);
+        }
+        while !self.vm.is_halted() {
+            self.step(&[self.joystick_direction()]);
+            if watch {
+                println!("{}", self);
+                thread::sleep(time::Duration::from_millis(10));
+            }
         }
     }
 
     fn draw(&mut self, x: i32, y: i32, tile: Tile) {
         self.screen.set(Pos { x, y }, tile);
+        match tile {
+            Tile::Paddle => self.paddle = x,
+            Tile::Ball => self.ball = x,
+            _ => (),
+        }
     }
 
     fn count(&self, tile: Tile) -> usize {
         self.screen.iter().filter(|(_p, t)| **t == tile).count()
     }
+
+    // command that will move the joystick towards the ball
+    fn joystick_direction(&self) -> i64 {
+        match self.paddle.cmp(&self.ball) {
+            Ordering::Less => 1,
+            Ordering::Equal => 0,
+            Ordering::Greater => -1,
+        }
+    }
 }
 
 impl fmt::Display for Game {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{esc}[2J{esc}[1;1H", esc = 27 as char)?; // clear screen
         for (p, t) in self.screen.iter() {
             write!(
                 f,
@@ -73,6 +117,9 @@ impl fmt::Display for Game {
                 }
             )?;
             if p.x == self.screen.maxx() {
+                if p.y == 0 {
+                    write!(f, "   Score: {}", self.score)?;
+                }
                 writeln!(f)?;
             }
         }
@@ -80,7 +127,7 @@ impl fmt::Display for Game {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 enum Tile {
     Empty,
     Wall,
