@@ -13,33 +13,33 @@ impl crate::Puzzle for Solver {
 
     fn part1(&self) -> String {
         Nanofactory::new(&self.recipes)
-            .ore_needed("FUEL")
+            .ore_needed(FUEL, 1)
             .to_string()
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        Nanofactory::new(&self.recipes)
+            .max_fuel(1000000000000)
+            .to_string()
     }
 }
 
 struct Amount {
-    quantity: u32,
+    quantity: u64,
     chemical: Sym,
 }
 
 impl fmt::Debug for Amount {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{} {}{}{}{}{}",
-            self.quantity,
-            self.chemical[0] as char,
-            self.chemical[1] as char,
-            self.chemical[2] as char,
-            self.chemical[3] as char,
-            self.chemical[4] as char
-        )
+        write!(f, "{} {}", self.quantity, sym_to_s(self.chemical))
     }
+}
+
+fn sym_to_s(s: Sym) -> String {
+    format!(
+        "{}{}{}{}{}",
+        s[0] as char, s[1] as char, s[2] as char, s[3] as char, s[4] as char
+    )
 }
 
 type Sym = [u8; 5];
@@ -48,7 +48,7 @@ const fn symbol(s: &str) -> Sym {
     let b = s.as_bytes();
     match b.len() {
         5.. => [b[0], b[1], b[2], b[3], b[4]],
-        4 => [b[0], b[1], b[2], b[2], 32],
+        4 => [b[0], b[1], b[2], b[3], 32],
         3 => [b[0], b[1], b[2], 32, 32],
         2 => [b[0], b[1], 32, 32, 32],
         1 => [b[0], 32, 32, 32, 32],
@@ -57,6 +57,7 @@ const fn symbol(s: &str) -> Sym {
 }
 
 const ORE: Sym = symbol("ORE");
+const FUEL: Sym = symbol("FUEL");
 
 impl From<&str> for Amount {
     fn from(s: &str) -> Self {
@@ -76,12 +77,7 @@ struct Recipe {
 impl From<&str> for Recipe {
     fn from(s: &str) -> Self {
         let mut line = s.split(" => ");
-        let inputs = line
-            .next()
-            .unwrap()
-            .split(", ")
-            .map(Amount::from)
-            .collect();
+        let inputs = line.next().unwrap().split(", ").map(Amount::from).collect();
         Self {
             inputs,
             output: Amount::from(line.next().unwrap()),
@@ -94,8 +90,7 @@ struct Nanofactory<'a> {
 }
 
 struct FactoryState {
-    inventory: Vec<u32>, // index matches the output of the recipes
-    ore_used: u32,
+    inventory: Vec<u64>, // index matches the output of the recipes
 }
 
 fn parse_input(input: &str) -> Vec<Recipe> {
@@ -114,39 +109,55 @@ impl<'a> Nanofactory<'a> {
             .unwrap()
     }
 
-    fn build(&self, chemical: Sym, state: &mut FactoryState) {
+    fn build(&self, chemical: Sym, num: u64, state: &mut FactoryState) -> u64 {
         let index = self.index_for(chemical);
-        if chemical == ORE {
-            state.ore_used += 1;
-            state.inventory[index] += 1;
-        } else {
-            self.build_recipe(index, state);
-        }
-    }
-
-    fn build_recipe(&self, index: usize, state: &mut FactoryState) {
         let recipe = &self.recipes[index];
+        let repeats = num.div_ceil(recipe.output.quantity);
+        let mut ore_used = 0;
         for input in recipe.inputs.iter() {
+            let input_needed = input.quantity * repeats;
             if input.chemical == ORE {
-                state.ore_used += input.quantity;
+                ore_used += input_needed;
             } else {
-                let build_index = self.index_for(input.chemical);
-                while state.inventory[build_index] < input.quantity {
-                    self.build(input.chemical, state);
+                let input_index = self.index_for(input.chemical);
+                if state.inventory[input_index] < input_needed {
+                    // need some more of this input chemical
+                    ore_used += self.build(
+                        input.chemical,
+                        input_needed - state.inventory[input_index],
+                        state,
+                    );
                 }
-                state.inventory[build_index] -= input.quantity;
+                state.inventory[input_index] -= input_needed;
             }
         }
-        state.inventory[index] += recipe.output.quantity;
+        state.inventory[index] += repeats * recipe.output.quantity;
+        ore_used
     }
 
-    fn ore_needed(&self, chemical: &str) -> u32 {
+    fn ore_needed(&self, chemical: Sym, num: u64) -> u64 {
         let mut state = FactoryState {
             inventory: vec![0; self.recipes.len()],
-            ore_used: 0,
         };
-        self.build(symbol(chemical), &mut state);
-        state.ore_used
+        self.build(chemical, num, &mut state)
+    }
+
+    // search for the most amount of fuel that will use < the maximum amount of ore
+    fn max_fuel(&self, max_ore: u64) -> u64 {
+        let f1 = self.ore_needed(FUEL, 1); // amount of ore to build 1 FUEL
+
+        let mut range = 0..max_ore; // answer is somewhere in here
+        loop {
+            let guess = range.start + (range.end - range.start) / 2;
+            let ore = self.ore_needed(FUEL, guess);
+            if ore > max_ore {
+                range.end = guess
+            } else if ore <= max_ore - f1 {
+                range.start = guess + 1;
+            } else {
+                return guess;
+            }
+        }
     }
 }
 
@@ -171,11 +182,24 @@ mod tests {
         let example3 = parse_input(EXAMPLE3);
         let example4 = parse_input(EXAMPLE4);
         let example5 = parse_input(EXAMPLE5);
-        assert_eq!(31, Nanofactory::new(&example1).ore_needed("FUEL"));
-        assert_eq!(165, Nanofactory::new(&example2).ore_needed("FUEL"));
-        assert_eq!(13312, Nanofactory::new(&example3).ore_needed("FUEL"));
-        assert_eq!(180697, Nanofactory::new(&example4).ore_needed("FUEL"));
-        assert_eq!(2210736, Nanofactory::new(&example5).ore_needed("FUEL"));
+        assert_eq!(31, Nanofactory::new(&example1).ore_needed(FUEL, 1));
+        assert_eq!(165, Nanofactory::new(&example2).ore_needed(FUEL, 1));
+        assert_eq!(13312, Nanofactory::new(&example3).ore_needed(FUEL, 1));
+        assert_eq!(180697, Nanofactory::new(&example4).ore_needed(FUEL, 1));
+        assert_eq!(2210736, Nanofactory::new(&example5).ore_needed(FUEL, 1));
+    }
+
+    #[test]
+    fn test_max_fuel() {
+        let example3 = parse_input(EXAMPLE3);
+        let example4 = parse_input(EXAMPLE4);
+        let example5 = parse_input(EXAMPLE5);
+        assert_eq!(
+            82892753,
+            Nanofactory::new(&example3).max_fuel(1000000000000)
+        );
+        assert_eq!(5586022, Nanofactory::new(&example4).max_fuel(1000000000000));
+        assert_eq!(460664, Nanofactory::new(&example5).max_fuel(1000000000000));
     }
 
     const EXAMPLE1: &str = "\
