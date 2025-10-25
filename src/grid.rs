@@ -21,6 +21,15 @@ impl From<(usize, usize)> for Pos {
     }
 }
 
+impl From<(i32, i32)> for Pos {
+    fn from(pair: (i32, i32)) -> Self {
+        Pos {
+            x: pair.0,
+            y: pair.1,
+        }
+    }
+}
+
 impl fmt::Debug for Pos {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         fmt::Display::fmt(self, f)
