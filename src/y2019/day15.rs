@@ -26,7 +26,25 @@ impl crate::Puzzle for Solver {
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        let oxygen = self
+            .ship
+            .iter()
+            .find_map(|(pos, cell)| {
+                if *cell == Cell::Oxygen {
+                    Some(pos)
+                } else {
+                    None
+                }
+            })
+            .unwrap();
+
+        let mut max_distance = 0;
+        bfs::traverse(
+            oxygen,
+            |p| next_steps(&self.ship, p),
+            |_p, d| max_distance = d,
+        );
+        max_distance.to_string()
     }
 }
 
