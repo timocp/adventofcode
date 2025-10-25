@@ -350,6 +350,7 @@ fn unfold_input(input: &str) -> String {
 }
 
 #[test]
+#[ignore] // slow.  run with: cargo test --release -- --ignored
 fn test() {
     let test_input = "\
 #############
