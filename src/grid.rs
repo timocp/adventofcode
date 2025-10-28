@@ -64,7 +64,7 @@ impl Sub for Pos {
 
 // Compass directions
 #[allow(dead_code)]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Compass {
     North,
     NorthEast,
