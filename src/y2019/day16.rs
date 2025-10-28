@@ -1,5 +1,5 @@
 pub struct Solver {
-    input_signal: Vec<i8>,
+    input_signal: Vec<u8>,
 }
 
 impl crate::Puzzle for Solver {
@@ -10,7 +10,7 @@ impl crate::Puzzle for Solver {
     }
 
     fn part1(&self) -> String {
-        first_digits(&repeated_phase(&self.input_signal))
+        repeated_phase(&self.input_signal).to_string()
     }
 
     fn part2(&self) -> String {
@@ -18,28 +18,22 @@ impl crate::Puzzle for Solver {
     }
 }
 
-fn parse_input(input: &str) -> Vec<i8> {
-    input.trim_end().chars().map(|c| c as i8 - 48).collect()
+fn parse_input(input: &str) -> Vec<u8> {
+    input.trim_end().chars().map(|c| c as u8 - 48).collect()
 }
 
-fn first_digits(signal: &[i8]) -> String {
-    format!(
-        "{}{}{}{}{}{}{}{}",
-        signal[0], signal[1], signal[2], signal[3], signal[4], signal[5], signal[6], signal[7]
-    )
-}
-
-fn repeated_phase(input: &[i8]) -> Vec<i8> {
-    let mut buf1: Vec<i8> = input.to_vec();
-    let mut buf2: Vec<i8> = input.to_vec();
+fn repeated_phase(input: &[u8]) -> u32 {
+    let mut buf1: Vec<u8> = input.to_vec();
+    let mut buf2: Vec<u8> = input.to_vec();
     for _ in 0..50 {
         phase(&buf1, &mut buf2);
         phase(&buf2, &mut buf1);
     }
-    buf1
+    number_from_slice(&buf1[0..8])
 }
 
-fn phase(input: &[i8], output: &mut [i8]) {
+#[allow(clippy::needless_range_loop)]
+fn phase(input: &[u8], output: &mut [u8]) {
     for i in 0..input.len() {
         let mut new_digit = 0i32;
 
@@ -70,14 +64,14 @@ fn phase(input: &[i8], output: &mut [i8]) {
             }
             index += (i + 1) * 3;
         }
-        output[i] = (new_digit % 10).abs() as i8;
+        output[i] = (new_digit % 10).unsigned_abs() as u8;
     }
 }
 
 // apply 100 phases on the large ("real") signal
 // signal is modified in-place during processing
 // returns the 8-digit message found at the offset
-fn real_message(input: &[i8]) -> i32 {
+fn real_message(input: &[u8]) -> u32 {
     // generate the "real" signal
     let mut signal = input.repeat(10000);
 
@@ -89,16 +83,15 @@ fn real_message(input: &[i8]) -> i32 {
         let mut acc = 0i32;
         for i in (offset..(signal.len() - 1)).rev() {
             acc += signal[i] as i32;
-            signal[i] = (acc.abs() % 10) as i8;
+            signal[i] = (acc.abs() % 10) as u8;
         }
     }
 
     number_from_slice(&signal[offset..(offset + 8)])
 }
 
-fn number_from_slice(data: &[i8]) -> i32 {
-    data.iter()
-        .fold(0i32, |acc, digit| acc * 10 + *digit as i32)
+fn number_from_slice(data: &[u8]) -> u32 {
+    data.iter().fold(0, |acc, digit| acc * 10 + *digit as u32)
 }
 
 #[test]
@@ -118,22 +111,16 @@ fn test_phase() {
 #[test]
 fn test_repeated_phase() {
     assert_eq!(
-        "24176176",
-        first_digits(&repeated_phase(&parse_input(
-            "80871224585914546619083218645595"
-        )))
+        24176176,
+        repeated_phase(&parse_input("80871224585914546619083218645595"))
     );
     assert_eq!(
-        "73745418",
-        first_digits(&repeated_phase(&parse_input(
-            "19617804207202209144916044189917"
-        )))
+        73745418,
+        repeated_phase(&parse_input("19617804207202209144916044189917"))
     );
     assert_eq!(
-        "52432133",
-        first_digits(&repeated_phase(&parse_input(
-            "69317163492948606335995924319873"
-        )))
+        52432133,
+        repeated_phase(&parse_input("69317163492948606335995924319873"))
     );
 }
 
