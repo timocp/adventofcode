@@ -42,7 +42,7 @@ impl crate::Puzzle for Solver {
         bfs::traverse(
             oxygen,
             |p| next_steps(&self.ship, p),
-            |_p, d| max_distance = d,
+            |_p, d, _path| max_distance = d,
         );
         max_distance.to_string()
     }
