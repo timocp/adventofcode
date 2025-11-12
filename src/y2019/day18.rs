@@ -14,7 +14,7 @@ impl crate::Puzzle for Solver {
     }
 
     fn part1(&self) -> String {
-        Paths::new(&self.maze).shortest_path().unwrap().to_string()
+        Search::new(&self.maze).shortest_path().unwrap().to_string()
     }
 
     fn part2(&self) -> String {
@@ -78,20 +78,19 @@ struct Path {
     keys_needed: u32,
 }
 
-// Precomputed distances between each point of interest
-// TODO: May be faster to only compute these on demand
-struct Paths {
-    entrance_to_key: [Option<Path>; 26],
-    key_to_key: [[Option<Path>; 26]; 26],
+const ENTRANCE: u8 = 26;
+
+// Info needed for shortest distance search
+struct Search {
+    // Precomputed paths from k1 to k2 (if valid).  last position [26] is for paths from entrance
+    paths: [[Option<Path>; 27]; 27],
     // bitmap of all keys that are present
     all_keys: u32,
 }
 
-impl Paths {
+impl Search {
     fn new(maze: &Maze) -> Self {
-        let mut entrance_to_key: [Option<Path>; 26] = [const { None }; 26];
-        let mut key_to_key: [[Option<Path>; 26]; 26] =
-            std::array::from_fn(|_| [const { None }; 26]);
+        let mut paths: [[Option<Path>; 27]; 27] = std::array::from_fn(|_| [const { None }; 27]);
 
         //print!("{}", maze);
 
@@ -114,14 +113,14 @@ impl Paths {
             &maze.entrance,
             |p| maze.neighbours(p),
             |p, steps, path| {
-                if let Cell::Key(key) = maze.grid.get(*p) {
+                if let Cell::Key(k2) = maze.grid.get(*p) {
                     let mut keys_needed = 0;
                     for v in path {
                         if let Cell::Door(door) = maze.grid.get(*v) {
                             keys_needed |= 1 << door;
                         }
                     }
-                    entrance_to_key[*key as usize] = Some(Path { steps, keys_needed })
+                    paths[ENTRANCE as usize][*k2 as usize] = Some(Path { steps, keys_needed });
                 }
             },
         );
@@ -146,30 +145,24 @@ impl Paths {
                                 keys_needed |= 1 << door;
                             }
                         }
-                        key_to_key[k1 as usize][*k2 as usize] = Some(Path { steps, keys_needed });
-                        key_to_key[*k2 as usize][k1 as usize] = Some(Path { steps, keys_needed });
+                        paths[k1 as usize][*k2 as usize] = Some(Path { steps, keys_needed });
+                        paths[*k2 as usize][k1 as usize] = Some(Path { steps, keys_needed });
                     }
                 },
             )
         }
 
-        Paths {
-            entrance_to_key,
-            key_to_key,
-            all_keys,
-        }
+        Search { paths, all_keys }
     }
 
     fn shortest_path(&self) -> Option<u32> {
         dijkstra::shortest_path(
             &Node {
-                at_key: None,
+                location: ENTRANCE,
                 keys_held: 0,
             },
-            |n| match n.at_key {
-                // TODO: Possible improvement by removing the collect() but
-                // currently doesn't work as the arm types would be different
-                Some(k1) => self.key_to_key[k1 as usize]
+            |n| {
+                self.paths[n.location as usize]
                     .iter()
                     .enumerate()
                     .filter_map(|(k2, path)| path.as_ref().map(|p| (k2 as u8, p)))
@@ -177,29 +170,13 @@ impl Paths {
                     .map(|(k2, path)| {
                         (
                             Node {
-                                at_key: Some(k2),
+                                location: k2,
                                 keys_held: n.keys_held | 1 << k2,
                             },
                             path.steps,
                         )
                     })
-                    .collect::<Vec<_>>(),
-                None => self
-                    .entrance_to_key
-                    .iter()
-                    .enumerate()
-                    .filter_map(|(k2, path)| path.as_ref().map(|p| (k2 as u8, p)))
-                    .filter(|(_k2, path)| (path.keys_needed & n.keys_held) == path.keys_needed)
-                    .map(|(k2, path)| {
-                        (
-                            Node {
-                                at_key: Some(k2),
-                                keys_held: n.keys_held | 1 << k2,
-                            },
-                            path.steps,
-                        )
-                    })
-                    .collect::<Vec<_>>(),
+                    .collect::<Vec<_>>()
             },
             |n| n.keys_held == self.all_keys,
         )
@@ -209,8 +186,8 @@ impl Paths {
 // state node for shortest path search
 #[derive(Clone, Hash, Ord, PartialOrd, Eq, PartialEq)]
 struct Node {
-    at_key: Option<u8>, // Key we're standing at, or None if we're at entrance
-    keys_held: u32,     // Bitmap of the keys that we hold
+    location: u8,   // Key we're standing at, or 26 if we're at entrance
+    keys_held: u32, // Bitmap of the keys that we hold
 }
 
 impl fmt::Debug for Node {
@@ -218,9 +195,10 @@ impl fmt::Debug for Node {
         write!(
             f,
             "[at={} keys_held={}]",
-            match self.at_key {
-                Some(k) => (k + 97) as char,
-                None => '@',
+            if self.location == ENTRANCE {
+                '@'
+            } else {
+                (self.location + 97) as char
             },
             keys_to_string(self.keys_held)
         )
@@ -242,7 +220,7 @@ enum Cell {
     Wall,
     Passage,
     Key(u8),  // a = 0, b = 1, etc
-    Door(u8), // A = 1, B = 1, etc
+    Door(u8), // A = 0, B = 1, etc
 }
 
 impl fmt::Display for Maze {
@@ -279,8 +257,7 @@ fn test0() {
 #########
 ";
     let maze = parse_input(test_input);
-    let paths = Paths::new(&maze);
-    assert_eq!(Some(4), paths.shortest_path());
+    assert_eq!(Some(4), Search::new(&maze).shortest_path());
 }
 
 #[test]
@@ -291,8 +268,7 @@ fn test1() {
 #########
 ";
     let maze = parse_input(test_input);
-    let paths = Paths::new(&maze);
-    assert_eq!(Some(8), paths.shortest_path());
+    assert_eq!(Some(8), Search::new(&maze).shortest_path());
 }
 
 #[test]
@@ -305,8 +281,7 @@ fn test2() {
 ########################
 ";
     let maze = parse_input(test_input);
-    let paths = Paths::new(&maze);
-    assert_eq!(Some(86), paths.shortest_path());
+    assert_eq!(Some(86), Search::new(&maze).shortest_path());
 }
 
 #[test]
@@ -319,8 +294,7 @@ fn test3() {
 ########################
 ";
     let maze = parse_input(test_input);
-    let paths = Paths::new(&maze);
-    assert_eq!(Some(132), paths.shortest_path());
+    assert_eq!(Some(132), Search::new(&maze).shortest_path());
 }
 
 #[test]
@@ -337,8 +311,7 @@ fn test4() {
 #################
 ";
     let maze = parse_input(test_input);
-    let paths = Paths::new(&maze);
-    assert_eq!(Some(136), paths.shortest_path());
+    assert_eq!(Some(136), Search::new(&maze).shortest_path());
 }
 
 #[test]
@@ -352,6 +325,5 @@ fn test5() {
 ########################
 ";
     let maze = parse_input(test_input);
-    let paths = Paths::new(&maze);
-    assert_eq!(Some(81), paths.shortest_path());
+    assert_eq!(Some(81), Search::new(&maze).shortest_path());
 }
