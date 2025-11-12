@@ -115,12 +115,17 @@ impl Search {
             |p, steps, path| {
                 if let Cell::Key(k2) = maze.grid.get(*p) {
                     let mut keys_needed = 0;
+                    let mut keys_on_path = 0;
                     for v in path {
-                        if let Cell::Door(door) = maze.grid.get(*v) {
-                            keys_needed |= 1 << door;
-                        }
+                        match maze.grid.get(*v) {
+                            Cell::Door(door) => keys_needed |= 1 << door,
+                            Cell::Key(_) => keys_on_path += 1,
+                            _ => (),
+                        };
                     }
-                    paths[ENTRANCE as usize][*k2 as usize] = Some(Path { steps, keys_needed });
+                    if keys_on_path == 0 {
+                        paths[ENTRANCE as usize][*k2 as usize] = Some(Path { steps, keys_needed });
+                    }
                 }
             },
         );
@@ -140,13 +145,18 @@ impl Search {
                         && *k2 > k1
                     {
                         let mut keys_needed = 0;
+                        let mut keys_on_path = 0;
                         for v in path {
-                            if let Cell::Door(door) = maze.grid.get(*v) {
-                                keys_needed |= 1 << door;
-                            }
+                            match maze.grid.get(*v) {
+                                Cell::Door(door) => keys_needed |= 1 << door,
+                                Cell::Key(_) => keys_on_path += 1,
+                                _ => (),
+                            };
                         }
-                        paths[k1 as usize][*k2 as usize] = Some(Path { steps, keys_needed });
-                        paths[*k2 as usize][k1 as usize] = Some(Path { steps, keys_needed });
+                        if keys_on_path == 1 {
+                            paths[k1 as usize][*k2 as usize] = Some(Path { steps, keys_needed });
+                            paths[*k2 as usize][k1 as usize] = Some(Path { steps, keys_needed });
+                        }
                     }
                 },
             )
