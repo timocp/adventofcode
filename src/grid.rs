@@ -182,6 +182,7 @@ pub fn parse_each_char(input: &str) -> impl Iterator<Item = (Pos, char)> + '_ {
 // top-left / NW corner is (0, 0)
 // setting outside of bounds panics
 // reading outside of bounds returns default
+#[derive(Clone)]
 pub struct Grid<T> {
     maxx: i32,
     maxy: i32,

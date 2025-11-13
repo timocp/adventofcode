@@ -18,16 +18,19 @@ impl crate::Puzzle for Solver {
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        Search::new(&split_vault(&self.maze))
+            .shortest_path()
+            .unwrap()
+            .to_string()
     }
 }
 
 fn parse_input(input: &str) -> Maze {
-    let mut entrance: Option<Pos> = None;
+    let mut entrances: Vec<Pos> = vec![];
     let mut keys: Vec<Option<Pos>> = vec![None; 26];
     let grid = Grid::from_input_by(input, Cell::Wall, |p, c| match c {
         '@' => {
-            entrance = Some(p);
+            entrances.push(p);
             Cell::Passage
         }
         '#' => Cell::Wall,
@@ -45,14 +48,14 @@ fn parse_input(input: &str) -> Maze {
     });
     Maze {
         grid,
-        entrance: entrance.expect("entrance missing"),
+        entrances,
         keys,
     }
 }
 
 struct Maze {
     grid: Grid<Cell>,
-    entrance: Pos,
+    entrances: Vec<Pos>,
     keys: Vec<Option<Pos>>,
 }
 
@@ -78,19 +81,23 @@ struct Path {
     keys_needed: u32,
 }
 
+// index of the first entrance into paths/locations arrays
 const ENTRANCE: u8 = 26;
 
 // Info needed for shortest distance search
 struct Search {
-    // Precomputed paths from k1 to k2 (if valid).  last position [26] is for paths from entrance
-    paths: [[Option<Path>; 27]; 27],
+    // Precomputed paths from k1 to k2 (if valid).
+    // 26 and optionally 27, 28 and 29 are for paths from up to 4 entrances
+    paths: [[Option<Path>; 26]; 30],
     // bitmap of all keys that are present
     all_keys: u32,
+    // how many robots are active (up to 4)
+    robots: usize,
 }
 
 impl Search {
     fn new(maze: &Maze) -> Self {
-        let mut paths: [[Option<Path>; 27]; 27] = std::array::from_fn(|_| [const { None }; 27]);
+        let mut paths: [[Option<Path>; 26]; 30] = std::array::from_fn(|_| [const { None }; 26]);
 
         //print!("{}", maze);
 
@@ -109,26 +116,29 @@ impl Search {
         // precompute paths from entrance to all keys
         // TODO: could probably exit early in some situations, but this is already quite
         // fast compared to the dijkstra search later
-        bfs::traverse(
-            &maze.entrance,
-            |p| maze.neighbours(p),
-            |p, steps, path| {
-                if let Cell::Key(k2) = maze.grid.get(*p) {
-                    let mut keys_needed = 0;
-                    let mut keys_on_path = 0;
-                    for v in path {
-                        match maze.grid.get(*v) {
-                            Cell::Door(door) => keys_needed |= 1 << door,
-                            Cell::Key(_) => keys_on_path += 1,
-                            _ => (),
-                        };
+        for (entrance_nbr, start) in maze.entrances.iter().enumerate() {
+            bfs::traverse(
+                start,
+                |p| maze.neighbours(p),
+                |p, steps, path| {
+                    if let Cell::Key(k2) = maze.grid.get(*p) {
+                        let mut keys_needed = 0;
+                        let mut keys_on_path = 0;
+                        for v in path {
+                            match maze.grid.get(*v) {
+                                Cell::Door(door) => keys_needed |= 1 << door,
+                                Cell::Key(_) => keys_on_path += 1,
+                                _ => (),
+                            };
+                        }
+                        if keys_on_path == 0 {
+                            paths[ENTRANCE as usize + entrance_nbr][*k2 as usize] =
+                                Some(Path { steps, keys_needed });
+                        }
                     }
-                    if keys_on_path == 0 {
-                        paths[ENTRANCE as usize][*k2 as usize] = Some(Path { steps, keys_needed });
-                    }
-                }
-            },
-        );
+                },
+            );
+        }
 
         // precompute paths from each key to every other key
         for (k1, from) in maze
@@ -162,31 +172,46 @@ impl Search {
             )
         }
 
-        Search { paths, all_keys }
+        Search {
+            paths,
+            all_keys,
+            robots: maze.entrances.len(),
+        }
     }
 
     fn shortest_path(&self) -> Option<u32> {
         dijkstra::shortest_path(
             &Node {
-                location: ENTRANCE,
+                locations: (0..self.robots).map(|i| ENTRANCE + i as u8).collect(),
                 keys_held: 0,
             },
             |n| {
-                self.paths[n.location as usize]
-                    .iter()
-                    .enumerate()
-                    .filter_map(|(k2, path)| path.as_ref().map(|p| (k2 as u8, p)))
-                    .filter(|(_k2, path)| (path.keys_needed & n.keys_held) == path.keys_needed)
-                    .map(|(k2, path)| {
-                        (
+                let mut next_nodes = vec![];
+                for (robot_nbr, location) in n.locations.iter().enumerate() {
+                    for (k2, path) in self.paths[*location as usize]
+                        .iter()
+                        .enumerate()
+                        // A path from location -> k2 exists:
+                        .filter_map(|(k2, path)| path.as_ref().map(|p| (k2 as u8, p)))
+                        // We hold the keys needed on this path:
+                        .filter(|(_k2, path)| (path.keys_needed & n.keys_held) == path.keys_needed)
+                    {
+                        let locations = n
+                            .locations
+                            .iter()
+                            .enumerate()
+                            .map(|(r, loc)| if r == robot_nbr { k2 } else { *loc })
+                            .collect();
+                        next_nodes.push((
                             Node {
-                                location: k2,
+                                locations,
                                 keys_held: n.keys_held | 1 << k2,
                             },
                             path.steps,
-                        )
-                    })
-                    .collect::<Vec<_>>()
+                        ));
+                    }
+                }
+                next_nodes
             },
             |n| n.keys_held == self.all_keys,
         )
@@ -196,22 +221,51 @@ impl Search {
 // state node for shortest path search
 #[derive(Clone, Hash, Ord, PartialOrd, Eq, PartialEq)]
 struct Node {
-    location: u8,   // Key we're standing at, or 26 if we're at entrance
-    keys_held: u32, // Bitmap of the keys that we hold
+    locations: Vec<u8>, // Key robot is at, or >= 26 if we're at entrance
+    keys_held: u32,     // Bitmap of the keys that we hold
 }
 
 impl fmt::Debug for Node {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "[at={} keys_held={}]",
-            if self.location == ENTRANCE {
-                '@'
-            } else {
-                (self.location + 97) as char
-            },
+            "[locations={:?} keys={}]",
+            self.locations,
             keys_to_string(self.keys_held)
         )
+    }
+}
+
+// To solve split vault, we just need to allow for multiple entrances
+// each one will be a robot
+fn split_vault(maze: &Maze) -> Maze {
+    let split = maze.entrances[0];
+
+    // original entrance becomes 4 entrances:
+    // ...      @#@
+    // .@.  ->  ###
+    // ...      @#@
+
+    let mut split_grid = maze.grid.clone();
+    for x in (split.x - 1)..=(split.x + 1) {
+        for y in (split.y - 1)..=(split.y + 1) {
+            split_grid.set(Pos { x, y }, Cell::Wall);
+        }
+    }
+    let entrances = vec![
+        split + Pos { x: -1, y: -1 },
+        split + Pos { x: 1, y: -1 },
+        split + Pos { x: -1, y: 1 },
+        split + Pos { x: 1, y: 1 },
+    ];
+    for p in entrances.iter() {
+        split_grid.set(*p, Cell::Passage);
+    }
+
+    Maze {
+        grid: split_grid,
+        entrances,
+        keys: maze.keys.clone(),
     }
 }
 
@@ -240,12 +294,12 @@ impl fmt::Display for Maze {
                 f,
                 "{}",
                 match c {
-                    Cell::Wall => '█',
+                    Cell::Wall => '#',
                     Cell::Passage =>
-                        if p == self.entrance {
+                        if self.entrances.contains(&p) {
                             '@'
                         } else {
-                            '·'
+                            '.'
                         },
                     Cell::Key(k) => (k + b'a') as char,
                     Cell::Door(d) => (d + b'A') as char,
@@ -336,4 +390,66 @@ fn test5() {
 ";
     let maze = parse_input(test_input);
     assert_eq!(Some(81), Search::new(&maze).shortest_path());
+}
+
+#[test]
+fn test6() {
+    let test_input = "\
+#######
+#a.#Cd#
+##...##
+##.@.##
+##...##
+#cB#Ab#
+#######
+";
+    let maze = split_vault(&parse_input(test_input));
+    assert_eq!(Some(8), Search::new(&maze).shortest_path());
+}
+
+#[test]
+fn test7() {
+    let test_input = "\
+###############
+#d.ABC.#.....a#
+######...######
+######.@.######
+######...######
+#b.....#.....c#
+###############
+";
+    let maze = split_vault(&parse_input(test_input));
+    assert_eq!(Some(24), Search::new(&maze).shortest_path());
+}
+
+#[test]
+fn test8() {
+    let test_input = "\
+#############
+#DcBa.#.GhKl#
+#.###...#I###
+#e#d#.@.#j#k#
+###C#...###J#
+#fEbA.#.FgHi#
+#############
+";
+    let maze = split_vault(&parse_input(test_input));
+    assert_eq!(Some(32), Search::new(&maze).shortest_path());
+}
+
+#[test]
+fn test9() {
+    let test_input = "\
+#############
+#g#f.D#..h#l#
+#F###e#E###.#
+#dCba...BcIJ#
+#####.@.#####
+#nK.L...G...#
+#M###N#H###.#
+#o#m..#i#jk.#
+#############
+";
+    let maze = split_vault(&parse_input(test_input));
+    assert_eq!(Some(72), Search::new(&maze).shortest_path());
 }
