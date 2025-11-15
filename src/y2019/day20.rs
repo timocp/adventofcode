@@ -17,11 +17,11 @@ impl crate::Puzzle for Solver {
     }
 
     fn part1(&self) -> String {
-        solve(&self.maze).to_string()
+        solve(&self.maze, false).unwrap().to_string()
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        solve(&self.maze, true).unwrap().to_string()
     }
 }
 
@@ -32,6 +32,9 @@ fn parse_input(input: &str) -> Maze {
 
     // Map of labels to a vec of (entrance, local_exit) pair
     let mut warp_markers: HashMap<(char, char), Vec<(Pos, Pos)>> = HashMap::new();
+
+    let mut top_left_corner: Option<Pos> = None;
+    let mut bottom_right_corner: Option<Pos> = None;
 
     // iterate over each marker.  Record entrance, exit and each warp with its local exit
     let each_pos: Vec<Pos> = grid.iter().map(|(p, _cell)| p).collect();
@@ -58,15 +61,40 @@ fn parse_input(input: &str) -> Maze {
                     grid.set(p2, Empty);
                 }
             }
+            Wall => {
+                // track these corners to determine if warps are outer/inner
+                if top_left_corner.is_none() {
+                    top_left_corner = Some(p);
+                }
+                bottom_right_corner = Some(p);
+            }
             _ => {}
         }
     }
 
+    // lines containing outer portals
+    let outer_left_x = top_left_corner.unwrap().x - 1;
+    let outer_right_x = bottom_right_corner.unwrap().x + 1;
+    let outer_top_y = top_left_corner.unwrap().y - 1;
+    let outer_bottom_y = bottom_right_corner.unwrap().y + 1;
+
     // Each label should have exactly 2 (entrace,local_exits) pairs.
     // Insert them into the maze, swapping local exits so that they become warp exits.
     for (_label, v) in warp_markers.iter() {
-        grid.set(v[0].0, Warp(v[1].1));
-        grid.set(v[1].0, Warp(v[0].1));
+        let p = v[0].0;
+        if p.x == outer_left_x
+            || p.x == outer_right_x
+            || p.y == outer_top_y
+            || p.y == outer_bottom_y
+        {
+            // the first pair is outer
+            grid.set(v[0].0, OuterPortal(v[1].1));
+            grid.set(v[1].0, InnerPortal(v[0].1));
+        } else {
+            // the first pair is inner
+            grid.set(v[0].0, InnerPortal(v[1].1));
+            grid.set(v[1].0, OuterPortal(v[0].1));
+        }
     }
 
     Maze {
@@ -112,8 +140,9 @@ enum Cell {
     Passage,
     Entrance,
     Exit,
-    Label(char),
-    Warp(Pos),
+    Label(char), // temporary during parsing
+    InnerPortal(Pos),
+    OuterPortal(Pos),
 }
 
 impl From<char> for Cell {
@@ -136,28 +165,71 @@ struct Maze {
 
 const NEIGHBOURS: [Compass; 4] = [North, East, South, West];
 
-fn solve(maze: &Maze) -> usize {
-    bfs::search(
-        &maze.entrance,
-        |p| {
-            NEIGHBOURS
-                .iter()
-                .filter_map(|dir| {
-                    let p2 = p.step(*dir);
-                    match maze.grid.get(p2) {
-                        Wall => None,
-                        Passage => Some((p2, dir)),
-                        Exit => Some((p2, dir)),
-                        Warp(to) => Some((*to, dir)),
-                        _ => None,
-                    }
-                })
-                .collect::<Vec<_>>()
+fn solve(maze: &Maze, recursive: bool) -> Option<usize> {
+    let path = bfs::search(
+        &(maze.entrance, 0),
+        |(p, level)| {
+            if recursive {
+                recursive_neighbours(maze, p, level)
+            } else {
+                non_recursive_neighbours(maze, p)
+            }
         },
-        |p| *p == maze.exit,
-    )
-    .unwrap()
-    .len()
+        |(p, level)| *level == 0 && *p == maze.exit,
+    );
+    path.map(|v| v.len())
+}
+
+// original version, any portal warps to its companion with the same name
+fn non_recursive_neighbours(maze: &Maze, p: &Pos) -> Vec<((Pos, u32), Compass)> {
+    NEIGHBOURS
+        .iter()
+        .filter_map(|dir| {
+            let p2 = p.step(*dir);
+            match maze.grid.get(p2) {
+                Wall => None,
+                Passage => Some(((p2, 0), *dir)),
+                Exit => Some(((p2, 0), *dir)),
+                InnerPortal(to) | OuterPortal(to) => Some(((*to, 0), *dir)),
+                _ => None,
+            }
+        })
+        .collect()
+}
+
+// inner warps are now to a deeper copy of the maze,
+// outer warps are back to the previous copy
+// initial maze is outermost (level=0); warps do not lead anywhere
+// entrance and exit only exist on the outermost maze.
+fn recursive_neighbours(maze: &Maze, p: &Pos, level: &u32) -> Vec<((Pos, u32), Compass)> {
+    NEIGHBOURS
+        .iter()
+        .filter_map(|dir| {
+            let p2 = p.step(*dir);
+            match maze.grid.get(p2) {
+                Wall => None,
+                Passage => Some(((p2, *level), *dir)),
+                Exit => Some(((p2, *level), *dir)),
+                InnerPortal(to) => {
+                    // A level limit is needed to avoid infinite recursion when there's
+                    // no path (like test example 2)
+                    if *level < 25 {
+                        Some(((*to, level + 1), *dir))
+                    } else {
+                        None
+                    }
+                }
+                OuterPortal(to) => {
+                    if *level > 0 {
+                        Some(((*to, level - 1), *dir))
+                    } else {
+                        None
+                    }
+                }
+                _ => None,
+            }
+        })
+        .collect()
 }
 
 #[test]
@@ -185,7 +257,8 @@ fn test() {
     ]
     .join("");
     let maze = parse_input(&example1);
-    assert_eq!(23, solve(&maze));
+    assert_eq!(Some(23), solve(&maze, false));
+    assert_eq!(Some(26), solve(&maze, true));
 
     let example2 = [
         "                   A               \n",
@@ -228,5 +301,50 @@ fn test() {
     ]
     .join("");
     let maze = parse_input(&example2);
-    assert_eq!(58, solve(&maze));
+    assert_eq!(Some(58), solve(&maze, false));
+    assert_eq!(None, solve(&maze, true));
+
+    let example3 = [
+        "             Z L X W       C                 \n",
+        "             Z P Q B       K                 \n",
+        "  ###########.#.#.#.#######.###############  \n",
+        "  #...#.......#.#.......#.#.......#.#.#...#  \n",
+        "  ###.#.#.#.#.#.#.#.###.#.#.#######.#.#.###  \n",
+        "  #.#...#.#.#...#.#.#...#...#...#.#.......#  \n",
+        "  #.###.#######.###.###.#.###.###.#.#######  \n",
+        "  #...#.......#.#...#...#.............#...#  \n",
+        "  #.#########.#######.#.#######.#######.###  \n",
+        "  #...#.#    F       R I       Z    #.#.#.#  \n",
+        "  #.###.#    D       E C       H    #.#.#.#  \n",
+        "  #.#...#                           #...#.#  \n",
+        "  #.###.#                           #.###.#  \n",
+        "  #.#....OA                       WB..#.#..ZH\n",
+        "  #.###.#                           #.#.#.#  \n",
+        "CJ......#                           #.....#  \n",
+        "  #######                           #######  \n",
+        "  #.#....CK                         #......IC\n",
+        "  #.###.#                           #.###.#  \n",
+        "  #.....#                           #...#.#  \n",
+        "  ###.###                           #.#.#.#  \n",
+        "XF....#.#                         RF..#.#.#  \n",
+        "  #####.#                           #######  \n",
+        "  #......CJ                       NM..#...#  \n",
+        "  ###.#.#                           #.###.#  \n",
+        "RE....#.#                           #......RF\n",
+        "  ###.###        X   X       L      #.#.#.#  \n",
+        "  #.....#        F   Q       P      #.#.#.#  \n",
+        "  ###.###########.###.#######.#########.###  \n",
+        "  #.....#...#.....#.......#...#.....#.#...#  \n",
+        "  #####.#.###.#######.#######.###.###.#.#.#  \n",
+        "  #.......#.......#.#.#.#.#...#...#...#.#.#  \n",
+        "  #####.###.#####.#.#.#.#.###.###.#.###.###  \n",
+        "  #.......#.....#.#...#...............#...#  \n",
+        "  #############.#.#.###.###################  \n",
+        "               A O F   N                     \n",
+        "               A A D   M                     \n",
+    ]
+    .join("");
+    let maze = parse_input(&example3);
+    assert_eq!(Some(77), solve(&maze, false));
+    assert_eq!(Some(396), solve(&maze, true));
 }
