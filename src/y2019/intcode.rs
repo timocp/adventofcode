@@ -36,7 +36,7 @@ impl Vm {
 
     // run VM with specific input and return its output
     pub fn run(&mut self, input: &[i64]) -> Vec<i64> {
-        self.set_input(input);
+        self.input.extend(input.to_vec());
         self.output = vec![];
         self.exec();
         self.output.clone()
