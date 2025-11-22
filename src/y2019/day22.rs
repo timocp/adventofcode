@@ -1,3 +1,5 @@
+use std::fmt;
+
 pub struct Solver {
     techniques: Vec<Technique>,
 }
@@ -10,10 +12,8 @@ impl crate::Puzzle for Solver {
     }
 
     fn part1(&self) -> String {
-        shuffle((0..10007).collect(), &self.techniques)
-            .iter()
-            .position(|n| *n == 2019)
-            .unwrap()
+        compose_techniques(&self.techniques, 10007)
+            .apply(2019)
             .to_string()
     }
 
@@ -22,67 +22,85 @@ impl crate::Puzzle for Solver {
     }
 }
 
-fn shuffle(cards: Vec<i32>, techniques: &[Technique]) -> Vec<i32> {
-    techniques.iter().fold(cards, |acc, t| shuffle1(&acc, t))
-}
-
-fn shuffle1(cards: &[i32], technique: &Technique) -> Vec<i32> {
-    match technique {
-        Technique::Cut(at) => cut(cards, *at),
-        Technique::DealIntoNewStack => deal_into_new_stack(cards),
-        Technique::DealWithIncrement(inc) => deal_with_increment(cards, *inc),
-    }
-}
-
 #[derive(Debug)]
 enum Technique {
-    Cut(i32),
     DealIntoNewStack,
-    DealWithIncrement(usize),
+    Cut(i128),
+    DealWithIncrement(i128),
 }
 
-fn deal_into_new_stack(cards: &[i32]) -> Vec<i32> {
-    (0..cards.len())
-        .map(|i| cards[cards.len() - 1 - i])
-        .collect()
+// map an array of shuffling techniques into LCF functions,
+// and then compose them into a single function.
+fn compose_techniques(techniques: &[Technique], m: i128) -> Lcf {
+    techniques
+        .iter()
+        .map(|t| t.lcf(m))
+        .reduce(|f, g| f.compose(&g))
+        .unwrap()
 }
 
-fn cut_front(cards: &[i32], at: usize) -> Vec<i32> {
-    (0..cards.len())
-        .map(|i| {
-            if i < cards.len() - at {
-                cards[i + at]
-            } else {
-                cards[i - (cards.len() - at)]
-            }
-        })
-        .collect()
+// Represents the linear congruence function f(x) = ax + b mod m
+struct Lcf {
+    a: i128,
+    b: i128,
+    m: i128,
 }
 
-fn cut(cards: &[i32], at: i32) -> Vec<i32> {
-    if at < 0 {
-        cut_front(cards, cards.len() - at.unsigned_abs() as usize)
-    } else {
-        cut_front(cards, at as usize)
+impl Lcf {
+    // based on guide: https://codeforces.com/blog/entry/72593
+    // f(x) = ax + b mod m  (self)
+    // g(x) = cx + d mod m  (other)
+    // g(f(x)) = c(ax + b) + d mod m
+    //         = cax + cb + d mod m
+    fn compose(&self, other: &Self) -> Self {
+        if self.m != other.m {
+            unreachable!();
+        }
+        let a = self.a;
+        let b = self.b;
+        let c = other.a;
+        let d = other.b;
+        Lcf {
+            a: (c * a).rem_euclid(self.m),
+            b: (c * b + d).rem_euclid(self.m),
+            m: self.m,
+        }
+    }
+
+    fn apply(&self, x: i128) -> i128 {
+        (self.a * x + self.b).rem_euclid(self.m)
     }
 }
 
-fn deal_with_increment(cards: &[i32], inc: usize) -> Vec<i32> {
-    let mut new: Vec<i32> = vec![0; cards.len()];
-    let mut pos = 0;
-    for i in 0..cards.len() {
-        new[pos] = cards[i];
-        pos = (pos + inc) % cards.len();
+impl fmt::Debug for Lcf {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{} * x {} {} mod {}",
+            self.a,
+            if self.b.signum() < 0 { '-' } else { '+' },
+            self.b.abs(),
+            self.m
+        )
     }
-    new
+}
+
+impl Technique {
+    fn lcf(&self, m: i128) -> Lcf {
+        match self {
+            Technique::DealIntoNewStack => Lcf { a: -1, b: -1, m },
+            Technique::Cut(n) => Lcf { a: 1, b: -n, m },
+            Technique::DealWithIncrement(n) => Lcf { a: *n, b: 0, m },
+        }
+    }
 }
 
 impl From<&str> for Technique {
     fn from(s: &str) -> Self {
-        if let Some(number) = s.strip_prefix("cut ") {
-            Technique::Cut(number.parse().unwrap())
-        } else if s == "deal into new stack" {
+        if s == "deal into new stack" {
             Technique::DealIntoNewStack
+        } else if let Some(number) = s.strip_prefix("cut ") {
+            Technique::Cut(number.parse().unwrap())
         } else if let Some(number) = s.strip_prefix("deal with increment ") {
             Technique::DealWithIncrement(number.parse().unwrap())
         } else {
@@ -96,77 +114,83 @@ fn parse_input(input: &str) -> Vec<Technique> {
 }
 
 #[test]
-fn test_techniques() {
-    let deck10: Vec<i32> = (0..10).collect();
+fn test_apply() {
+    let f = Technique::DealIntoNewStack.lcf(10);
 
-    assert_eq!(
-        vec![9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
-        deal_into_new_stack(&deck10)
-    );
+    for (index, x) in vec![9, 8, 7, 6, 5, 4, 3, 2, 1, 0].into_iter().enumerate() {
+        assert_eq!(index as i128, f.apply(x as i128));
+    }
 
-    assert_eq!(vec![3, 4, 5, 6, 7, 8, 9, 0, 1, 2], cut(&deck10, 3));
-    assert_eq!(vec![6, 7, 8, 9, 0, 1, 2, 3, 4, 5], cut(&deck10, -4));
+    let f = Technique::Cut(3).lcf(10);
+    for (index, x) in vec![3, 4, 5, 6, 7, 8, 9, 0, 1, 2].into_iter().enumerate() {
+        assert_eq!(index as i128, f.apply(x));
+    }
 
-    assert_eq!(
-        vec![0, 7, 4, 1, 8, 5, 2, 9, 6, 3],
-        deal_with_increment(&deck10, 3)
-    );
+    let f = Technique::Cut(-4).lcf(10);
+    for (index, x) in vec![6, 7, 8, 9, 0, 1, 2, 3, 4, 5].into_iter().enumerate() {
+        assert_eq!(index as i128, f.apply(x));
+    }
+
+    let f = Technique::DealWithIncrement(3).lcf(10);
+    for (index, x) in vec![0, 7, 4, 1, 8, 5, 2, 9, 6, 3].into_iter().enumerate() {
+        assert_eq!(index as i128, f.apply(x));
+    }
 }
 
 #[test]
-fn test_shuffle() {
-    assert_eq!(
-        vec![0, 3, 6, 9, 2, 5, 8, 1, 4, 7],
-        shuffle(
-            (0..10).collect(),
-            &vec![
-                Technique::DealWithIncrement(7),
-                Technique::DealIntoNewStack,
-                Technique::DealIntoNewStack,
-            ]
-        )
+fn test_compose() {
+    let f = compose_techniques(
+        &vec![
+            Technique::DealWithIncrement(7),
+            Technique::DealIntoNewStack,
+            Technique::DealIntoNewStack,
+        ],
+        10,
     );
+    for (index, x) in vec![0, 3, 6, 9, 2, 5, 8, 1, 4, 7].into_iter().enumerate() {
+        assert_eq!(index as i128, f.apply(x));
+    }
 
-    assert_eq!(
-        vec![3, 0, 7, 4, 1, 8, 5, 2, 9, 6],
-        shuffle(
-            (0..10).collect(),
-            &vec![
-                Technique::Cut(6),
-                Technique::DealWithIncrement(7),
-                Technique::DealIntoNewStack,
-            ]
-        )
+    let f = compose_techniques(
+        &vec![
+            Technique::Cut(6),
+            Technique::DealWithIncrement(7),
+            Technique::DealIntoNewStack,
+        ],
+        10,
     );
+    for (index, x) in vec![3, 0, 7, 4, 1, 8, 5, 2, 9, 6].into_iter().enumerate() {
+        assert_eq!(index as i128, f.apply(x));
+    }
 
-    assert_eq!(
-        vec![6, 3, 0, 7, 4, 1, 8, 5, 2, 9],
-        shuffle(
-            (0..10).collect(),
-            &vec![
-                Technique::DealWithIncrement(7),
-                Technique::DealWithIncrement(9),
-                Technique::Cut(-2),
-            ]
-        )
+    let f = compose_techniques(
+        &vec![
+            Technique::DealWithIncrement(7),
+            Technique::DealWithIncrement(9),
+            Technique::Cut(-2),
+        ],
+        10,
     );
+    for (index, x) in vec![6, 3, 0, 7, 4, 1, 8, 5, 2, 9].into_iter().enumerate() {
+        assert_eq!(index as i128, f.apply(x));
+    }
 
-    assert_eq!(
-        vec![9, 2, 5, 8, 1, 4, 7, 0, 3, 6],
-        shuffle(
-            (0..10).collect(),
-            &vec![
-                Technique::DealIntoNewStack,
-                Technique::Cut(-2),
-                Technique::DealWithIncrement(7),
-                Technique::Cut(8),
-                Technique::Cut(-4),
-                Technique::DealWithIncrement(7),
-                Technique::Cut(3),
-                Technique::DealWithIncrement(9),
-                Technique::DealWithIncrement(3),
-                Technique::Cut(-1),
-            ]
-        )
+    let f = compose_techniques(
+        &vec![
+            Technique::DealIntoNewStack,
+            Technique::Cut(-2),
+            Technique::DealWithIncrement(7),
+            Technique::Cut(8),
+            Technique::Cut(-4),
+            Technique::DealWithIncrement(7),
+            Technique::Cut(3),
+            Technique::DealWithIncrement(9),
+            Technique::DealWithIncrement(3),
+            Technique::Cut(-1),
+        ],
+        10,
     );
+    for (index, x) in vec![9, 2, 5, 8, 1, 4, 7, 0, 3, 6].into_iter().enumerate() {
+        assert_eq!(index as i128, f.apply(x));
+    }
 }
