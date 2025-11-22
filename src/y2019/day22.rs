@@ -1,3 +1,4 @@
+use crate::numeric::mod_inv;
 use std::fmt;
 
 pub struct Solver {
@@ -18,7 +19,11 @@ impl crate::Puzzle for Solver {
     }
 
     fn part2(&self) -> String {
-        "unimplemented".to_string()
+        compose_techniques(&self.techniques, 119315717514047)
+            .repeat(101741582076661)
+            .inverse()
+            .apply(2020)
+            .to_string()
     }
 }
 
@@ -40,6 +45,8 @@ fn compose_techniques(techniques: &[Technique], m: i128) -> Lcf {
 }
 
 // Represents the linear congruence function f(x) = ax + b mod m
+// This approach and maths was based on this guide: https://codeforces.com/blog/entry/72593
+#[derive(Clone)]
 struct Lcf {
     a: i128,
     b: i128,
@@ -47,7 +54,6 @@ struct Lcf {
 }
 
 impl Lcf {
-    // based on guide: https://codeforces.com/blog/entry/72593
     // f(x) = ax + b mod m  (self)
     // g(x) = cx + d mod m  (other)
     // g(f(x)) = c(ax + b) + d mod m
@@ -63,6 +69,34 @@ impl Lcf {
         Lcf {
             a: (c * a).rem_euclid(self.m),
             b: (c * b + d).rem_euclid(self.m),
+            m: self.m,
+        }
+    }
+
+    // compose self into itself k times
+    fn repeat(&self, k: i128) -> Self {
+        let mut f = self.clone();
+        let mut g = Self {
+            a: 1,
+            b: 0,
+            m: self.m,
+        };
+        let mut k = k;
+        while k > 0 {
+            if k % 2 == 1 {
+                g = g.compose(&f)
+            }
+            k /= 2;
+            f = f.compose(&f);
+        }
+        g
+    }
+
+    fn inverse(&self) -> Self {
+        let a = mod_inv(self.a, self.m).unwrap();
+        Lcf {
+            a,
+            b: self.m - (a * self.b) % self.m,
             m: self.m,
         }
     }

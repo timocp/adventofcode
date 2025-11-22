@@ -4,6 +4,7 @@ use std::time::Instant;
 mod bfs;
 mod dijkstra;
 mod grid;
+mod numeric;
 mod pixel_buffer;
 
 mod y2015;
