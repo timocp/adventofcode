@@ -144,8 +144,9 @@ fn find_code(vm: &mut Vm) -> String {
             input += "south\n";
 
             let output = execute(vm, &input);
-            if output.contains("Droids on this ship are heavier") {
-            } else if output.contains("Droids on this ship are lighter") {
+            if output.contains("Droids on this ship are heavier")
+                || output.contains("Droids on this ship are lighter")
+            {
             } else if output.contains("You may proceed.") {
                 //println!(
                 //    "items needed: {:?}",
@@ -156,6 +157,8 @@ fn find_code(vm: &mut Vm) -> String {
                 words_iter.position(|s| s == "typing");
                 let code = words_iter.next();
                 return code.unwrap().to_string();
+            } else {
+                panic!("Unexpected output: {:?}", output);
             }
         }
     }
