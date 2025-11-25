@@ -91,7 +91,7 @@ impl BitGrid {
     // (4,4) = 1 << 24 = 16777216
     fn mask(x: i32, y: i32) -> u32 {
         if (0..5).contains(&x) && (0..5).contains(&y) {
-            1 << y * 5 + x
+            1 << (y * 5 + x)
         } else {
             0
         }
@@ -137,9 +137,7 @@ struct InfiniteGrid {
 
 impl InfiniteGrid {
     fn get(&self, depth: i32, x: i32, y: i32) -> bool {
-        if depth < 0 || depth as usize >= self.grids.len() {
-            false
-        } else if x == 2 && y == 2 {
+        if depth < 0 || depth as usize >= self.grids.len() || (x == 2 && y == 2) {
             false
         } else {
             self.grids[depth as usize].get(x, y)
@@ -222,14 +220,14 @@ impl InfiniteGrid {
             let mut data = 0;
             for y in 0..5 {
                 for x in 0..5 {
-                    if !(x == 2 && y == 2) {
-                        if match (self.get(depth, x, y), self.count_neighbours(depth, x, y)) {
+                    if !(x == 2 && y == 2)
+                        && match (self.get(depth, x, y), self.count_neighbours(depth, x, y)) {
                             (true, 1) => true,
                             (false, 1 | 2) => true,
                             (_, _) => false,
-                        } {
-                            data += BitGrid::mask(x, y);
                         }
+                    {
+                        data += BitGrid::mask(x, y);
                     }
                 }
             }
@@ -238,10 +236,10 @@ impl InfiniteGrid {
         }
 
         // remove empty grids at ends
-        while grids.len() > 0 && grids[0].biodiversity_rating() == 0 {
+        while !grids.is_empty() && grids[0].biodiversity_rating() == 0 {
             grids.pop_front();
         }
-        while grids.len() > 0 && grids[grids.len() - 1].biodiversity_rating() == 0 {
+        while !grids.is_empty() && grids[grids.len() - 1].biodiversity_rating() == 0 {
             grids.pop_back();
         }
 
