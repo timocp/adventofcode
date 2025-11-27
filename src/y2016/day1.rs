@@ -1,3 +1,4 @@
+use crate::grid::{Compass, ORIGIN, Pos};
 use std::collections::HashSet;
 
 pub struct Solver {
@@ -31,7 +32,7 @@ fn part1(input: &[Instruction]) -> u32 {
 
 fn part2(input: &[Instruction]) -> u32 {
     let mut state = State::new();
-    let mut visited: HashSet<(i32, i32)> = HashSet::new();
+    let mut visited: HashSet<Pos> = HashSet::new();
     for instruction in input {
         state.turn(instruction.turn);
         for _ in 0..instruction.walk {
@@ -45,61 +46,32 @@ fn part2(input: &[Instruction]) -> u32 {
     panic!("Didn't visit any location twice")
 }
 
-#[derive(Clone, Copy)]
-enum Direction {
-    North,
-    East,
-    South,
-    West,
-}
-
-impl Direction {
-    fn turn(&self, turn: Turn) -> Direction {
-        match turn {
-            Turn::Left => match self {
-                Direction::North => Direction::West,
-                Direction::East => Direction::North,
-                Direction::South => Direction::East,
-                Direction::West => Direction::South,
-            },
-            Turn::Right => match self {
-                Direction::North => Direction::East,
-                Direction::East => Direction::South,
-                Direction::South => Direction::West,
-                Direction::West => Direction::North,
-            },
-        }
-    }
-}
-
 struct State {
-    direction: Direction,
-    position: (i32, i32),
+    direction: Compass,
+    position: Pos,
 }
 
 impl State {
     fn new() -> Self {
         Self {
-            direction: Direction::North,
-            position: (0, 0),
+            direction: Compass::North,
+            position: ORIGIN,
         }
     }
 
     fn turn(&mut self, turn: Turn) {
-        self.direction = self.direction.turn(turn);
+        self.direction = match turn {
+            Turn::Left => self.direction.left90(),
+            Turn::Right => self.direction.right90(),
+        }
     }
 
     fn walk(&mut self, walk: u32) {
-        match self.direction {
-            Direction::North => self.position.1 += walk as i32,
-            Direction::East => self.position.0 += walk as i32,
-            Direction::South => self.position.1 -= walk as i32,
-            Direction::West => self.position.0 -= walk as i32,
-        };
+        self.position = self.position.walk(self.direction, walk as i32);
     }
 
     fn distance_from_origin(&self) -> u32 {
-        self.position.0.unsigned_abs() + self.position.1.unsigned_abs()
+        self.position.manhattan_distance(&ORIGIN)
     }
 }
 

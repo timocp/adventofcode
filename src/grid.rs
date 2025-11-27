@@ -105,41 +105,45 @@ impl Compass {
 }
 
 impl Pos {
-    pub fn step(&self, dir: Compass) -> Self {
+    pub fn walk(&self, dir: Compass, steps: i32) -> Self {
         match dir {
             Compass::North => Self {
                 x: self.x,
-                y: self.y - 1,
+                y: self.y - steps,
             },
             Compass::NorthEast => Self {
-                x: self.x + 1,
-                y: self.y - 1,
+                x: self.x + steps,
+                y: self.y - steps,
             },
             Compass::East => Self {
-                x: self.x + 1,
+                x: self.x + steps,
                 y: self.y,
             },
             Compass::SouthEast => Self {
-                x: self.x + 1,
-                y: self.y + 1,
+                x: self.x + steps,
+                y: self.y + steps,
             },
             Compass::South => Self {
                 x: self.x,
-                y: self.y + 1,
+                y: self.y + steps,
             },
             Compass::SouthWest => Self {
-                x: self.x - 1,
-                y: self.y + 1,
+                x: self.x - steps,
+                y: self.y + steps,
             },
             Compass::West => Self {
-                x: self.x - 1,
+                x: self.x - steps,
                 y: self.y,
             },
             Compass::NorthWest => Self {
-                x: self.x - 1,
-                y: self.y - 1,
+                x: self.x - steps,
+                y: self.y - steps,
             },
         }
+    }
+
+    pub fn step(&self, dir: Compass) -> Self {
+        self.walk(dir, 1)
     }
 
     // direction as (dx, dy), normalised by dividing by gcd
