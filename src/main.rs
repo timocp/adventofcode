@@ -12,6 +12,7 @@ mod y2016;
 mod y2018;
 mod y2019;
 mod y2021;
+mod y2025;
 
 pub trait Puzzle {
     fn new(input: &str) -> Self;
@@ -155,6 +156,7 @@ fn run(year: usize, day: usize) {
             (2021, 23) => solve::<y2021::day23::Solver>(year, day, &input),
             (2021, 24) => solve::<y2021::day24::Solver>(year, day, &input),
             (2021, 25) => solve::<y2021::day25::Solver>(year, day, &input),
+            (2025, 1) => solve::<y2025::day1::Solver>(year, day, &input),
             (_, _) => {}
         }
     } else {
