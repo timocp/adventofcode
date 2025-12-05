@@ -29,6 +29,10 @@ fi
 
 session=$(sqlite3 "$cookies" "select value from moz_cookies where name = 'session' and host = '.adventofcode.com'")
 rm -f "$cookies"
+if [ -z "$session" ]; then
+    echo "Unable to find session cookie. Check firefox is logged in to adventofcode.com"
+    exit 1
+fi
 
 for year in $(seq 2015 "$this_year"); do
     for day in $(seq 25); do
