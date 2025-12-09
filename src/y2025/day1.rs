@@ -38,19 +38,15 @@ fn count_zeros(turns: &[Turn], all: bool) -> i32 {
         if all {
             match (started_at_zero, pos) {
                 (true, ..0) => count += -q,
-                (true, 100..) => count += q,
                 (false, ..=0) => count += -q + 1,
-                (false, 100..) => count += q,
+                (_, 100..) => count += q,
                 (_, _) => {}
             }
         } else if pos % 100 == 0 {
             count += 1;
         }
 
-        pos %= 100;
-        if pos < 0 {
-            pos += 100;
-        }
+        pos = pos.rem_euclid(100);
     }
     count
 }
