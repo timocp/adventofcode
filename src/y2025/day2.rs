@@ -19,16 +19,16 @@ impl crate::Puzzle for Solver {
 }
 
 fn invalid(n: u64) -> bool {
-    let s = format!("{}", n);
-    if s.len() % 2 == 0 {
-        let (front, back) = s.split_at(s.len() / 2);
-        front == back
+    let len = n.ilog10() + 1;
+    if len.is_multiple_of(2) {
+        let divisor = 10u64.pow(len / 2);
+        n % divisor == n / divisor
     } else {
         false
     }
 }
 
-// max in input is 10 digits
+// max in input is 10 digits, but higher than max u32
 fn invalid2(n: u64) -> bool {
     match n {
         0..=9 => false,
