@@ -29,33 +29,32 @@ fn invalid(n: u64) -> bool {
 }
 
 // max in input is 10 digits, but higher than max u32
+#[allow(clippy::zero_prefixed_literal, reason = "describes repeat pattern")]
 fn invalid2(n: u64) -> bool {
+    // a repeating digit will be a multiple
+    // eg if 6 digits, will be AAAAAA or ABABAB or ABCABC
+    // -> divisible by 111111 or 010101 or 001001
     match n {
         0..=9 => false,
-        10..=99 => check(n, 1, 2),
-        100..=999 => check(n, 1, 3),
-        1000..=9999 => check(n, 1, 4) || check(n, 2, 2),
-        10000..=99999 => check(n, 1, 5),
-        100000..=999999 => check(n, 1, 6) || check(n, 2, 3) || check(n, 3, 2),
-        1000000..=9999999 => check(n, 1, 7),
-        10000000..=99999999 => check(n, 1, 8) || check(n, 2, 4) || check(n, 4, 2),
-        100000000..=999999999 => check(n, 1, 9) || check(n, 3, 3),
-        1000000000..=9999999999 => check(n, 1, 10) || check(n, 2, 5) || check(n, 5, 2),
+        10..=99 => n.is_multiple_of(11),
+        100..=999 => n.is_multiple_of(111),
+        1000..=9999 => n.is_multiple_of(1111) || n.is_multiple_of(0101),
+        10000..=99999 => n.is_multiple_of(11111),
+        100000..=999999 => {
+            n.is_multiple_of(111111) || n.is_multiple_of(010101) || n.is_multiple_of(001001)
+        }
+        1000000..=9999999 => n.is_multiple_of(1111111),
+        10000000..=99999999 => {
+            n.is_multiple_of(11111111) || n.is_multiple_of(01010101) || n.is_multiple_of(00010001)
+        }
+        100000000..=999999999 => n.is_multiple_of(111111111) || n.is_multiple_of(001001001),
+        1000000000..=9999999999 => {
+            n.is_multiple_of(1111111111)
+                || n.is_multiple_of(0101010101)
+                || n.is_multiple_of(0000100001)
+        }
         _ => panic!(),
     }
-}
-
-// check if n in decimal is made up of R repeats of D digits
-fn check(mut n: u64, digits: u32, repeats: u32) -> bool {
-    let divisor = 10u32.pow(digits) as u64;
-    let pat = n % divisor;
-    for _ in 1..repeats {
-        n /= divisor;
-        if pat != n % divisor {
-            return false;
-        }
-    }
-    true
 }
 
 fn sum_invalid(ranges: &[(u64, u64)], invalid: fn(u64) -> bool) -> u64 {
