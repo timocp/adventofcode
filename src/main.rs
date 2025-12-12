@@ -158,6 +158,7 @@ fn run(year: usize, day: usize) {
             (2021, 25) => solve::<y2021::day25::Solver>(year, day, &input),
             (2025, 1) => solve::<y2025::day1::Solver>(year, day, &input),
             (2025, 2) => solve::<y2025::day2::Solver>(year, day, &input),
+            (2025, 3) => solve::<y2025::day3::Solver>(year, day, &input),
             (_, _) => {}
         }
     } else {
