@@ -1,5 +1,5 @@
 pub struct Solver {
-    input: Vec<Turn>,
+    input: Vec<i32>,
 }
 
 impl crate::Puzzle for Solver {
@@ -18,21 +18,12 @@ impl crate::Puzzle for Solver {
     }
 }
 
-#[derive(Debug)]
-enum Turn {
-    Left(i32),
-    Right(i32),
-}
-
-fn count_zeros(turns: &[Turn], all: bool) -> i32 {
+fn count_zeros(turns: &[i32], all: bool) -> i32 {
     let mut pos = 50;
     let mut count = 0;
     for turn in turns {
         let started_at_zero = pos == 0;
-        match turn {
-            Turn::Left(i) => pos -= i,
-            Turn::Right(i) => pos += i,
-        };
+        pos += turn;
 
         let q = pos / 100;
         if all {
@@ -51,14 +42,14 @@ fn count_zeros(turns: &[Turn], all: bool) -> i32 {
     count
 }
 
-fn parse_input(input: &str) -> Vec<Turn> {
+fn parse_input(input: &str) -> Vec<i32> {
     input
         .lines()
         .map(|line| {
             if let Some(i) = line.strip_prefix("L") {
-                Turn::Left(i.parse().unwrap())
+                -i.parse::<i32>().unwrap()
             } else if let Some(i) = line.strip_prefix("R") {
-                Turn::Right(i.parse().unwrap())
+                i.parse().unwrap()
             } else {
                 panic!()
             }
