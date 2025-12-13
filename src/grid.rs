@@ -76,6 +76,17 @@ pub enum Compass {
     NorthWest,
 }
 
+pub const ALL_DIRS: [Compass; 8] = [
+    Compass::North,
+    Compass::NorthEast,
+    Compass::East,
+    Compass::SouthEast,
+    Compass::South,
+    Compass::SouthWest,
+    Compass::West,
+    Compass::NorthWest,
+];
+
 impl Compass {
     pub fn left90(&self) -> Self {
         match self {
