@@ -1,4 +1,4 @@
-use std::io::Read;
+use std::io::{self, Read, Write};
 use std::time::Instant;
 
 mod bfs;
@@ -131,6 +131,7 @@ where
     F: FnOnce() -> String,
 {
     print!("{}: ", label);
+    io::stdout().flush().unwrap();
     let result = f();
     println!(
         "{:53} {1:5.2}s",
