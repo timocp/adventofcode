@@ -3,26 +3,6 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-pub struct Solver {
-    instructions: Vec<Instruction>,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            instructions: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.instructions).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.instructions).to_string()
-    }
-}
-
 #[derive(Debug)]
 enum Action {
     TurnOn,
@@ -42,7 +22,7 @@ impl From<&str> for Action {
 }
 
 #[derive(Debug)]
-struct Instruction {
+pub struct Instruction {
     action: Action,
     from: (u32, u32), // x,y
     to: (u32, u32),
@@ -63,7 +43,7 @@ impl From<&str> for Instruction {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Instruction> {
+pub fn parse_input(input: &str) -> Vec<Instruction> {
     input.lines().map(Instruction::from).collect()
 }
 
@@ -88,7 +68,7 @@ fn build_axes_map(axes: &[u32]) -> HashMap<u32, usize> {
 }
 
 #[allow(clippy::needless_range_loop)]
-fn part1(instructions: &[Instruction]) -> usize {
+pub fn part1(instructions: &[Instruction]) -> usize {
     let (x_axes, y_axes) = build_axes(instructions);
     let x_map = build_axes_map(&x_axes);
     let y_map = build_axes_map(&y_axes);
@@ -123,7 +103,7 @@ fn part1(instructions: &[Instruction]) -> usize {
 }
 
 #[allow(clippy::needless_range_loop)]
-fn part2(instructions: &[Instruction]) -> usize {
+pub fn part2(instructions: &[Instruction]) -> usize {
     let (x_axes, y_axes) = build_axes(instructions);
     let x_map = build_axes_map(&x_axes);
     let y_map = build_axes_map(&y_axes);

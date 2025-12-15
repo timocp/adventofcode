@@ -3,33 +3,31 @@ use crate::grid::Pos;
 use ordered_float::NotNan;
 use std::collections::HashSet;
 
-pub struct Solver {
+pub struct Input {
     asteroids: Vec<Pos>,
     best_station_position: Pos,
     best_station_visible: u32,
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let asteroids = parse_input(input);
-        let (best_station_position, best_station_visible) = best_monitoring_station(&asteroids);
-        Self {
-            asteroids,
-            best_station_position,
-            best_station_visible,
-        }
+pub fn parse_input(input: &str) -> Input {
+    let asteroids = parse_asteroids(input);
+    let (best_station_position, best_station_visible) = best_monitoring_station(&asteroids);
+    Input {
+        asteroids,
+        best_station_position,
+        best_station_visible,
     }
+}
 
-    fn part1(&self) -> String {
-        self.best_station_visible.to_string()
-    }
+pub fn part1(input: &Input) -> u32 {
+    input.best_station_visible
+}
 
-    fn part2(&self) -> String {
-        let boom = each_vaporised_asteroid(self.best_station_position, &self.asteroids)
-            .nth(199)
-            .unwrap();
-        (boom.x * 100 + boom.y).to_string()
-    }
+pub fn part2(input: &Input) -> i32 {
+    let boom = each_vaporised_asteroid(input.best_station_position, &input.asteroids)
+        .nth(199)
+        .unwrap();
+    boom.x * 100 + boom.y
 }
 
 fn best_monitoring_station(asteroids: &[Pos]) -> (Pos, u32) {
@@ -119,7 +117,7 @@ fn rotation_angle(laser: f32, target: f32) -> f32 {
     angle
 }
 
-fn parse_input(input: &str) -> Vec<Pos> {
+fn parse_asteroids(input: &str) -> Vec<Pos> {
     grid::parse_each_char(input)
         .filter_map(|(p, c)| if c == '#' { Some(p) } else { None })
         .collect()
@@ -221,14 +219,14 @@ fn test_best_monitoring_station() {
     ] {
         assert_eq!(
             (Pos { x, y }, count),
-            best_monitoring_station(&parse_input(example)),
+            best_monitoring_station(&parse_asteroids(example)),
         );
     }
 }
 
 #[test]
 fn test_each_vaporised_asteroid() {
-    let asteroids = parse_input(
+    let asteroids = parse_asteroids(
         "\
 .#....#####...#..
 ##...##.#####..##

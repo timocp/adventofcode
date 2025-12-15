@@ -1,35 +1,15 @@
-pub struct Solver {
-    input: String,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: input.to_owned(),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&parse_input(&self.input)).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&parse_input(&self.input)).to_string()
-    }
-}
-
-fn parse_input(input: &str) -> Vec<&[u8]> {
+pub fn parse_input(input: &str) -> Vec<&[u8]> {
     input.lines().map(|s| s.as_bytes()).collect()
 }
 
-fn part1(input: &[&[u8]]) -> usize {
+pub fn part1(input: &[&[u8]]) -> usize {
     input
         .iter()
         .map(|line| line.len() - decode(line).len())
         .sum()
 }
 
-fn part2(input: &[&[u8]]) -> usize {
+pub fn part2(input: &[&[u8]]) -> usize {
     input
         .iter()
         .map(|line| encode(line).len() - line.len())

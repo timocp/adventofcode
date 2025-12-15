@@ -1,31 +1,18 @@
 use std::collections::HashMap;
 
-pub struct Solver {
-    map: OrbitMap,
+pub fn part1(map: &OrbitMap) -> u32 {
+    count_all_orbits(&map.orbits)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            map: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        count_all_orbits(&self.map.orbits).to_string()
-    }
-
-    fn part2(&self) -> String {
-        count_orbital_transfers(
-            &self.map.orbits,
-            *self.map.objects.get("YOU").unwrap(),
-            *self.map.objects.get("SAN").unwrap(),
-        )
-        .to_string()
-    }
+pub fn part2(map: &OrbitMap) -> u32 {
+    count_orbital_transfers(
+        &map.orbits,
+        *map.objects.get("YOU").unwrap(),
+        *map.objects.get("SAN").unwrap(),
+    )
 }
 
-struct OrbitMap {
+pub struct OrbitMap {
     // object names
     objects: HashMap<String, u32>,
     // key orbits value
@@ -78,7 +65,7 @@ fn shared_path_len(path0: &[u32], path1: &[u32]) -> usize {
     path0.len()
 }
 
-fn parse_input(input: &str) -> OrbitMap {
+pub fn parse_input(input: &str) -> OrbitMap {
     let mut objects = HashMap::new();
     let mut orbits = HashMap::new();
 

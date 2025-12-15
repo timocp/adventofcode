@@ -2,29 +2,21 @@ use std::cmp::Reverse;
 use std::collections::BinaryHeap;
 use std::collections::HashMap;
 
-pub struct Solver {
-    cave: Cave,
+pub fn parse_input(input: &str) -> Cave {
+    Cave::new(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            cave: Cave::new(input),
-        }
-    }
+pub fn part1(cave: &Cave) -> usize {
+    cave.lowest_risk()
+}
 
-    fn part1(&self) -> String {
-        self.cave.lowest_risk().to_string()
-    }
-
-    fn part2(&self) -> String {
-        let cave = &self.cave.embiggen();
-        cave.lowest_risk().to_string()
-    }
+pub fn part2(cave: &Cave) -> usize {
+    let cave = cave.embiggen();
+    cave.lowest_risk()
 }
 
 #[derive(Debug)]
-struct Cave {
+pub struct Cave {
     risks: Vec<Vec<usize>>,
     height: usize,
     width: usize,

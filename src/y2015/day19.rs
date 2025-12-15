@@ -1,29 +1,15 @@
 use std::collections::HashSet;
 
-pub struct Solver {
+pub struct Input {
     replacements: Vec<Replacement>,
     molecule: String,
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let (replacements, molecule) = parse_input(input);
-        Self {
-            replacements,
-            molecule,
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.replacements, &self.molecule).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.replacements, &self.molecule).to_string()
-    }
-}
-
-fn part1(replacements: &Vec<Replacement>, molecule: &str) -> u32 {
+pub fn part1(input: &Input) -> u32 {
+    let Input {
+        replacements,
+        molecule,
+    } = input;
     let mut molecules = HashSet::new();
     for replacement in replacements {
         for (pos, _) in molecule.match_indices(&replacement.from) {
@@ -39,7 +25,11 @@ fn part1(replacements: &Vec<Replacement>, molecule: &str) -> u32 {
     molecules.len() as u32
 }
 
-fn part2(replacements: &Vec<Replacement>, molecule: &str) -> u32 {
+pub fn part2(input: &Input) -> u32 {
+    let Input {
+        replacements,
+        molecule,
+    } = input;
     let mut answer = None;
     part2_dfs(replacements, molecule, 0, &mut answer);
     answer.unwrap()
@@ -79,7 +69,7 @@ struct Replacement {
     to: String,
 }
 
-fn parse_input(input: &str) -> (Vec<Replacement>, String) {
+pub fn parse_input(input: &str) -> Input {
     let mut lines = input.lines();
     let mut replacements = Vec::new();
     for line in lines.by_ref() {
@@ -93,13 +83,19 @@ fn parse_input(input: &str) -> (Vec<Replacement>, String) {
         });
     }
     let molecule = lines.next().unwrap().to_string();
-    (replacements, molecule)
+    Input {
+        replacements,
+        molecule,
+    }
 }
 
 #[test]
 fn test_parse_input() {
     let test_input = "H => HO\nH => OH\nO => HH\n\nHOH\n";
-    let (replacements, molecule) = parse_input(test_input);
+    let Input {
+        replacements,
+        molecule,
+    } = parse_input(test_input);
     assert_eq!(replacements.len(), 3);
     assert_eq!(molecule, "HOH");
     assert_eq!(replacements[0].from, "H");
@@ -113,21 +109,21 @@ fn test_parse_input() {
 #[test]
 fn test_part1() {
     let test_input = "H => HO\nH => OH\nO => HH\n\nHOH\n";
-    let (replacements, molecule) = parse_input(test_input);
-    assert_eq!(4, part1(&replacements, &molecule));
+    let input = parse_input(test_input);
+    assert_eq!(4, part1(&input));
 
     let test_input = "H => HO\nH => OH\nO => HH\n\nHOHOHO\n";
-    let (replacements, molecule) = parse_input(test_input);
-    assert_eq!(7, part1(&replacements, &molecule));
+    let input = parse_input(test_input);
+    assert_eq!(7, part1(&input));
 }
 
 #[test]
 fn test_part2() {
     let test_input = "e => H\ne => O\nH => HO\nH => OH\nO => HH\n\nHOH\n";
-    let (replacements, molecule) = parse_input(test_input);
-    assert_eq!(3, part2(&replacements, &molecule));
+    let input = parse_input(test_input);
+    assert_eq!(3, part2(&input));
 
     let test_input = "e => H\ne => O\nH => HO\nH => OH\nO => HH\n\nHOHOHO\n";
-    let (replacements, molecule) = parse_input(test_input);
-    assert_eq!(6, part2(&replacements, &molecule));
+    let input = parse_input(test_input);
+    assert_eq!(6, part2(&input));
 }

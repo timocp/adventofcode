@@ -1,21 +1,9 @@
-pub struct Solver {
-    banks: Vec<Vec<u64>>,
+pub fn part1(banks: &[Vec<u64>]) -> u64 {
+    sum_best_joltage(banks, 2)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            banks: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        sum_best_joltage(&self.banks, 2).to_string()
-    }
-
-    fn part2(&self) -> String {
-        sum_best_joltage(&self.banks, 12).to_string()
-    }
+pub fn part2(banks: &[Vec<u64>]) -> u64 {
+    sum_best_joltage(banks, 12)
 }
 
 fn sum_best_joltage(banks: &[Vec<u64>], digits: usize) -> u64 {
@@ -39,7 +27,7 @@ fn best_joltage(bank: &[u64], digits: usize) -> u64 {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Vec<u64>> {
+pub fn parse_input(input: &str) -> Vec<Vec<u64>> {
     input
         .lines()
         .map(|line| line.chars().map(|c| c as u64 - 48).collect())

@@ -3,29 +3,21 @@ use crate::grid::{Compass, ORIGIN, Pos, SparseGrid};
 use crate::pixel_buffer::PixelBuffer;
 use std::fmt;
 
-pub struct Solver {
-    paint_vm: Vm,
+pub fn parse_input(input: &str) -> Vm {
+    Vm::from(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            paint_vm: Vm::from(input),
-        }
-    }
+pub fn part1(vm: &Vm) -> u32 {
+    let mut hull = new_hull(Paint::Black);
+    paint(vm, &mut hull);
+    // hull.to_string()
+    hull.len()
+}
 
-    fn part1(&self) -> String {
-        let mut hull = new_hull(Paint::Black);
-        self.paint(&mut hull);
-        // hull.to_string()
-        hull.len().to_string()
-    }
-
-    fn part2(&self) -> String {
-        let mut hull = new_hull(Paint::White);
-        self.paint(&mut hull);
-        hull.to_string()
-    }
+pub fn part2(vm: &Vm) -> String {
+    let mut hull = new_hull(Paint::White);
+    paint(vm, &mut hull);
+    hull.to_string()
 }
 
 fn new_hull(start: Paint) -> SparseGrid<Paint> {
@@ -76,24 +68,22 @@ impl Robot {
     }
 }
 
-impl Solver {
-    fn paint(&self, hull: &mut SparseGrid<Paint>) {
-        let mut vm = self.paint_vm.clone();
-        let mut robot = Robot {
-            pos: ORIGIN,
-            facing: Compass::North,
-        };
-        while !vm.is_halted() {
-            let commands = vm.run(&[hull.get(robot.pos).clone().into()]);
-            for cmd in commands.chunks(2) {
-                hull.set(robot.pos, Paint::from(cmd[0]));
-                match cmd[1] {
-                    0 => robot.turn_left(),
-                    1 => robot.turn_right(),
-                    _ => panic!(),
-                }
-                robot.move_forward()
+fn paint(paint_vm: &Vm, hull: &mut SparseGrid<Paint>) {
+    let mut vm = paint_vm.clone();
+    let mut robot = Robot {
+        pos: ORIGIN,
+        facing: Compass::North,
+    };
+    while !vm.is_halted() {
+        let commands = vm.run(&[hull.get(robot.pos).clone().into()]);
+        for cmd in commands.chunks(2) {
+            hull.set(robot.pos, Paint::from(cmd[0]));
+            match cmd[1] {
+                0 => robot.turn_left(),
+                1 => robot.turn_right(),
+                _ => panic!(),
             }
+            robot.move_forward()
         }
     }
 }

@@ -2,24 +2,12 @@ use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
 
-pub struct Solver {
-    lines: Vec<Line>,
+pub fn part1(lines: &[Line]) -> usize {
+    count_overlapping_points(lines, CountFlag::WithoutDiagonals)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            lines: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        count_overlapping_points(&self.lines, CountFlag::WithoutDiagonals).to_string()
-    }
-
-    fn part2(&self) -> String {
-        count_overlapping_points(&self.lines, CountFlag::WithDiagonals).to_string()
-    }
+pub fn part2(lines: &[Line]) -> usize {
+    count_overlapping_points(lines, CountFlag::WithDiagonals)
 }
 
 #[derive(Clone, Copy, Eq, Hash, PartialEq)]
@@ -55,7 +43,7 @@ impl fmt::Debug for Pos {
     }
 }
 
-struct Line {
+pub struct Line {
     start: Pos,
     end: Pos,
 }
@@ -104,7 +92,7 @@ fn count_overlapping_points(lines: &[Line], count_flag: CountFlag) -> usize {
     grid.values().filter(|&&n| n > 1).count()
 }
 
-fn parse_input(input: &str) -> Vec<Line> {
+pub fn parse_input(input: &str) -> Vec<Line> {
     input
         .lines()
         .map(|line| {

@@ -2,27 +2,15 @@ use num_integer::lcm;
 use std::cmp::Ordering;
 use std::fmt;
 
-pub struct Solver {
-    moons: Vec<Moon>,
+pub fn part1(moons: &Vec<Moon>) -> u16 {
+    let mut system = System::new(moons.clone());
+    system.step(1000);
+    system.total_energy()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            moons: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        let mut system = System::new(self.moons.clone());
-        system.step(1000);
-        system.total_energy().to_string()
-    }
-
-    fn part2(&self) -> String {
-        let mut system = System::new(self.moons.clone());
-        system.count_to_repeat().to_string()
-    }
+pub fn part2(moons: &Vec<Moon>) -> u64 {
+    let mut system = System::new(moons.clone());
+    system.count_to_repeat()
 }
 
 struct System {
@@ -121,7 +109,7 @@ impl fmt::Debug for System {
 }
 
 #[derive(Clone)]
-struct Moon {
+pub struct Moon {
     // position
     x: i16,
     y: i16,
@@ -187,7 +175,7 @@ impl From<&str> for Moon {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Moon> {
+pub fn parse_input(input: &str) -> Vec<Moon> {
     input.lines().map(Moon::from).collect()
 }
 

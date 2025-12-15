@@ -3,30 +3,16 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-pub struct Solver {
-    steps: Vec<Step>,
+pub fn part1(steps: &[Step]) -> usize {
+    Core::new().reboot(&init_steps_only(steps))
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            steps: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        Core::new()
-            .reboot(&init_steps_only(&self.steps))
-            .to_string()
-    }
-
-    fn part2(&self) -> String {
-        Core::new().reboot(&self.steps).to_string()
-    }
+pub fn part2(steps: &[Step]) -> usize {
+    Core::new().reboot(steps)
 }
 
 #[derive(Clone, Debug)]
-struct Step {
+pub struct Step {
     on: bool,
     x: (i32, i32),
     y: (i32, i32),
@@ -116,7 +102,7 @@ impl Core {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Step> {
+pub fn parse_input(input: &str) -> Vec<Step> {
     input.lines().map(Step::from).collect()
 }
 

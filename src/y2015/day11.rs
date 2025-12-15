@@ -1,21 +1,9 @@
-pub struct Solver {
-    password: Password,
+pub fn part1(password: &Password) -> String {
+    password_to_s(&next_password(password))
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            password: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        password_to_s(&next_password(&self.password))
-    }
-
-    fn part2(&self) -> String {
-        password_to_s(&next_password(&next_password(&self.password)))
-    }
+pub fn part2(password: &Password) -> String {
+    password_to_s(&next_password(&next_password(password)))
 }
 
 type Password = [u8; 8];
@@ -68,7 +56,7 @@ fn password_to_s(pw: &Password) -> String {
     String::from_utf8(pw.to_vec()).unwrap()
 }
 
-fn parse_input(input: &str) -> Password {
+pub fn parse_input(input: &str) -> Password {
     let mut p = [0; 8];
     for (i, &b) in input.lines().next().unwrap().as_bytes().iter().enumerate() {
         p[i] = b;

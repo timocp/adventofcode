@@ -1,27 +1,15 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 
-pub struct Solver {
-    reindeer: Vec<Reindeer>,
+pub fn part1(reindeer: &[Reindeer]) -> u32 {
+    solve_part1(reindeer, 2503)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            reindeer: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.reindeer, 2503).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.reindeer, 2503).to_string()
-    }
+pub fn part2(reindeer: &[Reindeer]) -> u32 {
+    solve_part2(reindeer, 2503)
 }
 
-fn part1(reindeer: &[Reindeer], seconds: u32) -> u32 {
+fn solve_part1(reindeer: &[Reindeer], seconds: u32) -> u32 {
     simulate(reindeer, seconds)
         .iter()
         .map(|state| state.distance)
@@ -29,7 +17,7 @@ fn part1(reindeer: &[Reindeer], seconds: u32) -> u32 {
         .unwrap()
 }
 
-fn part2(reindeer: &[Reindeer], seconds: u32) -> u32 {
+fn solve_part2(reindeer: &[Reindeer], seconds: u32) -> u32 {
     simulate(reindeer, seconds)
         .iter()
         .map(|state| state.score)
@@ -38,7 +26,7 @@ fn part2(reindeer: &[Reindeer], seconds: u32) -> u32 {
 }
 
 #[derive(Debug)]
-struct Reindeer {
+pub struct Reindeer {
     _name: String,
     speed: u32,         // km/s
     flight_period: u32, // seconds
@@ -117,7 +105,7 @@ impl From<&str> for Reindeer {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Reindeer> {
+pub fn parse_input(input: &str) -> Vec<Reindeer> {
     input.lines().map(Reindeer::from).collect()
 }
 
@@ -128,6 +116,6 @@ Comet can fly 14 km/s for 10 seconds, but then must rest for 127 seconds.
 Dancer can fly 16 km/s for 11 seconds, but then must rest for 162 seconds.
 ";
     let reindeer = parse_input(test_input);
-    assert_eq!(1120, part1(&reindeer, 1000));
-    assert_eq!(689, part2(&reindeer, 1000));
+    assert_eq!(1120, solve_part1(&reindeer, 1000));
+    assert_eq!(689, solve_part2(&reindeer, 1000));
 }

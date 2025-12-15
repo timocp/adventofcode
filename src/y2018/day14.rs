@@ -1,28 +1,13 @@
-pub struct Solver {
-    input: usize,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: input.trim().parse().unwrap(),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(self.input)
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.input.to_string()).to_string()
-    }
+pub fn parse_input(input: &str) -> &str {
+    input.trim()
 }
 
 fn starting_recipes() -> Vec<u8> {
     vec![3, 7]
 }
 
-fn part1(target: usize) -> String {
+pub fn part1(input: &str) -> String {
+    let target: usize = input.parse().unwrap();
     let mut recipes = starting_recipes();
     let mut elves: Vec<usize> = vec![0, 1];
     while recipes.len() < target + 10 {
@@ -43,7 +28,7 @@ fn part1(target: usize) -> String {
         .collect()
 }
 
-fn part2(pattern: &str) -> usize {
+pub fn part2(pattern: &str) -> usize {
     let pattern: Vec<u8> = pattern.chars().map(|c| c as u8 - 48).collect();
     let mut recipes = starting_recipes();
     let mut elves: Vec<usize> = vec![0, 1];
@@ -71,10 +56,10 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!("5158916779", part1(9));
-        assert_eq!("0124515891", part1(5));
-        assert_eq!("9251071085", part1(18));
-        assert_eq!("5941429882", part1(2018));
+        assert_eq!("5158916779", part1("9"));
+        assert_eq!("0124515891", part1("5"));
+        assert_eq!("9251071085", part1("18"));
+        assert_eq!("5941429882", part1("2018"));
     }
 
     #[test]

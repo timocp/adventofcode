@@ -1,31 +1,23 @@
 use super::intcode::Vm;
 
-pub struct Solver {
-    vm: Vm,
+pub fn parse_input(input: &str) -> Vm {
+    Vm::from(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            vm: Vm::from(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        let mut count = 0;
-        for x in 0..50 {
-            for y in 0..50 {
-                if check(&self.vm, x, y) {
-                    count += 1;
-                }
+pub fn part1(vm: &Vm) -> i32 {
+    let mut count = 0;
+    for x in 0..50 {
+        for y in 0..50 {
+            if check(vm, x, y) {
+                count += 1;
             }
         }
-        count.to_string()
     }
+    count
+}
 
-    fn part2(&self) -> String {
-        find_fit(&self.vm).to_string()
-    }
+pub fn part2(vm: &Vm) -> i64 {
+    find_fit(vm)
 }
 
 // We can check approx 100k times per second when compiled for release

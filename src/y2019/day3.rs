@@ -1,28 +1,25 @@
-use crate::Puzzle;
 use std::collections::HashMap;
 
 #[derive(Debug)]
-pub struct Solver {
+pub struct Input {
     wire0: Wire,
     wire1: Wire,
 }
 
-impl Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let lines: Vec<&str> = input.lines().collect();
-        Self {
-            wire0: wire_from_str(lines[0]),
-            wire1: wire_from_str(lines[1]),
-        }
+pub fn parse_input(input: &str) -> Input {
+    let lines: Vec<&str> = input.lines().collect();
+    Input {
+        wire0: wire_from_str(lines[0]),
+        wire1: wire_from_str(lines[1]),
     }
+}
 
-    fn part1(&self) -> String {
-        closest_intersection(&self.wire0, &self.wire1).to_string()
-    }
+pub fn part1(input: &Input) -> u32 {
+    closest_intersection(&input.wire0, &input.wire1)
+}
 
-    fn part2(&self) -> String {
-        fewest_steps(&self.wire0, &self.wire1).to_string()
-    }
+pub fn part2(input: &Input) -> u32 {
+    fewest_steps(&input.wire0, &input.wire1)
 }
 
 fn closest_intersection(wire0: &Wire, wire1: &Wire) -> u32 {
@@ -127,17 +124,17 @@ fn wire_from_str(s: &str) -> Wire {
 #[test]
 fn test_input() {
     let test_input = "R8,U5,L5,D3\nU7,R6,D4,L4\n";
-    let solver = Solver::new(test_input);
-    assert_eq!(4, solver.wire0.len());
-    assert_eq!(Dir::Right, solver.wire0[0].dir);
-    assert_eq!(8, solver.wire0[0].len);
-    assert_eq!(Dir::Down, solver.wire0[3].dir);
-    assert_eq!(3, solver.wire0[3].len);
-    assert_eq!(4, solver.wire1.len());
-    assert_eq!(Dir::Up, solver.wire1[0].dir);
-    assert_eq!(7, solver.wire1[0].len);
-    assert_eq!(Dir::Left, solver.wire1[3].dir);
-    assert_eq!(4, solver.wire1[3].len);
+    let input = parse_input(test_input);
+    assert_eq!(4, input.wire0.len());
+    assert_eq!(Dir::Right, input.wire0[0].dir);
+    assert_eq!(8, input.wire0[0].len);
+    assert_eq!(Dir::Down, input.wire0[3].dir);
+    assert_eq!(3, input.wire0[3].len);
+    assert_eq!(4, input.wire1.len());
+    assert_eq!(Dir::Up, input.wire1[0].dir);
+    assert_eq!(7, input.wire1[0].len);
+    assert_eq!(Dir::Left, input.wire1[3].dir);
+    assert_eq!(4, input.wire1[3].len);
 }
 
 #[test]

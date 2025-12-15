@@ -1,24 +1,12 @@
-pub struct Solver {
-    input_signal: Vec<u8>,
+pub fn part1(input_signal: &[u8]) -> u32 {
+    repeated_phase(input_signal)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input_signal: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        repeated_phase(&self.input_signal).to_string()
-    }
-
-    fn part2(&self) -> String {
-        real_message(&self.input_signal).to_string()
-    }
+pub fn part2(input_signal: &[u8]) -> u32 {
+    real_message(input_signal)
 }
 
-fn parse_input(input: &str) -> Vec<u8> {
+pub fn parse_input(input: &str) -> Vec<u8> {
     input.trim_end().chars().map(|c| c as u8 - 48).collect()
 }
 

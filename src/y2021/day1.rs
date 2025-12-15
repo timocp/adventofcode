@@ -1,24 +1,12 @@
-pub struct Solver {
-    input: Vec<i32>,
+pub fn part1(input: &[i32]) -> i32 {
+    count_increases(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        count_increases(&self.input).to_string()
-    }
-
-    fn part2(&self) -> String {
-        count_sliding_increases(&self.input).to_string()
-    }
+pub fn part2(input: &[i32]) -> i32 {
+    count_sliding_increases(input)
 }
 
-fn parse_input(input: &str) -> Vec<i32> {
+pub fn parse_input(input: &str) -> Vec<i32> {
     input
         .lines()
         .filter_map(|line| line.parse::<i32>().ok())

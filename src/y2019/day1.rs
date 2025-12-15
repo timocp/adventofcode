@@ -1,21 +1,9 @@
-pub struct Solver {
-    module_masses: Vec<i32>,
+pub fn part1(module_masses: &[i32]) -> i32 {
+    sum_fuel(module_masses, fuel_required)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            module_masses: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        sum_fuel(&self.module_masses, fuel_required).to_string()
-    }
-
-    fn part2(&self) -> String {
-        sum_fuel(&self.module_masses, real_fuel_required).to_string()
-    }
+pub fn part2(module_masses: &[i32]) -> i32 {
+    sum_fuel(module_masses, real_fuel_required)
 }
 
 fn sum_fuel(masses: &[i32], f: impl Fn(i32) -> i32) -> i32 {
@@ -32,7 +20,7 @@ fn real_fuel_required(mass: i32) -> i32 {
     f + if f > 0 { real_fuel_required(f) } else { 0 }
 }
 
-fn parse_input(input: &str) -> Vec<i32> {
+pub fn parse_input(input: &str) -> Vec<i32> {
     input.lines().map(|line| line.parse().unwrap()).collect()
 }
 

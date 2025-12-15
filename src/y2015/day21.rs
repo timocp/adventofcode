@@ -1,23 +1,11 @@
 use itertools::Itertools;
 
-pub struct Solver {
-    result: (i32, i32),
+pub fn part1(result: &(i32, i32)) -> i32 {
+    result.0
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            result: solve(&parse_input(input)),
-        }
-    }
-
-    fn part1(&self) -> String {
-        self.result.0.to_string()
-    }
-
-    fn part2(&self) -> String {
-        self.result.1.to_string()
-    }
+pub fn part2(result: &(i32, i32)) -> i32 {
+    result.1
 }
 
 #[derive(Debug)]
@@ -205,7 +193,7 @@ fn rings() -> Vec<Item> {
     ]
 }
 
-fn parse_input(input: &str) -> Boss {
+fn parse_boss(input: &str) -> Boss {
     let mut hit_points = 0;
     let mut damage = 0;
     let mut armor = 0;
@@ -223,4 +211,8 @@ fn parse_input(input: &str) -> Boss {
         damage,
         armor,
     }
+}
+
+pub fn parse_input(input: &str) -> (i32, i32) {
+    solve(&parse_boss(input))
 }

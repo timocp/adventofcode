@@ -3,34 +3,26 @@ use std::collections::{HashSet, VecDeque};
 
 use crate::grid::parse_each_char;
 
-pub struct Solver {
-    grid: BitGrid,
+pub fn parse_input(input: &str) -> BitGrid {
+    BitGrid::from(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            grid: BitGrid::from(input),
-        }
-    }
+pub fn part1(grid: &BitGrid) -> u32 {
+    grid.find_repeat()
+}
 
-    fn part1(&self) -> String {
-        self.grid.find_repeat().to_string()
+pub fn part2(grid: &BitGrid) -> u32 {
+    let mut infgrid = InfiniteGrid::from(grid);
+    for _ in 0..200 {
+        infgrid = infgrid.progress();
     }
-
-    fn part2(&self) -> String {
-        let mut infgrid = InfiniteGrid::from(&self.grid);
-        for _ in 0..200 {
-            infgrid = infgrid.progress();
-        }
-        infgrid.count_bugs().to_string()
-    }
+    infgrid.count_bugs()
 }
 
 // 5x5 grid represented as a u32
 // (0,0) is first bit, (1,0) is second bit, ..., (4,4) is 25th bit
 #[derive(Clone)]
-struct BitGrid {
+pub struct BitGrid {
     data: u32,
 }
 

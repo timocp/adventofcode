@@ -2,25 +2,12 @@ use itertools::Itertools;
 use std::collections::HashMap;
 use std::fmt;
 
-pub struct Solver {
-    minmax: (u32, u32),
+pub fn part1(minmax: &(u32, u32)) -> u32 {
+    minmax.0
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let graph = parse_input(input);
-        Self {
-            minmax: graph.minmax_distance(),
-        }
-    }
-
-    fn part1(&self) -> String {
-        self.minmax.0.to_string()
-    }
-
-    fn part2(&self) -> String {
-        self.minmax.1.to_string()
-    }
+pub fn part2(minmax: &(u32, u32)) -> u32 {
+    minmax.1
 }
 
 struct Graph<'a> {
@@ -64,7 +51,7 @@ impl fmt::Display for Graph<'_> {
     }
 }
 
-fn parse_input(input: &str) -> Graph<'_> {
+pub fn parse_input(input: &str) -> (u32, u32) {
     let mut names: Vec<&str> = vec![];
     let mut distance = HashMap::new();
 
@@ -87,7 +74,7 @@ fn parse_input(input: &str) -> Graph<'_> {
         distance.insert((city2, city1), d);
     }
 
-    Graph { names, distance }
+    Graph { names, distance }.minmax_distance()
 }
 
 #[test]
@@ -97,6 +84,6 @@ London to Dublin = 464
 London to Belfast = 518
 Dublin to Belfast = 141
 ";
-    let graph = parse_input(test_input);
-    assert_eq!((605, 982), graph.minmax_distance());
+    let minmax = parse_input(test_input);
+    assert_eq!((605, 982), minmax);
 }

@@ -1,21 +1,13 @@
 use super::intcode::Vm;
 
-pub struct Solver {
-    vm: Vm,
+pub fn parse_input(input: &str) -> Vm {
+    Vm::from(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            vm: Vm::from(input),
-        }
-    }
+pub fn part1(vm: &Vm) -> i64 {
+    *vm.clone().run(&[1]).last().unwrap()
+}
 
-    fn part1(&self) -> String {
-        self.vm.clone().run(&[1]).last().unwrap().to_string()
-    }
-
-    fn part2(&self) -> String {
-        self.vm.clone().run(&[5]).last().unwrap().to_string()
-    }
+pub fn part2(vm: &Vm) -> i64 {
+    *vm.clone().run(&[5]).last().unwrap()
 }

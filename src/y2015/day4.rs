@@ -2,27 +2,7 @@ use md5::{Digest, Md5};
 use std::sync::mpsc;
 use std::thread;
 
-pub struct Solver {
-    key: String,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            key: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.key).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.key).to_string()
-    }
-}
-
-fn parse_input(input: &str) -> String {
+pub fn parse_input(input: &str) -> String {
     input.lines().next().unwrap().to_string()
 }
 
@@ -88,11 +68,11 @@ fn search_hash(key: &str, zeros: u32) -> u32 {
         .unwrap()
 }
 
-fn part1(key: &str) -> u32 {
+pub fn part1(key: &str) -> u32 {
     search_hash(key, 5)
 }
 
-fn part2(key: &str) -> u32 {
+pub fn part2(key: &str) -> u32 {
     search_hash(key, 6)
 }
 

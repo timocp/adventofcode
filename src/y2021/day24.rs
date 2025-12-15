@@ -1,24 +1,12 @@
 use std::collections::HashMap;
 use std::fmt;
 
-pub struct Solver {
-    program: Vec<Inst>,
+pub fn part1(program: &[Inst]) -> i64 {
+    solve(program, false)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            program: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        solve(&self.program, false).to_string()
-    }
-
-    fn part2(&self) -> String {
-        solve(&self.program, true).to_string()
-    }
+pub fn part2(program: &[Inst]) -> i64 {
+    solve(program, true)
 }
 
 fn search_digit(
@@ -61,8 +49,7 @@ fn search_digit(
     None
 }
 
-fn reverse_digits(n: i64) -> i64 {
-    let mut n = n;
+fn reverse_digits(mut n: i64) -> i64 {
     let mut rev = 0;
     while n > 0 {
         rev = rev * 10 + n % 10;
@@ -229,7 +216,7 @@ impl From<&str> for Op {
 }
 
 #[derive(Clone)]
-struct Inst {
+pub struct Inst {
     code: Code,
     op1: Op,
     op2: Op,
@@ -256,7 +243,7 @@ impl From<&str> for Inst {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Inst> {
+pub fn parse_input(input: &str) -> Vec<Inst> {
     input.lines().map(Inst::from).collect()
 }
 

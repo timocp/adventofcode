@@ -2,26 +2,14 @@ use regex::Regex;
 
 use crate::pixel_buffer::PixelBuffer;
 
-pub struct Solver {
-    stars: Vec<Star>,
+pub fn part1(stars: &Vec<Star>) -> String {
+    let mut stars = stars.clone();
+    find_message(&mut stars);
+    to_pixel_buffer(&stars).to_string()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            stars: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        let mut stars = self.stars.clone();
-        find_message(&mut stars);
-        to_pixel_buffer(&stars).to_string()
-    }
-
-    fn part2(&self) -> String {
-        find_message(&mut self.stars.clone()).to_string()
-    }
+pub fn part2(stars: &Vec<Star>) -> i32 {
+    find_message(&mut stars.clone())
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -31,7 +19,7 @@ struct Point {
 }
 
 #[derive(Clone, Copy)]
-struct Star {
+pub struct Star {
     point: Point,
     dx: i64,
     dy: i64,
@@ -104,7 +92,7 @@ fn boxsize(stars: &[Star]) -> (Point, Point) {
     (min, max)
 }
 
-fn parse_input(input: &str) -> Vec<Star> {
+pub fn parse_input(input: &str) -> Vec<Star> {
     let re =
         Regex::new(r"^position=<\s*(-?\d+),\s*(-?\d+)> velocity=<\s*(-?\d+),\s*(-?\d+)>$").unwrap();
     let mut stars = vec![];

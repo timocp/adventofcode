@@ -1,23 +1,3 @@
-pub struct Solver {
-    lines: Vec<String>,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            lines: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.lines).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.lines).to_string()
-    }
-}
-
 fn illegal_char_score(c: char) -> usize {
     match c {
         ')' => 3,
@@ -75,7 +55,7 @@ fn parse(line: &str) -> Result {
     Result::Incomplete(stack)
 }
 
-fn part1(lines: &[String]) -> usize {
+pub fn part1(lines: &[String]) -> usize {
     lines
         .iter()
         .filter_map(|line| {
@@ -95,7 +75,7 @@ fn completion_score(stack: &[char]) -> usize {
         .fold(0, |acc, c| acc * 5 + matching_char_score(*c))
 }
 
-fn part2(lines: &[String]) -> usize {
+pub fn part2(lines: &[String]) -> usize {
     let mut scores: Vec<usize> = lines
         .iter()
         .filter_map(|line| {
@@ -111,7 +91,7 @@ fn part2(lines: &[String]) -> usize {
     scores[scores.len() / 2]
 }
 
-fn parse_input(input: &str) -> Vec<String> {
+pub fn parse_input(input: &str) -> Vec<String> {
     input.lines().map(|line| line.to_owned()).collect()
 }
 

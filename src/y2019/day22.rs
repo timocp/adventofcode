@@ -1,34 +1,19 @@
 use crate::numeric::mod_inv;
 use std::fmt;
 
-pub struct Solver {
-    techniques: Vec<Technique>,
+pub fn part1(techniques: &[Technique]) -> i128 {
+    compose_techniques(techniques, 10007).apply(2019)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            techniques: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        compose_techniques(&self.techniques, 10007)
-            .apply(2019)
-            .to_string()
-    }
-
-    fn part2(&self) -> String {
-        compose_techniques(&self.techniques, 119315717514047)
-            .repeat(101741582076661)
-            .inverse()
-            .apply(2020)
-            .to_string()
-    }
+pub fn part2(techniques: &[Technique]) -> i128 {
+    compose_techniques(techniques, 119315717514047)
+        .repeat(101741582076661)
+        .inverse()
+        .apply(2020)
 }
 
 #[derive(Debug)]
-enum Technique {
+pub enum Technique {
     DealIntoNewStack,
     Cut(i128),
     DealWithIncrement(i128),
@@ -143,7 +128,7 @@ impl From<&str> for Technique {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Technique> {
+pub fn parse_input(input: &str) -> Vec<Technique> {
     input.lines().map(|line| line.into()).collect()
 }
 

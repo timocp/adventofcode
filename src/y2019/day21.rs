@@ -1,26 +1,18 @@
 use super::intcode::Vm;
 
-pub struct Solver {
-    vm: Vm,
+pub fn parse_input(input: &str) -> Vm {
+    Vm::from(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            vm: Vm::from(input),
-        }
-    }
+pub fn part1(vm: &Vm) -> i64 {
+    let output = vm.clone().run(&walk_springdroid());
+    *output.last().unwrap()
+}
 
-    fn part1(&self) -> String {
-        let output = self.vm.clone().run(&walk_springdroid());
-        output.last().unwrap().to_string()
-    }
-
-    fn part2(&self) -> String {
-        let output = self.vm.clone().run(&run_springdroid());
-        //println!("{}", output_to_string(&output));
-        output.last().unwrap().to_string()
-    }
+pub fn part2(vm: &Vm) -> i64 {
+    let output = vm.clone().run(&run_springdroid());
+    //println!("{}", output_to_string(&output));
+    *output.last().unwrap()
 }
 
 //fn output_to_string(output: &[i64]) -> String {

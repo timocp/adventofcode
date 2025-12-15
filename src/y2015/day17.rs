@@ -1,26 +1,14 @@
 use std::collections::HashMap;
 
-pub struct Solver {
-    stats: Stats,
+pub fn part1(stats: &Stats) -> u32 {
+    stats.total_combinations()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            stats: combinations(&parse_input(input), 150),
-        }
-    }
-
-    fn part1(&self) -> String {
-        self.stats.total_combinations().to_string()
-    }
-
-    fn part2(&self) -> String {
-        self.stats.min_combinations().to_string()
-    }
+pub fn part2(stats: &Stats) -> u32 {
+    stats.min_combinations()
 }
 
-struct Stats(HashMap<u32, u32>);
+pub struct Stats(HashMap<u32, u32>);
 
 impl Stats {
     fn new() -> Self {
@@ -74,13 +62,17 @@ fn search_combinations(input: &Vec<i32>, target: i32, stats: &mut Stats, count: 
     search_combinations(input, target, stats, count, index + 1);
 }
 
-fn parse_input(input: &str) -> Vec<i32> {
+fn parse_containers(input: &str) -> Vec<i32> {
     input.lines().map(|line| line.parse().unwrap()).collect()
+}
+
+pub fn parse_input(input: &str) -> Stats {
+    combinations(&parse_containers(input), 150)
 }
 
 #[test]
 fn test() {
-    let result = combinations(&parse_input("20\n15\n10\n5\n5"), 25);
+    let result = combinations(&parse_containers("20\n15\n10\n5\n5"), 25);
     assert_eq!(result.total_combinations(), 4);
     assert_eq!(result.min_containers(), 2);
     assert_eq!(result.min_combinations(), 3)

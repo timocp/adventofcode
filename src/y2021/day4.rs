@@ -1,25 +1,17 @@
 use std::fmt;
 
-pub struct Solver {
-    input: String,
+pub fn parse_input(input: &str) -> &str {
+    input
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: input.to_owned(),
-        }
-    }
+pub fn part1(input: &str) -> usize {
+    let (numbers, boards) = parse_boards(input);
+    play_to_win(numbers, boards).score()
+}
 
-    fn part1(&self) -> String {
-        let (numbers, boards) = parse_input(&self.input);
-        play_to_win(numbers, boards).score().to_string()
-    }
-
-    fn part2(&self) -> String {
-        let (numbers, boards) = parse_input(&self.input);
-        play_to_lose(numbers, boards).score().to_string()
-    }
+pub fn part2(input: &str) -> usize {
+    let (numbers, boards) = parse_boards(input);
+    play_to_lose(numbers, boards).score()
 }
 
 struct Board {
@@ -132,7 +124,7 @@ fn play_to_lose(numbers: Vec<usize>, mut boards: Vec<Board>) -> GameResult {
     panic!("Final board didn't win");
 }
 
-fn parse_input(input: &str) -> (Vec<usize>, Vec<Board>) {
+fn parse_boards(input: &str) -> (Vec<usize>, Vec<Board>) {
     let mut numbers = vec![];
     let mut boards = vec![];
     for (n, para) in input.split("\n\n").enumerate() {
@@ -176,7 +168,7 @@ fn test_bingo() {
 22 11 13  6  5
  2  0 12  3  7
 ";
-    let (numbers, boards) = parse_input(test_input);
+    let (numbers, boards) = parse_boards(test_input);
     assert_eq!(
         numbers,
         vec![
@@ -193,7 +185,7 @@ fn test_bingo() {
     assert_eq!(24, result.last_number_called);
     assert_eq!(4512, result.score());
 
-    let (numbers, boards) = parse_input(test_input);
+    let (numbers, boards) = parse_boards(test_input);
     let result = play_to_lose(numbers, boards);
     assert_eq!(148, result.sum_of_unmarked_numbers);
     assert_eq!(13, result.last_number_called);

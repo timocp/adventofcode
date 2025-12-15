@@ -1,24 +1,16 @@
 use super::intcode::Vm;
 use itertools::Itertools;
 
-pub struct Solver {
-    vm: Vm,
+pub fn parse_input(input: &str) -> Vm {
+    Vm::from(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            vm: Vm::from(input),
-        }
-    }
+pub fn part1(vm: &Vm) -> i64 {
+    maximise_amps(vm)
+}
 
-    fn part1(&self) -> String {
-        maximise_amps(&self.vm).to_string()
-    }
-
-    fn part2(&self) -> String {
-        maximise_feedback(&self.vm).to_string()
-    }
+pub fn part2(vm: &Vm) -> i64 {
+    maximise_feedback(vm)
 }
 
 fn maximise_amps(vm: &Vm) -> i64 {

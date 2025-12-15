@@ -1,27 +1,7 @@
 use std::collections::HashSet;
 
-pub struct Solver {
-    directions: Vec<Dir>,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            directions: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.directions).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.directions).to_string() // can i call the other function called part2?
-    }
-}
-
 #[derive(Debug)]
-enum Dir {
+pub enum Dir {
     North,
     East,
     South,
@@ -40,7 +20,7 @@ impl From<char> for Dir {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Dir> {
+pub fn parse_input(input: &str) -> Vec<Dir> {
     input
         .lines()
         .next()
@@ -64,13 +44,13 @@ fn deliver_presents<'a>(houses: &mut HashSet<(i32, i32)>, dirs: impl Iterator<It
     }
 }
 
-fn part1(dirs: &[Dir]) -> usize {
+pub fn part1(dirs: &[Dir]) -> usize {
     let mut houses = HashSet::new();
     deliver_presents(&mut houses, dirs.iter());
     houses.len()
 }
 
-fn part2(dirs: &[Dir]) -> usize {
+pub fn part2(dirs: &[Dir]) -> usize {
     let mut houses = HashSet::new();
     deliver_presents(&mut houses, dirs.iter().step_by(2));
     deliver_presents(&mut houses, dirs.iter().skip(1).step_by(2));

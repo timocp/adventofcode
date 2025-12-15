@@ -5,27 +5,15 @@ use crate::{
 use Cell::*;
 use std::collections::HashMap;
 
-pub struct Solver {
-    maze: Maze,
+pub fn part1(maze: &Maze) -> usize {
+    solve(maze, false).unwrap()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            maze: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        solve(&self.maze, false).unwrap().to_string()
-    }
-
-    fn part2(&self) -> String {
-        solve(&self.maze, true).unwrap().to_string()
-    }
+pub fn part2(maze: &Maze) -> usize {
+    solve(maze, true).unwrap()
 }
 
-fn parse_input(input: &str) -> Maze {
+pub fn parse_input(input: &str) -> Maze {
     let mut grid = Grid::from_input(input, Empty, Cell::from);
     let mut entrance: Option<Pos> = None;
     let mut exit: Option<Pos> = None;
@@ -157,7 +145,7 @@ impl From<char> for Cell {
     }
 }
 
-struct Maze {
+pub struct Maze {
     grid: Grid<Cell>,
     entrance: Pos,
     exit: Pos,

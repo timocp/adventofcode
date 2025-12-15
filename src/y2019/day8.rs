@@ -2,31 +2,22 @@ use std::fmt;
 
 use crate::pixel_buffer::PixelBuffer;
 
-pub struct Solver {
-    image: Image,
+pub fn parse_input(input: &str) -> Image {
+    Image::new(input, 25, 6)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            image: Image::new(input, 25, 6),
-        }
-    }
+pub fn part1(image: &Image) -> usize {
+    // find layer with the fewest 0s
+    let layer = image
+        .each_layer()
+        .min_by_key(|&layer| count_pixels(layer, 0))
+        .unwrap();
 
-    fn part1(&self) -> String {
-        // find layer with the fewest 0s
-        let layer = self
-            .image
-            .each_layer()
-            .min_by_key(|&layer| count_pixels(layer, 0))
-            .unwrap();
+    count_pixels(layer, 1) * count_pixels(layer, 2)
+}
 
-        (count_pixels(layer, 1) * count_pixels(layer, 2)).to_string()
-    }
-
-    fn part2(&self) -> String {
-        self.image.to_string()
-    }
+pub fn part2(image: &Image) -> String {
+    image.to_string()
 }
 
 fn count_pixels(layer: &[u8], p: u8) -> usize {
@@ -34,7 +25,7 @@ fn count_pixels(layer: &[u8], p: u8) -> usize {
 }
 
 #[derive(Debug)]
-struct Image {
+pub struct Image {
     width: u32,
     height: u32,
     area: u32,

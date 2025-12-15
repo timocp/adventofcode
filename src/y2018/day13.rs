@@ -1,24 +1,12 @@
 use std::fmt;
 use std::fmt::Write;
 
-pub struct Solver {
-    mine: Mine,
+pub fn part1(mine: &Mine) -> String {
+    format!("{:?}", mine.clone().first_crash())
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            mine: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        format!("{:?}", self.mine.clone().first_crash())
-    }
-
-    fn part2(&self) -> String {
-        format!("{:?}", self.mine.clone().last_cart())
-    }
+pub fn part2(mine: &Mine) -> String {
+    format!("{:?}", mine.clone().last_cart())
 }
 
 #[derive(Clone)]
@@ -150,7 +138,7 @@ impl Cart {
 }
 
 #[derive(Clone)]
-struct Mine {
+pub struct Mine {
     map: Vec<Vec<Cell>>,
     carts: Vec<Cart>, // kept in order
 }
@@ -227,7 +215,7 @@ impl Mine {
     }
 }
 
-fn parse_input(input: &str) -> Mine {
+pub fn parse_input(input: &str) -> Mine {
     let mut mine = Mine {
         map: vec![],
         carts: vec![],

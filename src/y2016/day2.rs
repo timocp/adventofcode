@@ -1,23 +1,9 @@
-use crate::Puzzle;
-
-pub struct Solver {
-    input: Vec<Vec<Direction>>,
+pub fn part1(input: &[Vec<Direction>]) -> String {
+    solve(input, normal_keypad)
 }
 
-impl Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        solve(&self.input, normal_keypad)
-    }
-
-    fn part2(&self) -> String {
-        solve(&self.input, diamond_keypad)
-    }
+pub fn part2(input: &[Vec<Direction>]) -> String {
+    solve(input, diamond_keypad)
 }
 
 fn normal_keypad(pos: char, dir: Direction) -> char {
@@ -102,14 +88,14 @@ fn solve(input: &[Vec<Direction>], keypad: fn(char, Direction) -> char) -> Strin
 }
 
 #[derive(Debug, Clone, Copy)]
-enum Direction {
+pub enum Direction {
     Up,
     Down,
     Left,
     Right,
 }
 
-fn parse_input(input: &str) -> Vec<Vec<Direction>> {
+pub fn parse_input(input: &str) -> Vec<Vec<Direction>> {
     input
         .lines()
         .map(|line| {
@@ -129,6 +115,6 @@ fn parse_input(input: &str) -> Vec<Vec<Direction>> {
 #[test]
 fn test() {
     let test_input = "ULL\nRRDDD\nLURDL\nUUUUD\n";
-    assert_eq!("1985", Solver::new(test_input).part1());
-    assert_eq!("5DB3", Solver::new(test_input).part2());
+    assert_eq!("1985", part1(&parse_input(test_input)));
+    assert_eq!("5DB3", part2(&parse_input(test_input)));
 }

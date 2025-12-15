@@ -1,24 +1,12 @@
 use petgraph::Incoming;
 use petgraph::graphmap::DiGraphMap;
 
-pub struct Solver {
-    graph: DiGraphMap<char, ()>,
+pub fn part1(graph: &DiGraphMap<char, ()>) -> String {
+    get_order(graph.clone())
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            graph: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        get_order(self.graph.clone())
-    }
-
-    fn part2(&self) -> String {
-        time_simulation(self.graph.clone(), 5, 60).to_string()
-    }
+pub fn part2(graph: &DiGraphMap<char, ()>) -> i32 {
+    time_simulation(graph.clone(), 5, 60)
 }
 
 fn get_order(mut g: DiGraphMap<char, ()>) -> String {
@@ -89,7 +77,7 @@ fn next_step_except(g: &DiGraphMap<char, ()>, except: &[char]) -> Option<char> {
     }
 }
 
-fn parse_input(input: &str) -> DiGraphMap<char, ()> {
+pub fn parse_input(input: &str) -> DiGraphMap<char, ()> {
     let mut g = DiGraphMap::new();
     for line in input.lines() {
         let words: Vec<char> = line.chars().collect();

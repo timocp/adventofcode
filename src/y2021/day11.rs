@@ -1,33 +1,27 @@
 use std::fmt;
 
-pub struct Solver {
-    grid: Grid,
+pub fn parse_input(input: &str) -> Grid {
+    let mut grid = Grid::new(input);
+    for _ in 0..100 {
+        grid = grid.step();
+    }
+    grid
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let mut grid = Grid::new(input);
-        for _ in 0..100 {
-            grid = grid.step();
-        }
-        Self { grid }
-    }
+pub fn part1(grid: &Grid) -> usize {
+    grid.total_flashes
+}
 
-    fn part1(&self) -> String {
-        self.grid.total_flashes.to_string()
+pub fn part2(grid: &Grid) -> usize {
+    let mut grid = grid.clone();
+    while grid.flashes != grid.rows * grid.cols {
+        grid = grid.step();
     }
-
-    fn part2(&self) -> String {
-        let mut grid = self.grid.clone();
-        while grid.flashes != grid.rows * grid.cols {
-            grid = grid.step();
-        }
-        grid.total_steps.to_string()
-    }
+    grid.total_steps
 }
 
 #[derive(Clone)]
-struct Grid {
+pub struct Grid {
     state: Vec<Vec<u8>>,
     rows: usize,
     cols: usize,

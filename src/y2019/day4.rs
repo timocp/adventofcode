@@ -1,34 +1,30 @@
-pub struct Solver {
+pub struct Input {
     min: u32,
     max: u32,
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let input: Vec<_> = input
-            .trim()
-            .split('-')
-            .map(|s| s.parse().unwrap())
-            .collect();
-        Self {
-            min: input[0],
-            max: input[1],
-        }
+pub fn parse_input(input: &str) -> Input {
+    let input: Vec<_> = input
+        .trim()
+        .split('-')
+        .map(|s| s.parse().unwrap())
+        .collect();
+    Input {
+        min: input[0],
+        max: input[1],
     }
+}
 
-    fn part1(&self) -> String {
-        (self.min..self.max)
-            .filter(|p| valid_password(*p, false))
-            .count()
-            .to_string()
-    }
+pub fn part1(input: &Input) -> usize {
+    (input.min..input.max)
+        .filter(|p| valid_password(*p, false))
+        .count()
+}
 
-    fn part2(&self) -> String {
-        (self.min..self.max)
-            .filter(|p| valid_password(*p, true))
-            .count()
-            .to_string()
-    }
+pub fn part2(input: &Input) -> usize {
+    (input.min..input.max)
+        .filter(|p| valid_password(*p, true))
+        .count()
 }
 
 fn valid_password(p: u32, strict: bool) -> bool {

@@ -2,24 +2,16 @@ use crate::grid::Compass::*;
 use crate::grid::{Grid, Pos};
 use std::collections::HashSet;
 
-pub struct Solver {
-    grid: Grid<u8>,
+pub fn parse_input(input: &str) -> Grid<u8> {
+    Grid::from_input(input, 9, char_to_u8)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            grid: Grid::from_input(input, 9, char_to_u8),
-        }
-    }
+pub fn part1(grid: &Grid<u8>) -> u32 {
+    grid.part1()
+}
 
-    fn part1(&self) -> String {
-        self.grid.part1().to_string()
-    }
-
-    fn part2(&self) -> String {
-        self.grid.part2().to_string()
-    }
+pub fn part2(grid: &Grid<u8>) -> usize {
+    grid.part2()
 }
 
 impl Grid<u8> {

@@ -1,26 +1,18 @@
 use std::collections::HashMap;
 
-pub struct Solver {
-    input: String,
+pub fn parse_input(input: &str) -> Vec<String> {
+    input.lines().map(|s| s.to_owned()).collect()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: input.to_owned(),
-        }
-    }
-
-    fn part1(&self) -> String {
-        checksum(&self.input.lines().collect()).to_string()
-    }
-
-    fn part2(&self) -> String {
-        common_letters(&self.input.lines().collect()).to_string()
-    }
+pub fn part1(input: &[String]) -> i32 {
+    checksum(input)
 }
 
-fn checksum(input: &Vec<&str>) -> i32 {
+pub fn part2(input: &[String]) -> String {
+    common_letters(input)
+}
+
+fn checksum(input: &[String]) -> i32 {
     let mut t2 = 0;
     let mut t3 = 0;
 
@@ -41,7 +33,7 @@ fn checksum(input: &Vec<&str>) -> i32 {
     t2 * t3
 }
 
-fn common_letters(input: &Vec<&str>) -> String {
+fn common_letters(input: &[String]) -> String {
     for (i, id1) in input.iter().enumerate() {
         for id2 in input.iter().skip(i + 1) {
             if let Some(s) = compare(id1, id2) {
@@ -73,7 +65,13 @@ fn test_checksum() {
     assert_eq!(
         12,
         checksum(&vec![
-            "abcdef", "bababc", "abbcde", "abcccd", "aabcdd", "abcdee", "ababab"
+            "abcdef".to_owned(),
+            "bababc".to_owned(),
+            "abbcde".to_owned(),
+            "abcccd".to_owned(),
+            "aabcdd".to_owned(),
+            "abcdee".to_owned(),
+            "ababab".to_owned()
         ])
     );
 }
@@ -83,7 +81,13 @@ fn test_common_letters() {
     assert_eq!(
         "fgij",
         common_letters(&vec![
-            "abcde", "fghij", "klmno", "pqrst", "fguij", "axcye", "wvxyz"
+            "abcde".to_owned(),
+            "fghij".to_owned(),
+            "klmno".to_owned(),
+            "pqrst".to_owned(),
+            "fguij".to_owned(),
+            "axcye".to_owned(),
+            "wvxyz".to_owned()
         ])
     );
 }

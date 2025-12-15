@@ -2,26 +2,14 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::collections::HashMap;
 
-pub struct Solver {
-    wires: HashMap<String, Wire>,
+pub fn part1(wires: &HashMap<String, Wire>) -> u16 {
+    measure_a(wires)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            wires: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        measure_a(&self.wires).to_string()
-    }
-
-    fn part2(&self) -> String {
-        let mut wires = self.wires.clone();
-        wires.insert("b".to_string(), Wire::Signal(measure_a(&wires)));
-        measure_a(&wires).to_string()
-    }
+pub fn part2(wires: &HashMap<String, Wire>) -> u16 {
+    let mut wires = wires.clone();
+    wires.insert("b".to_string(), Wire::Signal(measure_a(&wires)));
+    measure_a(&wires)
 }
 
 fn measure_a(wires: &HashMap<String, Wire>) -> u16 {
@@ -52,7 +40,7 @@ fn measure(wires: &HashMap<String, Wire>, target: &str, cache: &mut HashMap<Stri
 }
 
 #[derive(Clone, Debug)]
-enum Wire {
+pub enum Wire {
     Signal(u16),
     Direct(String),
     And(String, String),
@@ -62,7 +50,7 @@ enum Wire {
     Not(String),
 }
 
-fn parse_input(input: &str) -> HashMap<String, Wire> {
+pub fn parse_input(input: &str) -> HashMap<String, Wire> {
     let mut map = HashMap::new();
     lazy_static! {
         static ref RE1: Regex = Regex::new(r"^(\d+) -> (\w+)$").unwrap();

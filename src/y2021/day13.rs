@@ -2,28 +2,21 @@ use std::collections::HashSet;
 
 use crate::pixel_buffer::PixelBuffer;
 
-pub struct Solver {
+pub struct Input {
     paper: Paper,
     folds: Vec<Fold>,
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let (paper, folds) = parse_input(input);
-        Self { paper, folds }
-    }
+pub fn part1(input: &Input) -> usize {
+    fold_paper(&input.paper, input.folds[0]).len()
+}
 
-    fn part1(&self) -> String {
-        fold_paper(&self.paper, self.folds[0]).len().to_string()
+pub fn part2(input: &Input) -> String {
+    let mut paper = input.paper.clone();
+    for fold in input.folds.clone() {
+        paper = fold_paper(&paper, fold);
     }
-
-    fn part2(&self) -> String {
-        let mut paper = self.paper.clone();
-        for fold in self.folds.clone() {
-            paper = fold_paper(&paper, fold);
-        }
-        print_paper(&paper)
-    }
+    print_paper(&paper)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -76,7 +69,7 @@ fn fold_paper(paper: &Paper, fold: Fold) -> Paper {
     new
 }
 
-fn parse_input(input: &str) -> (Paper, Vec<Fold>) {
+pub fn parse_input(input: &str) -> Input {
     let mut section = 0;
     let mut paper = Paper::new();
     let mut folds = vec![];
@@ -96,7 +89,7 @@ fn parse_input(input: &str) -> (Paper, Vec<Fold>) {
             });
         }
     }
-    (paper, folds)
+    Input { paper, folds }
 }
 
 #[test]
@@ -124,7 +117,7 @@ fn test() {
 fold along y=7
 fold along x=5
 ";
-    let (paper, folds) = parse_input(test_input);
+    let Input { paper, folds } = parse_input(test_input);
     assert_eq!(18, paper.len());
     assert_eq!(2, folds.len());
     assert_eq!(Fold::Y(7), folds[0]);

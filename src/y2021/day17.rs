@@ -1,24 +1,16 @@
 use regex::Regex;
 use std::ops::Range;
 
-pub struct Solver {
-    result: (i64, i64),
+pub fn parse_input(input: &str) -> (i64, i64) {
+    search_shots(&parse_targets(input))
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            result: search_shots(&parse_input(input)),
-        }
-    }
+pub fn part1(result: &(i64, i64)) -> i64 {
+    result.0
+}
 
-    fn part1(&self) -> String {
-        self.result.0.to_string()
-    }
-
-    fn part2(&self) -> String {
-        self.result.1.to_string()
-    }
+pub fn part2(result: &(i64, i64)) -> i64 {
+    result.1
 }
 
 #[derive(Debug)]
@@ -117,7 +109,7 @@ fn search_shots(target: &Target) -> (i64, i64) {
     (max_height, count)
 }
 
-fn parse_input(input: &str) -> Target {
+fn parse_targets(input: &str) -> Target {
     let re = Regex::new(r"^target area: x=(-?\d+)..(-?\d+), y=(-?\d+)..(-?\d+)").unwrap();
     let m = re.captures(input).unwrap();
     Target {
@@ -135,7 +127,7 @@ fn parse_input(input: &str) -> Target {
 #[test]
 fn test() {
     let test_input = "target area: x=20..30, y=-10..-5\n";
-    let target = parse_input(test_input);
+    let target = parse_targets(test_input);
     assert_eq!(20..31, target.x);
     assert_eq!(-10..-4, target.y);
     assert!(target.contains(20, -10));

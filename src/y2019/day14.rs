@@ -1,27 +1,11 @@
 use std::fmt;
 
-pub struct Solver {
-    recipes: Vec<Recipe>,
+pub fn part1(recipes: &[Recipe]) -> u64 {
+    Nanofactory::new(recipes).ore_needed(FUEL, 1)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            recipes: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        Nanofactory::new(&self.recipes)
-            .ore_needed(FUEL, 1)
-            .to_string()
-    }
-
-    fn part2(&self) -> String {
-        Nanofactory::new(&self.recipes)
-            .max_fuel(1000000000000)
-            .to_string()
-    }
+pub fn part2(recipes: &[Recipe]) -> u64 {
+    Nanofactory::new(recipes).max_fuel(1000000000000)
 }
 
 struct Amount {
@@ -69,7 +53,7 @@ impl From<&str> for Amount {
     }
 }
 
-struct Recipe {
+pub struct Recipe {
     inputs: Vec<Amount>,
     output: Amount,
 }
@@ -93,7 +77,7 @@ struct FactoryState {
     inventory: Vec<u64>, // index matches the output of the recipes
 }
 
-fn parse_input(input: &str) -> Vec<Recipe> {
+pub fn parse_input(input: &str) -> Vec<Recipe> {
     input.lines().map(Recipe::from).collect()
 }
 

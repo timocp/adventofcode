@@ -1,21 +1,9 @@
-pub struct Solver {
-    input: Vec<(u64, u64)>,
+pub fn part1(input: &[(u64, u64)]) -> u64 {
+    sum_invalid(input, invalid)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        sum_invalid(&self.input, invalid).to_string()
-    }
-
-    fn part2(&self) -> String {
-        sum_invalid(&self.input, invalid2).to_string()
-    }
+pub fn part2(input: &[(u64, u64)]) -> u64 {
+    sum_invalid(input, invalid2)
 }
 
 fn invalid(n: u64) -> bool {
@@ -71,7 +59,7 @@ fn sum_invalid(ranges: &[(u64, u64)], invalid: fn(u64) -> bool) -> u64 {
     sum
 }
 
-fn parse_input(input: &str) -> Vec<(u64, u64)> {
+pub fn parse_input(input: &str) -> Vec<(u64, u64)> {
     input
         .trim()
         .split(',')

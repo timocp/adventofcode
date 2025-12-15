@@ -2,25 +2,23 @@ use std::collections::HashSet;
 use std::collections::VecDeque;
 use std::fmt;
 
-pub struct Solver {
+pub struct Input {
     beacons: HashSet<Pos>,
     scanners: Vec<Pos>,
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let scans = parse_input(input);
-        let (beacons, scanners) = search(&scans);
-        Self { beacons, scanners }
-    }
+pub fn parse_input(input: &str) -> Input {
+    let scans = parse_scans(input);
+    let (beacons, scanners) = search(&scans);
+    Input { beacons, scanners }
+}
 
-    fn part1(&self) -> String {
-        self.beacons.len().to_string()
-    }
+pub fn part1(input: &Input) -> usize {
+    input.beacons.len()
+}
 
-    fn part2(&self) -> String {
-        max_distance(&self.scanners).to_string()
-    }
+pub fn part2(input: &Input) -> usize {
+    max_distance(&input.scanners)
 }
 
 #[derive(Clone, Copy, Eq, Hash, PartialEq)]
@@ -133,7 +131,7 @@ impl From<&str> for Scan {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Scan> {
+fn parse_scans(input: &str) -> Vec<Scan> {
     input.split("\n\n").map(Scan::from).collect()
 }
 
@@ -407,7 +405,7 @@ fn test() {
 -652,-548,-490
 30,-46,-14
 ";
-    let scans = parse_input(test_input);
+    let scans = parse_scans(test_input);
     let (beacons, scanners) = search(&scans);
     assert_eq!(79, beacons.len());
     assert_eq!(3621, max_distance(&scanners));

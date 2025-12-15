@@ -1,31 +1,11 @@
 use std::fmt;
 use std::ops::Add;
 
-pub struct Solver {
-    sf_numbers: Vec<SfNumber>,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            sf_numbers: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.sf_numbers).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.sf_numbers).to_string()
-    }
-}
-
-fn part1(input: &[SfNumber]) -> u32 {
+pub fn part1(input: &[SfNumber]) -> u32 {
     add_sf_list(input).magnitude()
 }
 
-fn part2(input: &[SfNumber]) -> u32 {
+pub fn part2(input: &[SfNumber]) -> u32 {
     let mut max = 0;
 
     for (i, a) in input.iter().enumerate() {
@@ -42,7 +22,7 @@ fn part2(input: &[SfNumber]) -> u32 {
     max
 }
 
-fn parse_input(input: &str) -> Vec<SfNumber> {
+pub fn parse_input(input: &str) -> Vec<SfNumber> {
     input.lines().map(SfNumber::from).collect()
 }
 
@@ -112,7 +92,7 @@ impl fmt::Debug for Token {
     }
 }
 
-struct SfNumber {
+pub struct SfNumber {
     n: Vec<Token>,
 }
 

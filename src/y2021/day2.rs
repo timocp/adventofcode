@@ -1,25 +1,13 @@
-pub struct Solver {
-    commands: Vec<Command>,
+pub fn part1(commands: &[Command]) -> usize {
+    let mut sub = Sub::new();
+    sub.follow(commands);
+    sub.answer()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            commands: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        let mut sub = Sub::new();
-        sub.follow(&self.commands);
-        sub.answer().to_string()
-    }
-
-    fn part2(&self) -> String {
-        let mut sub = Sub::new();
-        sub.follow2(&self.commands);
-        sub.answer().to_string()
-    }
+pub fn part2(commands: &[Command]) -> usize {
+    let mut sub = Sub::new();
+    sub.follow2(commands);
+    sub.answer()
 }
 
 #[derive(Debug)]
@@ -30,7 +18,7 @@ enum Direction {
 }
 
 #[derive(Debug)]
-struct Command {
+pub struct Command {
     dir: Direction,
     units: usize,
 }
@@ -78,7 +66,7 @@ impl Sub {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Command> {
+pub fn parse_input(input: &str) -> Vec<Command> {
     let mut commands = vec![];
     for line in input.lines() {
         let words: Vec<&str> = line.split(' ').collect();

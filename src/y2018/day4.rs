@@ -1,24 +1,18 @@
 use chrono::prelude::*;
 use std::collections::HashMap;
 
-pub struct Solver {
-    stats: HashMap<i32, (i32, [i32; 60])>,
+pub type Stats = HashMap<i32, (i32, [i32; 60])>;
+
+pub fn parse_input(input: &str) -> Stats {
+    collect_stats(&parse_events(input))
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            stats: collect_stats(&parse_input(input)),
-        }
-    }
+pub fn part1(stats: &Stats) -> i32 {
+    multiply_pair(strategy1(stats))
+}
 
-    fn part1(&self) -> String {
-        multiply_pair(strategy1(&self.stats)).to_string()
-    }
-
-    fn part2(&self) -> String {
-        multiply_pair(strategy2(&self.stats)).to_string()
-    }
+pub fn part2(stats: &Stats) -> i32 {
+    multiply_pair(strategy2(stats))
 }
 
 enum Observation {
@@ -90,7 +84,7 @@ fn strategy2(stats: &HashMap<i32, (i32, [i32; 60])>) -> (i32, i32) {
     most_sleepy
 }
 
-fn parse_input(input: &str) -> Vec<Event> {
+fn parse_events(input: &str) -> Vec<Event> {
     let mut events = vec![];
     for line in input.lines() {
         let mut dttm = NaiveDateTime::parse_from_str(
@@ -151,7 +145,7 @@ fn test_run() {
 [1518-11-05 00:03] Guard #99 begins shift
 [1518-11-05 00:45] falls asleep
 [1518-11-05 00:55] wakes up";
-    let stats = collect_stats(&parse_input(test_input));
+    let stats = collect_stats(&parse_events(test_input));
     assert_eq!((10, 24), strategy1(&stats));
     assert_eq!((99, 45), strategy2(&stats));
 }

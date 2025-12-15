@@ -3,7 +3,7 @@ use crate::grid::{Compass, Compass::*, Grid, ORIGIN, Pos};
 use std::fmt;
 use std::ops::Range;
 
-pub struct Solver {
+pub struct Input {
     vm: Vm,
     map: Grid<Cell>,
     robot_start_pos: Pos,
@@ -11,98 +11,96 @@ pub struct Solver {
     debug: bool, // if true, display all output from the program
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let vm = Vm::from(input);
+pub fn parse_input(input: &str) -> Input {
+    let vm = Vm::from(input);
 
-        // initial camera output is used to construct the map and robot starting position
-        let output = vm.clone().run(&[]);
-        let width = output.iter().position(|&i| i == 10).unwrap() as u32;
-        let height = (output.len() as u32 - 1) / (width + 1);
-        let mut map = Grid::new(width, height, Cell::Unknown);
-        let mut robot_start_pos = ORIGIN;
-        let mut robot_start_dir: Option<Compass> = None;
-        let mut p = ORIGIN;
-        for i in output.iter().map(|i| *i as u8) {
-            if i == b'\n' {
-                p.x = 0;
-                p.y += 1;
-            } else {
-                match i {
-                    b'#' => {
-                        map.set(p, Cell::Scaffold);
-                    }
-                    b'.' => {
-                        map.set(p, Cell::Space);
-                    }
-                    b'<' | b'>' | b'^' | b'v' => {
-                        map.set(p, Cell::Scaffold);
-                        robot_start_pos = p;
-                        robot_start_dir = Some(match i {
-                            b'<' => West,
-                            b'>' => East,
-                            b'^' => North,
-                            b'v' => South,
-                            _ => unreachable!(),
-                        });
-                    }
-                    _ => {
-                        panic!("Unhandled input: {}", i);
-                    }
+    // initial camera output is used to construct the map and robot starting position
+    let output = vm.clone().run(&[]);
+    let width = output.iter().position(|&i| i == 10).unwrap() as u32;
+    let height = (output.len() as u32 - 1) / (width + 1);
+    let mut map = Grid::new(width, height, Cell::Unknown);
+    let mut robot_start_pos = ORIGIN;
+    let mut robot_start_dir: Option<Compass> = None;
+    let mut p = ORIGIN;
+    for i in output.iter().map(|i| *i as u8) {
+        if i == b'\n' {
+            p.x = 0;
+            p.y += 1;
+        } else {
+            match i {
+                b'#' => {
+                    map.set(p, Cell::Scaffold);
                 }
-                p.x += 1;
+                b'.' => {
+                    map.set(p, Cell::Space);
+                }
+                b'<' | b'>' | b'^' | b'v' => {
+                    map.set(p, Cell::Scaffold);
+                    robot_start_pos = p;
+                    robot_start_dir = Some(match i {
+                        b'<' => West,
+                        b'>' => East,
+                        b'^' => North,
+                        b'v' => South,
+                        _ => unreachable!(),
+                    });
+                }
+                _ => {
+                    panic!("Unhandled input: {}", i);
+                }
             }
-        }
-
-        Self {
-            vm,
-            map,
-            robot_start_pos,
-            robot_start_dir: robot_start_dir.unwrap(),
-            debug: false,
+            p.x += 1;
         }
     }
 
-    fn part1(&self) -> String {
-        sum_intersections(&self.map).to_string()
+    Input {
+        vm,
+        map,
+        robot_start_pos,
+        robot_start_dir: robot_start_dir.unwrap(),
+        debug: false,
     }
+}
 
-    fn part2(&self) -> String {
-        let mut vm = self.vm.clone();
-        vm.direct_write(0, 2); // instruct robot to wake up
+pub fn part1(input: &Input) -> i32 {
+    sum_intersections(&input.map)
+}
 
-        // solve the actual problem
-        let path = find_path(&self.map, self.robot_start_pos, self.robot_start_dir);
-        let (a, b, c, main) = split_paths(&path);
+pub fn part2(input: &Input) -> i64 {
+    let mut vm = input.vm.clone();
+    vm.direct_write(0, 2); // instruct robot to wake up
 
-        // play the solution into the VM
-        run_program(&mut vm, None, self.debug);
-        // Main:
-        run_program(
-            &mut vm,
-            Some(
-                main.iter()
-                    .map(|c| c.to_string())
-                    .collect::<Vec<_>>()
-                    .join(","),
-            ),
-            self.debug,
-        );
-        // Function A:
-        run_program(&mut vm, Some(moves_to_string(&path[a])), self.debug);
-        // Function B:
-        run_program(&mut vm, Some(moves_to_string(&path[b])), self.debug);
-        // Function C:
-        run_program(&mut vm, Some(moves_to_string(&path[c])), self.debug);
-        // Continuous video feed?
-        let output = run_program(
-            &mut vm,
-            Some((if self.debug { "y" } else { "n" }).to_string()),
-            self.debug,
-        );
+    // solve the actual problem
+    let path = find_path(&input.map, input.robot_start_pos, input.robot_start_dir);
+    let (a, b, c, main) = split_paths(&path);
 
-        output.last().unwrap().to_string()
-    }
+    // play the solution into the VM
+    run_program(&mut vm, None, input.debug);
+    // Main:
+    run_program(
+        &mut vm,
+        Some(
+            main.iter()
+                .map(|c| c.to_string())
+                .collect::<Vec<_>>()
+                .join(","),
+        ),
+        input.debug,
+    );
+    // Function A:
+    run_program(&mut vm, Some(moves_to_string(&path[a])), input.debug);
+    // Function B:
+    run_program(&mut vm, Some(moves_to_string(&path[b])), input.debug);
+    // Function C:
+    run_program(&mut vm, Some(moves_to_string(&path[c])), input.debug);
+    // Continuous video feed?
+    let output = run_program(
+        &mut vm,
+        Some((if input.debug { "y" } else { "n" }).to_string()),
+        input.debug,
+    );
+
+    *output.last().unwrap()
 }
 
 // Input is a string, if present is converted to intcode input with an ASCII newline added.

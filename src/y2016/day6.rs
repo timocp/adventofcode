@@ -1,23 +1,9 @@
-use crate::Puzzle;
-
-pub struct Solver {
-    codes: Vec<String>,
+pub fn part1(codes: &[String]) -> String {
+    most_common_letters(codes)
 }
 
-impl Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            codes: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        most_common_letters(&self.codes)
-    }
-
-    fn part2(&self) -> String {
-        least_common_letters(&self.codes)
-    }
+pub fn part2(codes: &[String]) -> String {
+    least_common_letters(codes)
 }
 
 fn most_common_letters(codes: &[String]) -> String {
@@ -67,7 +53,7 @@ fn count_letters(codes: &[String]) -> Vec<Vec<usize>> {
         })
 }
 
-fn parse_input(input: &str) -> Vec<String> {
+pub fn parse_input(input: &str) -> Vec<String> {
     input.lines().map(|line| line.to_string()).collect()
 }
 
@@ -90,6 +76,6 @@ vrdear
 dvrsen
 enarar
 ";
-    assert_eq!("easter", Solver::new(test_input).part1());
-    assert_eq!("advent", Solver::new(test_input).part2());
+    assert_eq!("easter", part1(&parse_input(test_input)));
+    assert_eq!("advent", part2(&parse_input(test_input)));
 }

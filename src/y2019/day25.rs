@@ -3,31 +3,29 @@ use itertools::Itertools;
 use std::collections::HashSet;
 use std::io;
 
-pub struct Solver {
+pub struct Input {
     vm: Vm,
     interactive: bool,
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            vm: Vm::from(input),
-            interactive: false, // true to play manually, false to solve automatically
-        }
+pub fn parse_input(input: &str) -> Input {
+    Input {
+        vm: Vm::from(input),
+        interactive: false, // true to play manually, false to solve automatically
     }
+}
 
-    fn part1(&self) -> String {
-        if self.interactive {
-            interactive_mode(self.vm.clone());
-        }
-        let mut vm = self.vm.clone();
-        gather_stuff(&mut vm);
-        find_code(&mut vm)
+pub fn part1(input: &Input) -> String {
+    if input.interactive {
+        interactive_mode(input.vm.clone());
     }
+    let mut vm = input.vm.clone();
+    gather_stuff(&mut vm);
+    find_code(&mut vm)
+}
 
-    fn part2(&self) -> String {
-        "N/A".to_string()
-    }
+pub fn part2(_input: &Input) -> &str {
+    "n/a"
 }
 
 fn interactive_mode(mut vm: Vm) {

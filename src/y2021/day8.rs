@@ -1,25 +1,13 @@
-pub struct Solver {
-    entries: Vec<Entry>,
+pub fn part1(entries: &[Entry]) -> usize {
+    count_part1(entries)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            entries: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        count_part1(&self.entries).to_string()
-    }
-
-    fn part2(&self) -> String {
-        count_part2(&self.entries).to_string()
-    }
+pub fn part2(entries: &[Entry]) -> usize {
+    count_part2(entries)
 }
 
 #[derive(Debug)]
-struct Entry {
+pub struct Entry {
     signals: Vec<Vec<char>>,
     output: Vec<Vec<char>>,
 }
@@ -148,7 +136,7 @@ fn count_part2(entries: &[Entry]) -> usize {
     entries.iter().map(|entry| entry.value()).sum()
 }
 
-fn parse_input(input: &str) -> Vec<Entry> {
+pub fn parse_input(input: &str) -> Vec<Entry> {
     input
         .lines()
         .map(|line| {

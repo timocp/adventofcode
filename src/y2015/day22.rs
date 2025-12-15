@@ -1,26 +1,12 @@
 use std::cmp::Ordering;
 use std::collections::BinaryHeap;
 
-pub struct Solver {
-    state: GameState,
+pub fn part1(state: &GameState) -> i32 {
+    find_cheapest_mana_win(state).unwrap()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            state: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        find_cheapest_mana_win(&self.state).unwrap().to_string()
-    }
-
-    fn part2(&self) -> String {
-        find_cheapest_mana_win(&self.state.hard())
-            .unwrap()
-            .to_string()
-    }
+pub fn part2(state: &GameState) -> i32 {
+    find_cheapest_mana_win(&state.hard()).unwrap()
 }
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
@@ -45,7 +31,7 @@ impl Spell {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-struct GameState {
+pub struct GameState {
     player_hp: i32,
     player_mana: i32,
     spent_mana: i32,
@@ -197,7 +183,7 @@ fn find_cheapest_mana_win(initial_state: &GameState) -> Option<i32> {
     None
 }
 
-fn parse_input(input: &str) -> GameState {
+pub fn parse_input(input: &str) -> GameState {
     let mut boss_hp = 0;
     let mut boss_damage = 0;
     for line in input.lines() {

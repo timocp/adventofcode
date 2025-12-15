@@ -1,29 +1,17 @@
 use std::fmt;
 
-pub struct Solver {
-    grid: Grid,
+pub fn part1(grid: &Grid) -> u32 {
+    grid.step(100).count()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            grid: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        self.grid.step(100).count().to_string()
-    }
-
-    fn part2(&self) -> String {
-        let mut grid = self.grid.clone();
-        grid.broken();
-        grid.step(100).count().to_string()
-    }
+pub fn part2(grid: &Grid) -> u32 {
+    let mut grid = grid.clone();
+    grid.broken();
+    grid.step(100).count()
 }
 
 #[derive(Clone, Debug)]
-struct Grid {
+pub struct Grid {
     size: usize,
     // each row is a u128, each bit is a light
     lights: Vec<u128>,
@@ -132,7 +120,7 @@ impl fmt::Display for Grid {
     }
 }
 
-fn parse_input(input: &str) -> Grid {
+pub fn parse_input(input: &str) -> Grid {
     input.into()
 }
 

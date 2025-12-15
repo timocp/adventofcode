@@ -1,26 +1,14 @@
-pub struct Solver {
-    program: Vec<Instruction>,
+pub fn part1(program: &[Instruction]) -> u64 {
+    let mut vm = VM::new();
+    vm.execute(program);
+    vm.read_register(Register::B)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            program: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        let mut vm = VM::new();
-        vm.execute(&self.program);
-        vm.read_register(Register::B).to_string()
-    }
-
-    fn part2(&self) -> String {
-        let mut vm = VM::new();
-        vm.write_register(Register::A, 1);
-        vm.execute(&self.program);
-        vm.read_register(Register::B).to_string()
-    }
+pub fn part2(program: &[Instruction]) -> u64 {
+    let mut vm = VM::new();
+    vm.write_register(Register::A, 1);
+    vm.execute(program);
+    vm.read_register(Register::B)
 }
 
 #[derive(Debug)]
@@ -95,7 +83,7 @@ impl VM {
 }
 
 #[derive(Debug)]
-enum Register {
+pub enum Register {
     A,
     B,
 }
@@ -120,7 +108,7 @@ impl From<&str> for Register {
 }
 
 #[derive(Debug)]
-enum Instruction {
+pub enum Instruction {
     Half(Register),
     Triple(Register),
     Increment(Register),
@@ -129,7 +117,7 @@ enum Instruction {
     JumpIfOne(Register, i64),
 }
 
-fn parse_input(input: &str) -> Vec<Instruction> {
+pub fn parse_input(input: &str) -> Vec<Instruction> {
     input
         .lines()
         .map(|line| {

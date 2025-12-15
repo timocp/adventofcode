@@ -4,28 +4,20 @@ use core::fmt;
 use std::cmp::Ordering;
 use std::{thread, time};
 
-pub struct Solver {
-    arcade_vm: Vm,
+pub fn parse_input(input: &str) -> Vm {
+    Vm::from(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            arcade_vm: Vm::from(input),
-        }
-    }
+pub fn part1(arcade_vm: &Vm) -> usize {
+    let mut game = Game::new(arcade_vm.clone());
+    game.step(&[]);
+    game.count(Tile::Block)
+}
 
-    fn part1(&self) -> String {
-        let mut game = Game::new(self.arcade_vm.clone());
-        game.step(&[]);
-        game.count(Tile::Block).to_string()
-    }
-
-    fn part2(&self) -> String {
-        let mut game = Game::new(self.arcade_vm.clone());
-        game.play(false); // change to true to watch game play
-        game.score.to_string()
-    }
+pub fn part2(arcade_vm: &Vm) -> i64 {
+    let mut game = Game::new(arcade_vm.clone());
+    game.play(false); // change to true to watch game play
+    game.score
 }
 
 struct Game {

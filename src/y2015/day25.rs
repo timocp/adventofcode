@@ -1,23 +1,11 @@
 use regex::Regex;
 
-pub struct Solver {
-    input: (u32, u32),
+pub fn part1(input: &(u32, u32)) -> u64 {
+    calc_code(input.0, input.1)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        calc_code(self.input.0, self.input.1).to_string()
-    }
-
-    fn part2(&self) -> String {
-        "N/A".to_string()
-    }
+pub fn part2(_input: &(u32, u32)) -> &str {
+    "n/a"
 }
 
 fn calc_code(row: u32, col: u32) -> u64 {
@@ -29,7 +17,7 @@ fn calc_code(row: u32, col: u32) -> u64 {
     code
 }
 
-fn parse_input(input: &str) -> (u32, u32) {
+pub fn parse_input(input: &str) -> (u32, u32) {
     let re = Regex::new(r"row (\d+), column (\d+)").unwrap();
     let caps = re.captures(input).unwrap();
     (caps[1].parse().unwrap(), caps[2].parse().unwrap())

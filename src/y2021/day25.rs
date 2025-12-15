@@ -1,27 +1,12 @@
 use crate::grid::{Compass, Grid, Pos};
 use std::fmt;
 
-pub struct Solver {
-    input: String,
+pub fn parse_input(input: &str) -> &str {
+    input
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: input.to_owned(),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(parse_input(&self.input)).to_string()
-    }
-
-    fn part2(&self) -> String {
-        "N/A".to_string()
-    }
-}
-
-fn part1(mut map: Map) -> usize {
+pub fn part1(input: &str) -> usize {
+    let mut map = parse_map(input);
     let mut step = 1;
 
     // println!("Initial state:\n{}", map);
@@ -31,6 +16,10 @@ fn part1(mut map: Map) -> usize {
     }
     // println!("After {} steps:\n{}", step, map);
     step
+}
+
+pub fn part2(_input: &str) -> &str {
+    "n/a"
 }
 
 #[derive(Clone, PartialEq)]
@@ -125,7 +114,7 @@ impl fmt::Display for Map {
     }
 }
 
-fn parse_input(input: &str) -> Map {
+fn parse_map(input: &str) -> Map {
     Map {
         grid: Grid::from_input(input, Cucumber::Empty, Cucumber::from),
     }
@@ -144,5 +133,5 @@ v>v.vv.v..
 v.v..>>v.v
 ....v..v.>
 ";
-    assert_eq!(58, part1(parse_input(test_input)));
+    assert_eq!(58, part1(test_input));
 }

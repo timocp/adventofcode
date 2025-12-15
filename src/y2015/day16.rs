@@ -1,24 +1,4 @@
-pub struct Solver {
-    aunts: Vec<Aunt>,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            aunts: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.aunts).unwrap().to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.aunts).unwrap().to_string()
-    }
-}
-
-fn part1(input: &Vec<Aunt>) -> Option<u32> {
+pub fn part1(input: &[Aunt]) -> u32 {
     for aunt in input {
         if aunt.items.iter().all(|(item, value)| match item.as_str() {
             "children" => *value == 3,
@@ -33,13 +13,13 @@ fn part1(input: &Vec<Aunt>) -> Option<u32> {
             "perfumes" => *value == 1,
             _ => panic!("unknown item: {}", item),
         }) {
-            return Some(aunt.number);
+            return aunt.number;
         }
     }
-    None
+    panic!()
 }
 
-fn part2(input: &Vec<Aunt>) -> Option<u32> {
+pub fn part2(input: &[Aunt]) -> u32 {
     for aunt in input {
         if aunt.items.iter().all(|(item, value)| match item.as_str() {
             "children" => *value == 3,
@@ -54,14 +34,14 @@ fn part2(input: &Vec<Aunt>) -> Option<u32> {
             "perfumes" => *value == 1,
             _ => panic!("unknown item: {}", item),
         }) {
-            return Some(aunt.number);
+            return aunt.number;
         }
     }
-    None
+    panic!()
 }
 
 #[derive(Debug)]
-struct Aunt {
+pub struct Aunt {
     number: u32,
     items: Vec<(String, u32)>,
 }
@@ -69,7 +49,7 @@ struct Aunt {
 // example input:
 // Sue 1: children: 1, cars: 8, vizslas: 7
 // Sue 2: akitas: 10, perfumes: 10, children: 5
-fn parse_input(input: &str) -> Vec<Aunt> {
+pub fn parse_input(input: &str) -> Vec<Aunt> {
     let trailing_chars = [',', ':'];
     input
         .lines()

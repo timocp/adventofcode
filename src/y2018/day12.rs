@@ -1,28 +1,20 @@
 use std::collections::VecDeque;
 use std::fmt;
 
-pub struct Solver {
-    input: String,
+pub fn parse_input(input: &str) -> &str {
+    input
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: input.to_owned(),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.input, 20).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.input, 50000000000).to_string()
-    }
+pub fn part1(input: &str) -> i64 {
+    solve_part1(input, 20)
 }
 
-fn part1(input: &str, generations: i64) -> i64 {
-    let (rules, mut s1) = parse_input(input);
+pub fn part2(input: &str) -> i64 {
+    solve_part2(input, 50000000000)
+}
+
+fn solve_part1(input: &str, generations: i64) -> i64 {
+    let (rules, mut s1) = parse_rules(input);
     let mut s2 = State {
         plants: VecDeque::new(),
         offset: 0,
@@ -42,8 +34,8 @@ fn part1(input: &str, generations: i64) -> i64 {
     }
 }
 
-fn part2(input: &str, generations: i64) -> i64 {
-    let (rules, mut s1) = parse_input(input);
+fn solve_part2(input: &str, generations: i64) -> i64 {
+    let (rules, mut s1) = parse_rules(input);
     let mut s2 = State {
         plants: VecDeque::new(),
         offset: 0,
@@ -65,7 +57,7 @@ fn part2(input: &str, generations: i64) -> i64 {
     }
 }
 
-fn parse_input(input: &str) -> (u32, State) {
+fn parse_rules(input: &str) -> (u32, State) {
     let mut rules = 0;
     let mut state = State {
         plants: VecDeque::new(),
@@ -218,7 +210,7 @@ mod tests {
 
     #[test]
     fn test_parse_input() {
-        let (rules, state) = parse_input(test_input());
+        let (rules, state) = parse_rules(test_input());
         assert_eq!(
             VecDeque::from_iter(vec![
                 true, false, false, true, false, true, false, false, true, true, false, false,
@@ -237,7 +229,7 @@ mod tests {
 
     #[test]
     fn test_grow() {
-        let (rules, mut state) = parse_input(test_input());
+        let (rules, mut state) = parse_rules(test_input());
         let mut state2 = State {
             plants: VecDeque::new(),
             offset: 0,
@@ -276,6 +268,6 @@ mod tests {
 
     #[test]
     fn test_part1() {
-        assert_eq!(325, part1(test_input(), 20));
+        assert_eq!(325, solve_part1(test_input(), 20));
     }
 }

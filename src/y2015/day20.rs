@@ -1,34 +1,14 @@
-pub struct Solver {
-    min_presents: u32,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            min_presents: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(self.min_presents).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(self.min_presents).to_string()
-    }
-}
-
-fn part1(min_presents: u32) -> u32 {
+pub fn part1(min_presents: &u32) -> u32 {
     let mut house = 1;
     loop {
-        if presents(house) >= min_presents {
+        if presents(house) >= *min_presents {
             return house;
         }
         house += 1;
     }
 }
 
-fn part2(min_presents: u32) -> u32 {
+pub fn part2(min_presents: &u32) -> u32 {
     let mut elf = 1u32;
     let mut count = vec![0u32]; // house 0 doesn't exist
 
@@ -42,7 +22,7 @@ fn part2(min_presents: u32) -> u32 {
         }
 
         // house #elf can no longer receive gifts, so check if it has received enough
-        if count[elf as usize] >= min_presents {
+        if count[elf as usize] >= *min_presents {
             return elf;
         }
 
@@ -67,7 +47,7 @@ fn presents(house: u32) -> u32 {
     presents
 }
 
-fn parse_input(input: &str) -> u32 {
+pub fn parse_input(input: &str) -> u32 {
     input.trim().parse().unwrap()
 }
 

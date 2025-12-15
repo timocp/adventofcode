@@ -1,24 +1,12 @@
-pub struct Solver {
-    presents: Vec<Present>,
+pub fn part1(presents: &[Present]) -> u32 {
+    total_paper(presents)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            presents: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        total_paper(&self.presents).to_string()
-    }
-
-    fn part2(&self) -> String {
-        total_ribbon(&self.presents).to_string()
-    }
+pub fn part2(presents: &[Present]) -> u32 {
+    total_ribbon(presents)
 }
 
-struct Present {
+pub struct Present {
     l: u32,
     w: u32,
     h: u32,
@@ -57,7 +45,7 @@ impl Present {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Present> {
+pub fn parse_input(input: &str) -> Vec<Present> {
     input.lines().map(Present::from).collect()
 }
 

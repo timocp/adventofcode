@@ -2,30 +2,23 @@ use self::Op::*;
 use std::collections::HashSet;
 use std::slice::Iter;
 
-pub struct Solver {
+pub struct Input {
     samples: Vec<Sample>,
     program: Vec<Inst>,
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let (samples, program) = parse_input(input);
-        Self { samples, program }
-    }
+pub fn part1(input: &Input) -> usize {
+    input
+        .samples
+        .iter()
+        .filter(|sample| sample.probe().len() >= 3)
+        .count()
+}
 
-    fn part1(&self) -> String {
-        self.samples
-            .iter()
-            .filter(|sample| sample.probe().len() >= 3)
-            .count()
-            .to_string()
-    }
-
-    fn part2(&self) -> String {
-        let mut vm = Device::new();
-        vm.run_program(&reverse_engineer(&self.samples), &self.program);
-        vm.reg[0].to_string()
-    }
+pub fn part2(input: &Input) -> usize {
+    let mut vm = Device::new();
+    vm.run_program(&reverse_engineer(&input.samples), &input.program);
+    vm.reg[0]
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -178,7 +171,7 @@ struct Inst {
     c: usize,
 }
 
-fn parse_input(input: &str) -> (Vec<Sample>, Vec<Inst>) {
+pub fn parse_input(input: &str) -> Input {
     let mut samples = vec![];
     let mut sample = Sample::new();
     let mut in_samples = true;
@@ -213,7 +206,7 @@ fn parse_input(input: &str) -> (Vec<Sample>, Vec<Inst>) {
             }
         }
     }
-    (samples, program)
+    Input { samples, program }
 }
 
 fn parse_numbers(input: &str, delim: &str) -> Vec<usize> {
@@ -230,17 +223,17 @@ mod tests {
 
     #[test]
     fn test_parse_input() {
-        let (samples, _program) = parse_input(test_input());
-        assert_eq!(1, samples.len());
+        let input = parse_input(test_input());
+        assert_eq!(1, input.samples.len());
     }
 
     #[test]
     fn test_probe() {
-        let (samples, _program) = parse_input(test_input());
+        let input = parse_input(test_input());
         let mut expected = HashSet::new();
         expected.insert(Addi);
         expected.insert(Mulr);
         expected.insert(Seti);
-        assert_eq!(expected, samples[0].probe());
+        assert_eq!(expected, input.samples[0].probe());
     }
 }

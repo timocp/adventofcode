@@ -1,23 +1,11 @@
 use std::collections::HashSet;
 
-pub struct Solver {
-    input: Vec<i32>,
+pub fn part1(input: &[i32]) -> i32 {
+    sum_lines(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        sum_lines(&self.input).to_string()
-    }
-
-    fn part2(&self) -> String {
-        first_reached_twice(&self.input).to_string()
-    }
+pub fn part2(input: &[i32]) -> i32 {
+    first_reached_twice(input)
 }
 
 fn sum_lines(input: &[i32]) -> i32 {
@@ -39,7 +27,7 @@ fn first_reached_twice(input: &[i32]) -> i32 {
     unreachable!();
 }
 
-fn parse_input(input: &str) -> Vec<i32> {
+pub fn parse_input(input: &str) -> Vec<i32> {
     input
         .lines()
         .filter_map(|line| line.parse::<i32>().ok())

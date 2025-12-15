@@ -1,10 +1,4 @@
-use crate::Puzzle;
-
-pub struct Solver {
-    addresses: Vec<IPv7>,
-}
-
-struct IPv7 {
+pub struct IPv7 {
     address: Vec<u8>,
     // boundary markers (start, end + 1) pairs of indexes into address
     supernets: Vec<(usize, usize)>,
@@ -94,28 +88,22 @@ fn has_bab(part: &[u8], a: u8, b: u8) -> bool {
     (0..part.len() - 2).any(|i| part[i] == b && part[i + 1] == a && part[i + 2] == b)
 }
 
-impl Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            addresses: input.lines().map(IPv7::from).collect(),
-        }
-    }
+pub fn parse_input(input: &str) -> Vec<IPv7> {
+    input.lines().map(IPv7::from).collect()
+}
 
-    fn part1(&self) -> String {
-        self.addresses
-            .iter()
-            .filter(|address| address.supports_tls())
-            .count()
-            .to_string()
-    }
+pub fn part1(addresses: &[IPv7]) -> usize {
+    addresses
+        .iter()
+        .filter(|address| address.supports_tls())
+        .count()
+}
 
-    fn part2(&self) -> String {
-        self.addresses
-            .iter()
-            .filter(|address| address.supports_ssl())
-            .count()
-            .to_string()
-    }
+pub fn part2(addresses: &[IPv7]) -> usize {
+    addresses
+        .iter()
+        .filter(|address| address.supports_ssl())
+        .count()
 }
 
 #[test]

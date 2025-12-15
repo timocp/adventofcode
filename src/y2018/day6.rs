@@ -1,30 +1,13 @@
+use crate::grid::Pos;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
-pub struct Solver {
-    points: Vec<Point>,
+pub fn part1(points: &[Pos]) -> usize {
+    largest_finite_area(points)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            points: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        largest_finite_area(&self.points).to_string()
-    }
-
-    fn part2(&self) -> String {
-        safe_area(&self.points, 10000).to_string()
-    }
-}
-
-#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq)]
-struct Point {
-    x: i32,
-    y: i32,
+pub fn part2(points: &[Pos]) -> usize {
+    safe_area(points, 10000)
 }
 
 #[derive(Debug)]
@@ -33,15 +16,15 @@ struct Closest {
     coord: Option<usize>,
 }
 
-fn largest_finite_area(coords: &[Point]) -> usize {
+fn largest_finite_area(coords: &[Pos]) -> usize {
     let (min, max) = box_size(coords);
 
-    let mut closest: HashMap<Point, Closest> = HashMap::new();
+    let mut closest: HashMap<Pos, Closest> = HashMap::new();
     for (c, coord) in coords.iter().enumerate() {
         for x in min.x..=max.x {
             for y in min.y..=max.y {
                 let distance = ((coord.x - x).abs() + (coord.y - y).abs()) as usize;
-                match closest.entry(Point { x, y }) {
+                match closest.entry(Pos { x, y }) {
                     Entry::Occupied(ent) => {
                         let ent = ent.into_mut();
                         if distance < ent.distance {
@@ -66,7 +49,7 @@ fn largest_finite_area(coords: &[Point]) -> usize {
     let mut areas: Vec<Option<usize>> = vec![Some(0); coords.len()];
     for y in min.y..=max.y {
         for x in min.x..=max.x {
-            let closest = closest.get(&Point { x, y }).unwrap();
+            let closest = closest.get(&Pos { x, y }).unwrap();
             if let Some(c) = closest.coord {
                 if y == min.y || y == max.y || x == min.x || x == max.x {
                     areas[c] = None;
@@ -79,7 +62,7 @@ fn largest_finite_area(coords: &[Point]) -> usize {
     areas.into_iter().flatten().max().unwrap()
 }
 
-fn safe_area(coords: &[Point], limit: usize) -> usize {
+fn safe_area(coords: &[Pos], limit: usize) -> usize {
     let (min, max) = box_size(coords);
     let mut area = 0;
     for x in min.x..=max.x {
@@ -97,7 +80,7 @@ fn safe_area(coords: &[Point], limit: usize) -> usize {
     area
 }
 
-fn box_size(coords: &[Point]) -> (Point, Point) {
+fn box_size(coords: &[Pos]) -> (Pos, Pos) {
     let mut min = *coords.first().unwrap();
     let mut max = *coords.first().unwrap();
     for c in coords.iter().skip(1) {
@@ -115,11 +98,11 @@ fn box_size(coords: &[Point]) -> (Point, Point) {
     (min, max)
 }
 
-fn parse_input(input: &str) -> Vec<Point> {
+pub fn parse_input(input: &str) -> Vec<Pos> {
     let mut list = vec![];
     for line in input.lines() {
         let coords: Vec<_> = line.split(", ").filter_map(|s| s.parse().ok()).collect();
-        list.push(Point {
+        list.push(Pos {
             x: coords[0],
             y: coords[1],
         });

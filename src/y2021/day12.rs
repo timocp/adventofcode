@@ -1,28 +1,8 @@
-pub struct Solver {
-    system: CaveSystem,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            system: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.system).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.system).to_string()
-    }
-}
-
-fn part1(system: &CaveSystem) -> usize {
+pub fn part1(system: &CaveSystem) -> usize {
     system.count_paths(&mut vec![0], Revisit::NotAllowed)
 }
 
-fn part2(system: &CaveSystem) -> usize {
+pub fn part2(system: &CaveSystem) -> usize {
     system.count_paths(&mut vec![0], Revisit::Allowed)
 }
 
@@ -47,7 +27,7 @@ struct Cave {
 }
 
 #[derive(Debug)]
-struct CaveSystem {
+pub struct CaveSystem {
     caves: Vec<Cave>,       // vector of caves, index is cave number
     links: Vec<Vec<usize>>, // set of links between caves
 }
@@ -136,7 +116,7 @@ impl CaveSystem {
     }
 }
 
-fn parse_input(input: &str) -> CaveSystem {
+pub fn parse_input(input: &str) -> CaveSystem {
     let mut system = CaveSystem {
         caves: vec![],
         links: vec![],

@@ -2,29 +2,21 @@ use std::collections::HashMap;
 use std::iter::Cycle;
 use std::ops::RangeInclusive;
 
-pub struct Solver {
-    game: Game,
+pub fn parse_input(input: &str) -> Game {
+    Game::from(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            game: Game::from(input),
-        }
-    }
+pub fn part1(game: &Game) -> usize {
+    let mut game = game.clone();
+    game.part1()
+}
 
-    fn part1(&self) -> String {
-        let mut game = self.game.clone();
-        game.part1().to_string()
-    }
-
-    fn part2(&self) -> String {
-        self.game.part2().to_string()
-    }
+pub fn part2(game: &Game) -> usize {
+    game.part2()
 }
 
 #[derive(Debug, Clone)]
-struct Game {
+pub struct Game {
     state: State,
     turn: usize,
     dice: Cycle<RangeInclusive<usize>>,

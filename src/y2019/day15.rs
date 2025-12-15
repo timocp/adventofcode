@@ -2,54 +2,44 @@ use super::intcode::Vm;
 use crate::bfs;
 use crate::grid::{Compass, ORIGIN, Pos, SparseGrid};
 
-pub struct Solver {
+pub fn parse_input(input: &str) -> SparseGrid<Cell> {
     // pre-explored map of the ship
-    ship: SparseGrid<Cell>,
+    explore_ship(Vm::from(input))
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            ship: explore_ship(Vm::from(input)),
-        }
-    }
+pub fn part1(ship: &SparseGrid<Cell>) -> usize {
+    bfs::search(
+        &ORIGIN,
+        |p| next_steps(ship, p),
+        |p| *ship.get(*p) == Cell::Oxygen,
+    )
+    .unwrap()
+    .len()
+}
 
-    fn part1(&self) -> String {
-        bfs::search(
-            &ORIGIN,
-            |p| next_steps(&self.ship, p),
-            |p| *self.ship.get(*p) == Cell::Oxygen,
-        )
-        .unwrap()
-        .len()
-        .to_string()
-    }
+pub fn part2(ship: &SparseGrid<Cell>) -> u32 {
+    let oxygen = ship
+        .iter()
+        .find_map(|(pos, cell)| {
+            if *cell == Cell::Oxygen {
+                Some(pos)
+            } else {
+                None
+            }
+        })
+        .unwrap();
 
-    fn part2(&self) -> String {
-        let oxygen = self
-            .ship
-            .iter()
-            .find_map(|(pos, cell)| {
-                if *cell == Cell::Oxygen {
-                    Some(pos)
-                } else {
-                    None
-                }
-            })
-            .unwrap();
-
-        let mut max_distance = 0;
-        bfs::traverse(
-            oxygen,
-            |p| next_steps(&self.ship, p),
-            |_p, d, _path| max_distance = d,
-        );
-        max_distance.to_string()
-    }
+    let mut max_distance = 0;
+    bfs::traverse(
+        oxygen,
+        |p| next_steps(ship, p),
+        |_p, d, _path| max_distance = d,
+    );
+    max_distance
 }
 
 #[derive(Clone, PartialEq)]
-enum Cell {
+pub enum Cell {
     Unknown,
     Empty,
     Wall,

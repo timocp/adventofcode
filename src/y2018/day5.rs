@@ -1,24 +1,16 @@
 use std::collections::VecDeque;
 use std::iter::FromIterator;
 
-pub struct Solver {
-    input: String,
+pub fn parse_input(input: &str) -> &str {
+    input
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: input.to_owned(),
-        }
-    }
+pub fn part1(input: &str) -> usize {
+    react(input).len()
+}
 
-    fn part1(&self) -> String {
-        react(&self.input).len().to_string()
-    }
-
-    fn part2(&self) -> String {
-        shortest_polymer(&self.input).len().to_string()
-    }
+pub fn part2(input: &str) -> usize {
+    shortest_polymer(input).len()
 }
 
 fn react(input: &str) -> String {

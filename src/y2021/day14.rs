@@ -1,23 +1,16 @@
 use std::collections::HashMap;
 
-pub struct Solver {
+pub struct Input {
     polymer: Polymer,
     rules: RuleSet,
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let (polymer, rules) = parse_input(input);
-        Self { polymer, rules }
-    }
+pub fn part1(input: &Input) -> usize {
+    apply(&input.polymer, &input.rules, 10)
+}
 
-    fn part1(&self) -> String {
-        apply(&self.polymer, &self.rules, 10).to_string()
-    }
-
-    fn part2(&self) -> String {
-        apply(&self.polymer, &self.rules, 40).to_string()
-    }
+pub fn part2(input: &Input) -> usize {
+    apply(&input.polymer, &input.rules, 40)
 }
 
 fn apply(polymer: &Polymer, rules: &RuleSet, times: usize) -> usize {
@@ -73,10 +66,10 @@ impl Polymer {
 // Rules are a map of character pairs to the character to insert between them
 type RuleSet = HashMap<(char, char), char>;
 
-fn parse_input(input: &str) -> (Polymer, RuleSet) {
+pub fn parse_input(input: &str) -> Input {
     let mut section = 0;
     let mut polymer = Polymer::new("");
-    let mut ruleset = RuleSet::new();
+    let mut rules = RuleSet::new();
 
     for line in input.lines() {
         if line.is_empty() {
@@ -87,11 +80,11 @@ fn parse_input(input: &str) -> (Polymer, RuleSet) {
             let rule: Vec<&str> = line.split(" -> ").collect();
             let from: Vec<char> = rule[0].chars().collect();
             let to: char = rule[1].chars().next().unwrap();
-            ruleset.insert((from[0], from[1]), to);
+            rules.insert((from[0], from[1]), to);
         }
     }
 
-    (polymer, ruleset)
+    Input { polymer, rules }
 }
 
 #[test]
@@ -116,7 +109,7 @@ BC -> B
 CC -> N
 CN -> C
 ";
-    let (polymer, rules) = parse_input(test_input);
+    let Input { polymer, rules } = parse_input(test_input);
     assert_eq!(16, rules.len());
     assert_eq!(1588, apply(&polymer, &rules, 10));
     assert_eq!(2188189693529, apply(&polymer, &rules, 40));

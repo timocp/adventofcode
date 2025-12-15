@@ -3,28 +3,20 @@ use std::collections::BinaryHeap;
 use std::collections::HashMap;
 use std::fmt;
 
-pub struct Solver {
-    input: String,
+pub fn parse_input(input: &str) -> &str {
+    input
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: input.to_owned(),
-        }
-    }
+pub fn part1(input: &str) -> usize {
+    solve(input)
+}
 
-    fn part1(&self) -> String {
-        solve(&self.input).to_string()
-    }
-
-    fn part2(&self) -> String {
-        solve(&unfold_input(&self.input)).to_string()
-    }
+pub fn part2(input: &str) -> usize {
+    solve(&unfold_input(input))
 }
 
 fn solve(input: &str) -> usize {
-    let (map, state) = parse_input(input);
+    let (map, state) = parse_map(input);
     state.cheapest_path(&map)
 }
 
@@ -298,7 +290,7 @@ struct Map {
     grid: Vec<Vec<Cell>>,
 }
 
-fn parse_input(input: &str) -> (Map, State) {
+fn parse_map(input: &str) -> (Map, State) {
     let mut grid = vec![];
     let mut pods = vec![];
 
@@ -359,11 +351,11 @@ fn test() {
   #A#D#C#A#
   #########
 ";
-    let (map, state) = parse_input(test_input);
+    let (map, state) = parse_map(test_input);
     println!("{}", state.print(&map));
     assert_eq!(12521, state.cheapest_path(&map));
 
-    let (map, state) = parse_input(&unfold_input(test_input));
+    let (map, state) = parse_map(&unfold_input(test_input));
     println!("{}", state.print(&map));
     assert_eq!(44169, state.cheapest_path(&map));
 }

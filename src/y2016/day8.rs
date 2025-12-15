@@ -1,12 +1,6 @@
+use crate::pixel_buffer::PixelBuffer;
 use std::collections::VecDeque;
 use std::fmt;
-
-use crate::Puzzle;
-use crate::pixel_buffer::PixelBuffer;
-
-pub struct Solver {
-    input: Vec<Instruction>,
-}
 
 struct Screen {
     pixels: Vec<VecDeque<bool>>,
@@ -61,26 +55,18 @@ impl fmt::Display for Screen {
 }
 
 #[derive(Debug)]
-enum Instruction {
+pub enum Instruction {
     Rect(usize, usize),
     RotateRow(usize, usize),
     RotateColumn(usize, usize),
 }
 
-impl Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
+pub fn part1(input: &[Instruction]) -> usize {
+    process(input).count_lit()
+}
 
-    fn part1(&self) -> String {
-        process(&self.input).count_lit().to_string()
-    }
-
-    fn part2(&self) -> String {
-        process(&self.input).to_string()
-    }
+pub fn part2(input: &[Instruction]) -> String {
+    process(input).to_string()
 }
 
 fn process(instructions: &[Instruction]) -> Screen {
@@ -95,7 +81,7 @@ fn process(instructions: &[Instruction]) -> Screen {
     screen
 }
 
-fn parse_input(input: &str) -> Vec<Instruction> {
+pub fn parse_input(input: &str) -> Vec<Instruction> {
     input
         .lines()
         .map(|line| {

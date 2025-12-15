@@ -1,25 +1,15 @@
-use crate::Puzzle;
-
 use md5::{Digest, Md5};
 
-pub struct Solver {
-    door_id: String,
+pub fn parse_input(input: &str) -> String {
+    input.trim().to_string()
 }
 
-impl Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            door_id: input.trim().to_string(),
-        }
-    }
+pub fn part1(door_id: &str) -> String {
+    bf_password1(door_id)
+}
 
-    fn part1(&self) -> String {
-        bf_password1(&self.door_id)
-    }
-
-    fn part2(&self) -> String {
-        bf_password2(&self.door_id)
-    }
+pub fn part2(door_id: &str) -> String {
+    bf_password2(door_id)
 }
 
 fn bf_password1(door_id: &str) -> String {

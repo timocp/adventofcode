@@ -1,41 +1,31 @@
 use super::intcode::Vm;
 
-pub struct Solver {
-    vm: Vm,
+pub fn parse_input(input: &str) -> Vm {
+    Vm::from(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            vm: Vm::from(input),
-        }
-    }
+pub fn part1(vm: &Vm) -> i64 {
+    get_result(vm, 12, 2)
+}
 
-    fn part1(&self) -> String {
-        self.get_result(12, 2).to_string()
-    }
-
-    fn part2(&self) -> String {
-        for noun in 0..100 {
-            for verb in 0..100 {
-                if self.get_result(noun, verb) == 19690720 {
-                    return (100 * noun + verb).to_string();
-                }
+pub fn part2(vm: &Vm) -> i64 {
+    for noun in 0..100 {
+        for verb in 0..100 {
+            if get_result(vm, noun, verb) == 19690720 {
+                return 100 * noun + verb;
             }
         }
-        panic!("No solution found");
     }
+    panic!("No solution found");
 }
 
-impl Solver {
-    // Return the final value at address 0 if the program is run to completion
-    fn get_result(&self, noun: i64, verb: i64) -> i64 {
-        let mut vm = self.vm.clone();
-        vm.direct_write(1, noun);
-        vm.direct_write(2, verb);
-        vm.exec();
-        vm.direct_read(0)
-    }
+// Return the final value at address 0 if the program is run to completion
+fn get_result(vm: &Vm, noun: i64, verb: i64) -> i64 {
+    let mut vm = vm.clone();
+    vm.direct_write(1, noun);
+    vm.direct_write(2, verb);
+    vm.exec();
+    vm.direct_read(0)
 }
 
 #[test]

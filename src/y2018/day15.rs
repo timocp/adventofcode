@@ -6,26 +6,18 @@ use std::fmt;
 use std::fmt::Write;
 use std::slice::Iter;
 
-pub struct Solver {
-    input: String,
+pub fn parse_input(input: &str) -> &str {
+    input
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: input.to_owned(),
-        }
-    }
+pub fn part1(input: &str) -> u32 {
+    let mut game = Game::new(input);
+    game.simulate(None);
+    game.outcome()
+}
 
-    fn part1(&self) -> String {
-        let mut game = Game::new(&self.input);
-        game.simulate(None);
-        game.outcome().to_string()
-    }
-
-    fn part2(&self) -> String {
-        Game::help_elves(&self.input).outcome().to_string()
-    }
+pub fn part2(input: &str) -> u32 {
+    Game::help_elves(input).outcome()
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

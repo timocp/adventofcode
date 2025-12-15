@@ -1,21 +1,9 @@
-pub struct Solver {
-    crabs: Vec<usize>,
+pub fn part1(crabs: &[usize]) -> usize {
+    least_fuel(crabs, measure_fuel).unwrap()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            crabs: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        least_fuel(&self.crabs, measure_fuel).unwrap().to_string()
-    }
-
-    fn part2(&self) -> String {
-        least_fuel(&self.crabs, measure_fuel2).unwrap().to_string()
-    }
+pub fn part2(crabs: &[usize]) -> usize {
+    least_fuel(crabs, measure_fuel2).unwrap()
 }
 
 fn least_fuel(crabs: &[usize], fuel: impl Fn(&[usize], usize) -> usize) -> Option<usize> {
@@ -45,7 +33,7 @@ fn measure_fuel2(crabs: &[usize], pos: usize) -> usize {
         .sum()
 }
 
-fn parse_input(input: &str) -> Vec<usize> {
+pub fn parse_input(input: &str) -> Vec<usize> {
     input
         .lines()
         .next()

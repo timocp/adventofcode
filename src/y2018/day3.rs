@@ -2,30 +2,18 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 
-pub struct Solver {
-    claims: Vec<Claim>,
+pub fn part1(claims: &[Claim]) -> i32 {
+    let mut fabric = HashMap::new();
+    process(&mut fabric, claims)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            claims: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        let mut fabric = HashMap::new();
-        process(&mut fabric, &self.claims).to_string()
-    }
-
-    fn part2(&self) -> String {
-        let mut fabric = HashMap::new();
-        let _ = process(&mut fabric, &self.claims);
-        intact_claim(&fabric, &self.claims).to_string()
-    }
+pub fn part2(claims: &[Claim]) -> usize {
+    let mut fabric = HashMap::new();
+    let _ = process(&mut fabric, claims);
+    intact_claim(&fabric, claims)
 }
 
-fn process(fabric: &mut HashMap<(usize, usize), Square>, claims: &Vec<Claim>) -> i32 {
+fn process(fabric: &mut HashMap<(usize, usize), Square>, claims: &[Claim]) -> i32 {
     let mut overlap_count = 0;
     for claim in claims {
         for x in claim.left..(claim.left + claim.width) {
@@ -52,7 +40,7 @@ fn process(fabric: &mut HashMap<(usize, usize), Square>, claims: &Vec<Claim>) ->
     overlap_count
 }
 
-fn intact_claim(fabric: &HashMap<(usize, usize), Square>, claims: &Vec<Claim>) -> usize {
+fn intact_claim(fabric: &HashMap<(usize, usize), Square>, claims: &[Claim]) -> usize {
     'claim: for claim in claims {
         for x in claim.left..(claim.left + claim.width) {
             for y in claim.top..(claim.top + claim.height) {
@@ -68,7 +56,7 @@ fn intact_claim(fabric: &HashMap<(usize, usize), Square>, claims: &Vec<Claim>) -
     0
 }
 
-fn parse_input(input: &str) -> Vec<Claim> {
+pub fn parse_input(input: &str) -> Vec<Claim> {
     let re = Regex::new(r"^#(\d+) @ (\d+),(\d+): (\d+)x(\d+)$").unwrap();
     let mut claims = vec![];
     for line in input.lines() {
@@ -87,7 +75,7 @@ fn parse_input(input: &str) -> Vec<Claim> {
 }
 
 #[derive(Debug)]
-struct Claim {
+pub struct Claim {
     id: usize,
     left: usize,
     top: usize,

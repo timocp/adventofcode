@@ -1,25 +1,17 @@
 use std::cmp;
 
-pub struct Solver {
-    grid_serial: usize,
+pub fn parse_input(input: &str) -> usize {
+    input.trim().parse().unwrap()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            grid_serial: input.trim().parse().unwrap(),
-        }
-    }
+pub fn part1(grid_serial: &usize) -> String {
+    let answer = largest_power(*grid_serial);
+    format!("{},{}", answer.x, answer.y)
+}
 
-    fn part1(&self) -> String {
-        let answer = largest_power(self.grid_serial);
-        format!("{},{}", answer.x, answer.y)
-    }
-
-    fn part2(&self) -> String {
-        let answer = max_powers(self.grid_serial);
-        format!("{},{},{}", answer.x, answer.y, answer.size)
-    }
+pub fn part2(grid_serial: &usize) -> String {
+    let answer = max_powers(*grid_serial);
+    format!("{},{},{}", answer.x, answer.y, answer.size)
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]

@@ -4,30 +4,18 @@ use regex::Regex;
 use std::collections::HashMap;
 use std::fmt;
 
-pub struct Solver {
-    diners: Diners,
+pub fn part1(diners: &Diners) -> i32 {
+    diners.happiest()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            diners: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        self.diners.happiest().to_string()
-    }
-
-    fn part2(&self) -> String {
-        let mut diners = self.diners.clone();
-        diners.add_myself();
-        diners.happiest().to_string()
-    }
+pub fn part2(diners: &Diners) -> i32 {
+    let mut diners = diners.clone();
+    diners.add_myself();
+    diners.happiest()
 }
 
 #[derive(Clone)]
-struct Diners {
+pub struct Diners {
     names: Vec<String>,
     happiness: HashMap<(usize, usize), i32>,
 }
@@ -83,7 +71,7 @@ impl fmt::Debug for Diners {
     }
 }
 
-fn parse_input(input: &str) -> Diners {
+pub fn parse_input(input: &str) -> Diners {
     let mut names: Vec<String> = vec![];
     let mut happiness = HashMap::new();
 

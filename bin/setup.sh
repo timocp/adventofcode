@@ -33,28 +33,16 @@ fi
 echo "Creating $day_rs..."
 mkdir -p "$year_dir"
 cat > "$day_rs" <<EOF
-pub struct Solver {
-    input: Vec<u32>,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        "unimplemented".to_string()
-    }
-
-    fn part2(&self) -> String {
-        "unimplemented".to_string()
-    }
-}
-
-fn parse_input(input: &str) -> Vec<u32> {
+pub fn parse_input(input: &str) -> Vec<u32> {
     input.lines().map(|line| line.parse().unwrap()).collect()
+}
+
+pub fn part1(input: &[i32]) -> &str {
+    "unimplemented"
+}
+
+pub fn part2(input: &[i32]) -> &str {
+    "unimplemented"
 }
 
 #[test]

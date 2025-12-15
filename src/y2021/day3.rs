@@ -1,23 +1,10 @@
-pub struct Solver {
-    input: Vec<usize>,
+pub fn part1(input: &[usize]) -> usize {
+    let (gamma, epsilon) = calc_power_consumption(input);
+    gamma * epsilon
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        let (gamma, epsilon) = calc_power_consumption(&self.input);
-        (gamma * epsilon).to_string()
-    }
-
-    fn part2(&self) -> String {
-        (calc_oxygen_generator_rating(&self.input) * calc_co2_scrubber_rating(&self.input))
-            .to_string()
-    }
+pub fn part2(input: &[usize]) -> usize {
+    calc_oxygen_generator_rating(input) * calc_co2_scrubber_rating(input)
 }
 
 fn calc_power_consumption(input: &[usize]) -> (usize, usize) {
@@ -88,7 +75,7 @@ fn calc_co2_scrubber_rating(input: &[usize]) -> usize {
     0
 }
 
-fn parse_input(input: &str) -> Vec<usize> {
+pub fn parse_input(input: &str) -> Vec<usize> {
     input
         .lines()
         .map(|line| usize::from_str_radix(line, 2).unwrap())

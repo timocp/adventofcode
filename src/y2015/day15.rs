@@ -1,23 +1,11 @@
 use std::collections::HashMap;
 
-pub struct Solver {
-    ingredients: Vec<Ingredient>,
+pub fn part1(ingredients: &[Ingredient]) -> i32 {
+    best_score(ingredients, None)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            ingredients: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        best_score(&self.ingredients, None).to_string()
-    }
-
-    fn part2(&self) -> String {
-        best_score(&self.ingredients, Some(500)).to_string()
-    }
+pub fn part2(ingredients: &[Ingredient]) -> i32 {
+    best_score(ingredients, Some(500))
 }
 
 fn best_score(ingredients: &[Ingredient], calories: Option<i32>) -> i32 {
@@ -95,7 +83,7 @@ fn positive(i: i32) -> i32 {
 }
 
 #[derive(Debug)]
-struct Ingredient {
+pub struct Ingredient {
     _name: String,
     capacity: i32,
     durability: i32,
@@ -123,7 +111,7 @@ impl From<&str> for Ingredient {
     }
 }
 
-fn parse_input(input: &str) -> Vec<Ingredient> {
+pub fn parse_input(input: &str) -> Vec<Ingredient> {
     input.lines().map(Ingredient::from).collect()
 }
 

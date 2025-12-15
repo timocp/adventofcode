@@ -1,27 +1,15 @@
 use std::collections::VecDeque;
 
-pub struct Solver {
-    packet: Packet,
+pub fn part1(packet: &Packet) -> u64 {
+    packet.sum_versions()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            packet: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        self.packet.sum_versions().to_string()
-    }
-
-    fn part2(&self) -> String {
-        self.packet.value().to_string()
-    }
+pub fn part2(packet: &Packet) -> u64 {
+    packet.value()
 }
 
 #[derive(Debug)]
-struct Packet {
+pub struct Packet {
     version: u8,
     type_id: u8,
     literal: Option<u64>,
@@ -176,7 +164,7 @@ fn parse_bits(input: &str) -> VecDeque<u8> {
 }
 
 // input string to Packet
-fn parse_input(input: &str) -> Packet {
+pub fn parse_input(input: &str) -> Packet {
     parse_packet(&mut parse_bits(input))
 }
 

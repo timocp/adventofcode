@@ -1,21 +1,9 @@
-pub struct Solver {
-    input: Vec<u8>,
+pub fn part1(input: &[u8]) -> usize {
+    expand(input, 40)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        expand(&self.input, 40).to_string()
-    }
-
-    fn part2(&self) -> String {
-        expand(&self.input, 50).to_string()
-    }
+pub fn part2(input: &[u8]) -> usize {
+    expand(input, 50)
 }
 
 fn expand(num: &[u8], times: usize) -> usize {
@@ -26,7 +14,7 @@ fn expand(num: &[u8], times: usize) -> usize {
     num.len()
 }
 
-fn parse_input(input: &str) -> Vec<u8> {
+pub fn parse_input(input: &str) -> Vec<u8> {
     input
         .lines()
         .next()

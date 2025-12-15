@@ -1,23 +1,11 @@
 use std::collections::VecDeque;
 
-pub struct Solver {
-    input: Vec<usize>,
+pub fn part1(input: &[usize]) -> usize {
+    simulate_game(input[0], input[1])
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        simulate_game(self.input[0], self.input[1]).to_string()
-    }
-
-    fn part2(&self) -> String {
-        simulate_game(self.input[0], self.input[1] * 100).to_string()
-    }
+pub fn part2(input: &[usize]) -> usize {
+    simulate_game(input[0], input[1] * 100)
 }
 
 fn simulate_game(players: usize, last_marble: usize) -> usize {
@@ -51,7 +39,7 @@ fn shift(game: &mut VecDeque<usize>, times: i32, forward: bool) {
     }
 }
 
-fn parse_input(input: &str) -> Vec<usize> {
+pub fn parse_input(input: &str) -> Vec<usize> {
     input
         .split_whitespace()
         .filter_map(|s| s.parse().ok())

@@ -1,27 +1,7 @@
 use crate::grid::{Compass, ORIGIN, Pos};
 use std::collections::HashSet;
 
-pub struct Solver {
-    instructions: Vec<Instruction>,
-}
-
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            instructions: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        part1(&self.instructions).to_string()
-    }
-
-    fn part2(&self) -> String {
-        part2(&self.instructions).to_string()
-    }
-}
-
-fn part1(input: &[Instruction]) -> u32 {
+pub fn part1(input: &[Instruction]) -> u32 {
     let mut state = State::new();
     for instruction in input {
         state.turn(instruction.turn);
@@ -30,7 +10,7 @@ fn part1(input: &[Instruction]) -> u32 {
     state.distance_from_origin()
 }
 
-fn part2(input: &[Instruction]) -> u32 {
+pub fn part2(input: &[Instruction]) -> u32 {
     let mut state = State::new();
     let mut visited: HashSet<Pos> = HashSet::new();
     for instruction in input {
@@ -81,12 +61,12 @@ enum Turn {
     Right,
 }
 
-struct Instruction {
+pub struct Instruction {
     turn: Turn,
     walk: u32,
 }
 
-fn parse_input(input: &str) -> Vec<Instruction> {
+pub fn parse_input(input: &str) -> Vec<Instruction> {
     input
         .trim_end_matches('\n')
         .split(", ")

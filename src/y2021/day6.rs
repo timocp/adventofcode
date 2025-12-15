@@ -1,23 +1,11 @@
 use std::collections::VecDeque;
 
-pub struct Solver {
-    input: Vec<usize>,
+pub fn part1(input: &[usize]) -> usize {
+    simulate_population(input, 80)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        simulate_population(&self.input, 80).to_string()
-    }
-
-    fn part2(&self) -> String {
-        simulate_population(&self.input, 256).to_string()
-    }
+pub fn part2(input: &[usize]) -> usize {
+    simulate_population(input, 256)
 }
 
 fn simulate_population(fish: &[usize], days: usize) -> usize {
@@ -37,7 +25,7 @@ fn simulate_population(fish: &[usize], days: usize) -> usize {
     deq.iter().sum()
 }
 
-fn parse_input(input: &str) -> Vec<usize> {
+pub fn parse_input(input: &str) -> Vec<usize> {
     input
         .lines()
         .next()

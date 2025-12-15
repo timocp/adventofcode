@@ -1,27 +1,9 @@
-use crate::Puzzle;
-
-pub struct Solver {
-    input: Vec<Vec<u32>>,
+pub fn part1(input: &[Vec<u32>]) -> usize {
+    input.iter().filter(|triangle| possible(triangle)).count()
 }
 
-impl Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        self.input
-            .iter()
-            .filter(|triangle| possible(triangle))
-            .count()
-            .to_string()
-    }
-
-    fn part2(&self) -> String {
-        count_verticle(&self.input).to_string()
-    }
+pub fn part2(input: &[Vec<u32>]) -> usize {
+    count_verticle(input)
 }
 
 fn possible(triangle: &[u32]) -> bool {
@@ -43,7 +25,7 @@ fn count_verticle(input: &[Vec<u32>]) -> usize {
     count
 }
 
-fn parse_input(input: &str) -> Vec<Vec<u32>> {
+pub fn parse_input(input: &str) -> Vec<Vec<u32>> {
     input
         .lines()
         .map(|line| {

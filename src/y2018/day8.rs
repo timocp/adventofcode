@@ -1,24 +1,12 @@
-pub struct Solver {
-    input: Vec<usize>,
+pub fn part1(input: &[usize]) -> usize {
+    metadata_sum(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        metadata_sum(&self.input).to_string()
-    }
-
-    fn part2(&self) -> String {
-        value(&self.input).to_string()
-    }
+pub fn part2(input: &[usize]) -> usize {
+    value(input)
 }
 
-fn parse_input(input: &str) -> Vec<usize> {
+pub fn parse_input(input: &str) -> Vec<usize> {
     input
         .split(" ")
         .filter_map(|s| s.trim().parse().ok())

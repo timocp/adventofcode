@@ -1,25 +1,9 @@
-pub struct Solver {
-    weights: Vec<u32>,
+pub fn part1(weights: &[u32]) -> u64 {
+    find_group1(weights, 3).quantum_entanglement(weights)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            weights: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        find_group1(&self.weights, 3)
-            .quantum_entanglement(&self.weights)
-            .to_string()
-    }
-
-    fn part2(&self) -> String {
-        find_group1(&self.weights, 4)
-            .quantum_entanglement(&self.weights)
-            .to_string()
-    }
+pub fn part2(weights: &[u32]) -> u64 {
+    find_group1(weights, 4).quantum_entanglement(weights)
 }
 
 // A bitmap representing a group of packages
@@ -54,7 +38,7 @@ impl Group {
     }
 }
 
-fn parse_input(input: &str) -> Vec<u32> {
+pub fn parse_input(input: &str) -> Vec<u32> {
     input
         .lines()
         .map(|line| line.parse().unwrap())

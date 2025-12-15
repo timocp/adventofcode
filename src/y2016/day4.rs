@@ -1,43 +1,27 @@
-use crate::Puzzle;
-
-pub struct Solver {
-    input: Vec<Room>,
+// sum of the sector IDs of the real rooms
+pub fn part1(input: &[Room]) -> u32 {
+    input
+        .iter()
+        .filter(|room| room.is_real())
+        .map(|room| room.sector_id)
+        .sum::<u32>()
 }
 
-impl Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    // sum of the sector IDs of the real rooms
-    fn part1(&self) -> String {
-        self.input
-            .iter()
-            .filter(|room| room.is_real())
-            .map(|room| room.sector_id)
-            .sum::<u32>()
-            .to_string()
-    }
-
-    // sector ID of the room where north pole objects are stored
-    fn part2(&self) -> String {
-        self.input
-            .iter()
-            .filter(|room| room.is_real())
-            .find(|room| room.name() == "northpole object storage")
-            .unwrap()
-            .sector_id
-            .to_string()
-    }
+// sector ID of the room where north pole objects are stored
+pub fn part2(input: &[Room]) -> u32 {
+    input
+        .iter()
+        .filter(|room| room.is_real())
+        .find(|room| room.name() == "northpole object storage")
+        .unwrap()
+        .sector_id
 }
 
-fn parse_input(input: &str) -> Vec<Room> {
+pub fn parse_input(input: &str) -> Vec<Room> {
     input.lines().map(|line| line.into()).collect()
 }
 
-struct Room {
+pub struct Room {
     encrypted_name: String,
     sector_id: u32,
     checksum: String,

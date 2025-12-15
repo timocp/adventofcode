@@ -1,26 +1,14 @@
 use serde_json::Value;
 
-pub struct Solver {
-    json: Value,
+pub fn part1(json: &Value) -> i64 {
+    sum(json, "")
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            json: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        sum(&self.json, "").to_string()
-    }
-
-    fn part2(&self) -> String {
-        sum(&self.json, "red").to_string()
-    }
+pub fn part2(json: &Value) -> i64 {
+    sum(json, "red")
 }
 
-fn parse_input(input: &str) -> Value {
+pub fn parse_input(input: &str) -> Value {
     serde_json::from_str(input).unwrap()
 }
 

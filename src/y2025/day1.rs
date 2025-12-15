@@ -1,21 +1,9 @@
-pub struct Solver {
-    input: Vec<i32>,
+pub fn part1(input: &[i32]) -> i32 {
+    count_zeros(input, false)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            input: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        count_zeros(&self.input, false).to_string()
-    }
-
-    fn part2(&self) -> String {
-        count_zeros(&self.input, true).to_string()
-    }
+pub fn part2(input: &[i32]) -> i32 {
+    count_zeros(input, true)
 }
 
 fn count_zeros(turns: &[i32], all: bool) -> i32 {
@@ -42,7 +30,7 @@ fn count_zeros(turns: &[i32], all: bool) -> i32 {
     count
 }
 
-fn parse_input(input: &str) -> Vec<i32> {
+pub fn parse_input(input: &str) -> Vec<i32> {
     input
         .lines()
         .map(|line| {

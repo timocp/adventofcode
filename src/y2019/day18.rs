@@ -2,30 +2,15 @@ use crate::grid::{Compass, Grid, Pos};
 use crate::{bfs, dijkstra};
 use std::fmt;
 
-pub struct Solver {
-    maze: Maze,
+pub fn part1(maze: &Maze) -> u32 {
+    Search::new(maze).shortest_path().unwrap()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            maze: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        Search::new(&self.maze).shortest_path().unwrap().to_string()
-    }
-
-    fn part2(&self) -> String {
-        Search::new(&split_vault(&self.maze))
-            .shortest_path()
-            .unwrap()
-            .to_string()
-    }
+pub fn part2(maze: &Maze) -> u32 {
+    Search::new(&split_vault(maze)).shortest_path().unwrap()
 }
 
-fn parse_input(input: &str) -> Maze {
+pub fn parse_input(input: &str) -> Maze {
     let mut entrances: Vec<Pos> = vec![];
     let mut keys: Vec<Option<Pos>> = vec![None; 26];
     let grid = Grid::from_input_by(input, Cell::Wall, |p, c| match c {
@@ -53,7 +38,7 @@ fn parse_input(input: &str) -> Maze {
     }
 }
 
-struct Maze {
+pub struct Maze {
     grid: Grid<Cell>,
     entrances: Vec<Pos>,
     keys: Vec<Option<Pos>>,

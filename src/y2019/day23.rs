@@ -2,24 +2,16 @@ use std::collections::HashSet;
 
 use super::intcode::Vm;
 
-pub struct Solver {
-    nic_vm: Vm,
+pub fn parse_input(input: &str) -> Vm {
+    Vm::from(input)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            nic_vm: Vm::from(input),
-        }
-    }
+pub fn part1(nic_vm: &Vm) -> i64 {
+    run_network(nic_vm, false)
+}
 
-    fn part1(&self) -> String {
-        run_network(&self.nic_vm, false).to_string()
-    }
-
-    fn part2(&self) -> String {
-        run_network(&self.nic_vm, true).to_string()
-    }
+pub fn part2(nic_vm: &Vm) -> i64 {
+    run_network(nic_vm, true)
 }
 
 struct Computer {

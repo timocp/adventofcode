@@ -14,12 +14,6 @@ mod y2019;
 mod y2021;
 mod y2025;
 
-pub trait Puzzle {
-    fn new(input: &str) -> Self;
-    fn part1(&self) -> String;
-    fn part2(&self) -> String;
-}
-
 struct Solver {
     year: u32,
     day: u32,
@@ -70,13 +64,13 @@ macro_rules! solvers {
                     let year = must_extract_year(stringify!($year));
                     let day = must_extract_day(stringify!($day));
                     let t0 = Instant::now();
-                    let puzzle = $year::$day::Solver::new(input);
+                    let input = $year::$day::parse_input(input);
                     measure(&format!("{} day {:02} part 1", year, day), t0, || {
-                        puzzle.part1()
+                        $year::$day::part1(&input).to_string()
                     });
                     let t0 = Instant::now();
                     measure(&format!("{} day {:02} part 2", year, day), t0, || {
-                        puzzle.part2()
+                        $year::$day::part2(&input).to_string()
                     });
                 },
             }

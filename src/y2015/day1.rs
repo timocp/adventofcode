@@ -1,24 +1,12 @@
-pub struct Solver {
-    directions: Vec<char>,
+pub fn part1(directions: &[char]) -> i32 {
+    lift(directions)
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            directions: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        lift(&self.directions).to_string()
-    }
-
-    fn part2(&self) -> String {
-        find_basement(&self.directions).to_string()
-    }
+pub fn part2(directions: &[char]) -> usize {
+    find_basement(directions)
 }
 
-fn parse_input(input: &str) -> Vec<char> {
+pub fn parse_input(input: &str) -> Vec<char> {
     input.lines().next().unwrap().chars().collect()
 }
 

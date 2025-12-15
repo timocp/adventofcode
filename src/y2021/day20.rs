@@ -2,24 +2,17 @@ use std::collections::HashSet;
 use std::fmt;
 use std::ops::Range;
 
-pub struct Solver {
+pub struct Input {
     alg: Vec<bool>,
     image: Image,
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        let (alg, image) = parse_input(input);
-        Self { alg, image }
-    }
+pub fn part1(input: &Input) -> usize {
+    enhance(&input.image, &input.alg, 2).grid.len()
+}
 
-    fn part1(&self) -> String {
-        enhance(&self.image, &self.alg, 2).grid.len().to_string()
-    }
-
-    fn part2(&self) -> String {
-        enhance(&self.image, &self.alg, 50).grid.len().to_string()
-    }
+pub fn part2(input: &Input) -> usize {
+    enhance(&input.image, &input.alg, 50).grid.len()
 }
 
 fn enhance(image: &Image, alg: &[bool], count: usize) -> Image {
@@ -136,12 +129,12 @@ impl fmt::Debug for Image {
     }
 }
 
-fn parse_input(input: &str) -> (Vec<bool>, Image) {
+pub fn parse_input(input: &str) -> Input {
     let input = input.split("\n\n").collect::<Vec<_>>();
     let alg = input[0].chars().map(|c| c == '#').collect();
     let image = Image::from(input[1]);
 
-    (alg, image)
+    Input { alg, image }
 }
 
 #[test]
@@ -156,7 +149,7 @@ fn test() {
 ..###
 ";
 
-    let (alg, image) = parse_input(test_input);
+    let Input { alg, image } = parse_input(test_input);
     assert_eq!(512, alg.len());
     assert_eq!(10, image.grid.len());
     assert_eq!(24, enhance(&image, &alg, 1).grid.len());

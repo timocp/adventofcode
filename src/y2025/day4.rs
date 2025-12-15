@@ -1,23 +1,11 @@
 use crate::grid::{ALL_DIRS, Grid, Pos};
 
-pub struct Solver {
-    grid: Grid<Cell>,
+pub fn part1(grid: &Grid<Cell>) -> usize {
+    accessible_paper(grid).len()
 }
 
-impl crate::Puzzle for Solver {
-    fn new(input: &str) -> Self {
-        Self {
-            grid: parse_input(input),
-        }
-    }
-
-    fn part1(&self) -> String {
-        accessible_paper(&self.grid).len().to_string()
-    }
-
-    fn part2(&self) -> String {
-        total_removeable_paper(&self.grid).to_string()
-    }
+pub fn part2(grid: &Grid<Cell>) -> usize {
+    total_removeable_paper(grid)
 }
 
 fn accessible_paper(grid: &Grid<Cell>) -> Vec<Pos> {
@@ -57,12 +45,12 @@ fn total_removeable_paper(grid: &Grid<Cell>) -> usize {
     }
 }
 
-fn parse_input(input: &str) -> Grid<Cell> {
+pub fn parse_input(input: &str) -> Grid<Cell> {
     Grid::from_input(input, Cell::Empty, Cell::from)
 }
 
 #[derive(Clone)]
-enum Cell {
+pub enum Cell {
     Empty,
     Paper,
 }
