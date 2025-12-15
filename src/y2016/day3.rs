@@ -12,6 +12,7 @@ fn possible(triangle: &[u32]) -> bool {
         && triangle[1] + triangle[2] > triangle[0]
 }
 
+#[allow(clippy::needless_range_loop)]
 fn count_verticle(input: &[Vec<u32>]) -> usize {
     let mut count = 0;
     for i in 0..input.len() / 3 {

@@ -2,14 +2,14 @@ use num_integer::lcm;
 use std::cmp::Ordering;
 use std::fmt;
 
-pub fn part1(moons: &Vec<Moon>) -> u16 {
-    let mut system = System::new(moons.clone());
+pub fn part1(moons: &[Moon]) -> u16 {
+    let mut system = System::new(moons.to_owned());
     system.step(1000);
     system.total_energy()
 }
 
-pub fn part2(moons: &Vec<Moon>) -> u64 {
-    let mut system = System::new(moons.clone());
+pub fn part2(moons: &[Moon]) -> u64 {
+    let mut system = System::new(moons.to_owned());
     system.count_to_repeat()
 }
 

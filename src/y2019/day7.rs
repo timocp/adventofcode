@@ -39,7 +39,7 @@ fn maximise_feedback(vm: &Vm) -> i64 {
     (5..10)
         .permutations(5)
         .map(|phase| {
-            let mut amps = vec![vm.clone(), vm.clone(), vm.clone(), vm.clone(), vm.clone()];
+            let mut amps = [vm.clone(), vm.clone(), vm.clone(), vm.clone(), vm.clone()];
             let mut signal = run(&mut amps[0], &[phase[0], 0]);
             signal = run(&mut amps[1], &[phase[1], signal]);
             signal = run(&mut amps[2], &[phase[2], signal]);

@@ -2,14 +2,14 @@ use regex::Regex;
 
 use crate::pixel_buffer::PixelBuffer;
 
-pub fn part1(stars: &Vec<Star>) -> String {
-    let mut stars = stars.clone();
+pub fn part1(stars: &[Star]) -> String {
+    let mut stars = stars.to_owned();
     find_message(&mut stars);
     to_pixel_buffer(&stars).to_string()
 }
 
-pub fn part2(stars: &Vec<Star>) -> i32 {
-    find_message(&mut stars.clone())
+pub fn part2(stars: &[Star]) -> i32 {
+    find_message(&mut stars.to_owned())
 }
 
 #[derive(Clone, Copy, Debug)]
