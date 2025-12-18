@@ -35,7 +35,12 @@ if [ -z "$session" ]; then
 fi
 
 for year in $(seq 2015 "$this_year"); do
-    for day in $(seq 25); do
+    if [ "$year" -ge "2025" ]; then
+        lastday=12
+    else
+        lastday=25
+    fi
+    for day in $(seq $lastday); do
         if [ "$(printf "%4d%02d%02d" "$year" 12 "$day")" -le "$today" ]; then
             fn="input/$year/day$day.txt"
             if [ ! -e "$fn" ]; then
