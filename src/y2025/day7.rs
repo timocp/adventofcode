@@ -1,4 +1,5 @@
 use crate::grid::parse_each_char;
+use std::collections::HashMap;
 use std::collections::HashSet;
 
 #[derive(Debug)]
@@ -44,8 +45,31 @@ pub fn part1(input: &Input) -> usize {
     count
 }
 
-pub fn part2(input: &Input) -> &str {
-    "unimplemented"
+pub fn part2(input: &Input) -> u64 {
+    let mut beams: HashMap<usize, u64> = HashMap::new();
+    beams.insert(input.start, 1);
+    for splits in input.splitters.iter() {
+        let mut new_beams: HashMap<usize, u64> = HashMap::with_capacity(beams.len() * 2);
+        for (beam, paths) in beams.into_iter() {
+            if splits.contains(&beam) {
+                new_beams
+                    .entry(beam - 1)
+                    .and_modify(|c| *c += paths)
+                    .or_insert(paths);
+                new_beams
+                    .entry(beam + 1)
+                    .and_modify(|c| *c += paths)
+                    .or_insert(paths);
+            } else {
+                new_beams
+                    .entry(beam)
+                    .and_modify(|c| *c += paths)
+                    .or_insert(paths);
+            }
+        }
+        beams = new_beams;
+    }
+    beams.into_values().sum()
 }
 
 #[test]
@@ -70,4 +94,5 @@ fn test() {
 ";
     let input = parse_input(test_input);
     assert_eq!(21, part1(&input));
+    assert_eq!(40, part2(&input));
 }
