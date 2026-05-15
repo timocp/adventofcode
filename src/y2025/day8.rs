@@ -1,39 +1,35 @@
 use crate::pos3d::Pos3d;
 
-pub fn parse_input(input: &str) -> Vec<Pos3d> {
-    input.lines().map(Pos3d::from).collect()
-}
-
-pub fn part1(input: &[Pos3d]) -> u32 {
+pub fn part1(input: &Input) -> u32 {
     solve_part1(input, 1000)
 }
 
-fn solve_part1(input: &[Pos3d], connections: usize) -> u32 {
+pub struct Input {
+    boxes: Vec<Pos3d>,
+    connections: Vec<Connection>,
+}
+
+#[derive(Debug)]
+struct Connection {
+    from: usize,
+    to: usize,
+    distance: i64,
+}
+
+fn solve_part1(input: &Input, count: usize) -> u32 {
     // Vec storing which circuit each junction box is in
     // Each junction box starts in a circuit containing itself
-    let mut circuit: Vec<usize> = (0..(input.len())).collect();
+    let mut circuit: Vec<usize> = (0..(input.boxes.len())).collect();
 
-    // Prepare a list of pairs of junction boxes sorted by distance
-    let mut pairs: Vec<(usize, usize, i64)> = vec![];
-    for (i, a) in input.iter().enumerate() {
-        for (j, b) in input.iter().enumerate().skip(i + 1) {
-            pairs.push((i, j, a.distance_cmp(b)));
-        }
-    }
-    pairs.sort_by_key(|a| a.2);
-
-    for (i, j, _) in pairs.iter().take(connections) {
-        let from = circuit[*i];
-        let to = circuit[*j];
+    for conn in input.connections.iter().take(count) {
+        let from = circuit[conn.from];
+        let to = circuit[conn.to];
         if from != to {
-            // println!("linking {} (circuit {}) to {} (circuit {})", i, from, j, to);
             for c in circuit.iter_mut() {
                 if *c == from {
                     *c = to;
                 }
             }
-        } else {
-            // println!("{} and {} are already in the same circuit ({})", i, j, from);
         }
     }
 
@@ -48,8 +44,49 @@ fn solve_part1(input: &[Pos3d], connections: usize) -> u32 {
     sizes.into_iter().take(3).product()
 }
 
-pub fn part2(_input: &[Pos3d]) -> &str {
-    "unimplemented"
+pub fn part2(input: &Input) -> i64 {
+    // for part 2, if there are 1000 circuits to start with, we need to
+    // perform a link 999 times
+    let mut circuit: Vec<usize> = (0..(input.boxes.len())).collect();
+
+    let mut links = 0;
+
+    for conn in input.connections.iter() {
+        let i = circuit[conn.from];
+        let j = circuit[conn.to];
+        if i != j {
+            links += 1;
+            if links == input.boxes.len() - 1 {
+                return input.boxes[conn.from].x as i64 * input.boxes[conn.to].x as i64;
+            }
+            for c in circuit.iter_mut() {
+                if *c == i {
+                    *c = j;
+                }
+            }
+        }
+    }
+
+    unreachable!()
+}
+
+pub fn parse_input(input: &str) -> Input {
+    let boxes: Vec<Pos3d> = input.lines().map(Pos3d::from).collect();
+
+    let mut connections: Vec<Connection> = vec![];
+
+    for (i, a) in boxes.iter().enumerate() {
+        for (j, b) in boxes.iter().enumerate().skip(i + 1) {
+            connections.push(Connection {
+                from: i,
+                to: j,
+                distance: a.distance_cmp(b),
+            })
+        }
+    }
+    connections.sort_by_key(|a| a.distance);
+
+    Input { boxes, connections }
 }
 
 #[test]
@@ -75,5 +112,7 @@ fn test() {
 984,92,344
 425,690,689
 ";
-    assert_eq!(40, solve_part1(&parse_input(test_input), 10));
+    let input = parse_input(test_input);
+    assert_eq!(40, solve_part1(&input, 10));
+    assert_eq!(25272, part2(&input));
 }
