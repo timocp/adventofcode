@@ -1,10 +1,11 @@
+use crate::pos::{ORIGIN3D, Pos3d};
 use std::collections::HashSet;
 use std::collections::VecDeque;
 use std::fmt;
 
 pub struct Input {
-    beacons: HashSet<Pos>,
-    scanners: Vec<Pos>,
+    beacons: HashSet<Pos3d>,
+    scanners: Vec<Pos3d>,
 }
 
 pub fn parse_input(input: &str) -> Input {
@@ -17,84 +18,47 @@ pub fn part1(input: &Input) -> usize {
     input.beacons.len()
 }
 
-pub fn part2(input: &Input) -> usize {
+pub fn part2(input: &Input) -> u32 {
     max_distance(&input.scanners)
 }
 
-#[derive(Clone, Copy, Eq, Hash, PartialEq)]
-struct Pos {
-    x: i32,
-    y: i32,
-    z: i32,
-}
-
-impl Pos {
-    fn new(x: i32, y: i32, z: i32) -> Pos {
-        Pos { x, y, z }
-    }
-
+impl Pos3d {
     // each possible rotation from: http://www.euclideanspace.com/maths/algebra/matrix/transforms/examples/index.htm
-    fn rotate(&self, rot: i32) -> Pos {
+    fn rotate(&self, rot: i32) -> Pos3d {
         match rot {
-            0 => Pos::new(self.x, self.y, self.z),
-            1 => Pos::new(self.x, self.z, -self.y),
-            2 => Pos::new(self.x, -self.y, -self.z),
-            3 => Pos::new(self.x, -self.z, self.y),
-            4 => Pos::new(self.y, -self.x, self.z),
-            5 => Pos::new(self.y, self.z, self.x),
-            6 => Pos::new(self.y, self.x, -self.z),
-            7 => Pos::new(self.y, -self.z, -self.x),
-            8 => Pos::new(-self.x, -self.y, self.z),
-            9 => Pos::new(-self.x, -self.z, -self.y),
-            10 => Pos::new(-self.x, self.y, -self.z), // scan0 -> scan1 from example
-            11 => Pos::new(-self.x, self.z, self.y),
-            12 => Pos::new(-self.y, self.x, self.z),
-            13 => Pos::new(-self.y, -self.z, self.x),
-            14 => Pos::new(-self.y, -self.x, -self.z),
-            15 => Pos::new(-self.y, self.z, -self.x),
-            16 => Pos::new(self.z, self.y, -self.x),
-            17 => Pos::new(self.z, self.x, self.y),
-            18 => Pos::new(self.z, -self.y, self.x),
-            19 => Pos::new(self.z, -self.x, -self.y),
-            20 => Pos::new(-self.z, -self.y, -self.x),
-            21 => Pos::new(-self.z, -self.x, self.y),
-            22 => Pos::new(-self.z, self.y, self.x),
-            23 => Pos::new(-self.z, self.x, -self.y),
+            0 => Pos3d::from((self.x, self.y, self.z)),
+            1 => Pos3d::from((self.x, self.z, -self.y)),
+            2 => Pos3d::from((self.x, -self.y, -self.z)),
+            3 => Pos3d::from((self.x, -self.z, self.y)),
+            4 => Pos3d::from((self.y, -self.x, self.z)),
+            5 => Pos3d::from((self.y, self.z, self.x)),
+            6 => Pos3d::from((self.y, self.x, -self.z)),
+            7 => Pos3d::from((self.y, -self.z, -self.x)),
+            8 => Pos3d::from((-self.x, -self.y, self.z)),
+            9 => Pos3d::from((-self.x, -self.z, -self.y)),
+            10 => Pos3d::from((-self.x, self.y, -self.z)), // scan0 -> scan1 from example
+            11 => Pos3d::from((-self.x, self.z, self.y)),
+            12 => Pos3d::from((-self.y, self.x, self.z)),
+            13 => Pos3d::from((-self.y, -self.z, self.x)),
+            14 => Pos3d::from((-self.y, -self.x, -self.z)),
+            15 => Pos3d::from((-self.y, self.z, -self.x)),
+            16 => Pos3d::from((self.z, self.y, -self.x)),
+            17 => Pos3d::from((self.z, self.x, self.y)),
+            18 => Pos3d::from((self.z, -self.y, self.x)),
+            19 => Pos3d::from((self.z, -self.x, -self.y)),
+            20 => Pos3d::from((-self.z, -self.y, -self.x)),
+            21 => Pos3d::from((-self.z, -self.x, self.y)),
+            22 => Pos3d::from((-self.z, self.y, self.x)),
+            23 => Pos3d::from((-self.z, self.x, -self.y)),
             _ => panic!(),
         }
-    }
-
-    fn offset(&self, by: Pos) -> Pos {
-        Pos::new(self.x + by.x, self.y + by.y, self.z + by.z)
-    }
-
-    // manhattan distance between 2 positions
-    fn distance(&self, other: Pos) -> usize {
-        ((self.x - other.x).abs() + (self.y - other.y).abs() + (self.z - other.z).abs()) as usize
-    }
-}
-
-impl From<&str> for Pos {
-    fn from(s: &str) -> Self {
-        let pos: Vec<_> = s.split(',').map(|i| i.parse().unwrap()).collect();
-        Pos {
-            x: pos[0],
-            y: pos[1],
-            z: pos[2],
-        }
-    }
-}
-
-impl fmt::Debug for Pos {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{},{},{}", self.x, self.y, self.z)
     }
 }
 
 #[derive(Clone, Debug)]
 struct Scan {
     number: usize,
-    beacons: Vec<Pos>,
+    beacons: Vec<Pos3d>,
 }
 
 impl fmt::Display for Scan {
@@ -123,7 +87,7 @@ impl From<&str> for Scan {
                     .parse()
                     .unwrap();
             } else {
-                beacons.push(Pos::from(line));
+                beacons.push(line.parse().unwrap());
             }
         }
 
@@ -139,7 +103,7 @@ fn parse_scans(input: &str) -> Vec<Scan> {
 struct RotatedBeacons {
     scan_number: usize,
     rotation: i32,
-    beacons: Vec<Pos>,
+    beacons: Vec<Pos3d>,
 }
 
 impl fmt::Debug for RotatedBeacons {
@@ -155,13 +119,13 @@ impl fmt::Debug for RotatedBeacons {
 }
 
 // returns (set of beacons, vec of scanner positions)
-fn search(scans: &[Scan]) -> (HashSet<Pos>, Vec<Pos>) {
+fn search(scans: &[Scan]) -> (HashSet<Pos3d>, Vec<Pos3d>) {
     // everything will be relative to scan[0], so load its beacons into the
     // map straight away
     let mut beacons = HashSet::new();
-    let mut scanners: Vec<Pos> = scans.iter().map(|_| Pos::new(0, 0, 0)).collect();
+    let mut scanners: Vec<Pos3d> = scans.iter().map(|_| ORIGIN3D).collect();
     for beacon in &scans[0].beacons {
-        beacons.insert(*beacon);
+        beacons.insert(beacon.clone());
     }
 
     // queue of (scan_number, rot, rotated_beacons) for each scan/rotation pair
@@ -177,7 +141,7 @@ fn search(scans: &[Scan]) -> (HashSet<Pos>, Vec<Pos>) {
     }
 
     // queue of known sets of points (re-orientated)
-    let mut known: Vec<HashSet<Pos>> =
+    let mut known: Vec<HashSet<Pos3d>> =
         vec![HashSet::from_iter(scans[0].beacons.clone().into_iter())];
 
     while let Some(rotated_beacons) = queue.pop_front() {
@@ -194,13 +158,9 @@ fn search(scans: &[Scan]) -> (HashSet<Pos>, Vec<Pos>) {
                 // println!("MATCHED!  {:?} is at {:?}", rotated_beacons, scanner_pos);
                 matched = true;
                 // merge everything in this match into the set of known beacons
-                let set: HashSet<Pos> = HashSet::from_iter(
-                    rotated_beacons
-                        .beacons
-                        .iter()
-                        .map(|p| p.offset(scanner_pos)),
-                );
-                beacons.extend(&set);
+                let set: HashSet<Pos3d> =
+                    HashSet::from_iter(rotated_beacons.beacons.iter().map(|p| p + &scanner_pos));
+                beacons.extend(set.clone());
                 // store this set for later comparisons
                 known.push(set);
                 // record the scanner's position for part 2
@@ -225,19 +185,15 @@ fn search(scans: &[Scan]) -> (HashSet<Pos>, Vec<Pos>) {
 // to be considered the correct rotation/offset.
 //
 // if found, returns the deduced scanner position.  otherwise returns None.
-fn match_beacons(rb: &RotatedBeacons, set: &HashSet<Pos>) -> Option<Pos> {
+fn match_beacons(rb: &RotatedBeacons, set: &HashSet<Pos3d>) -> Option<Pos3d> {
     // now try to guess the offset.  any pos in 'beacons' might map to any pos in `set`
     // but if it's not found by the time only 11 are left to check, this rotation will
     // not match.
     for i in 0..rb.beacons.len() - 11 {
         for known in set.iter() {
-            let offset = Pos::new(
-                known.x - rb.beacons[i].x,
-                known.y - rb.beacons[i].y,
-                known.z - rb.beacons[i].z,
-            );
+            let offset = known - &rb.beacons[i];
             let mut count = 0;
-            for b in rb.beacons.iter().map(|p| p.offset(offset)) {
+            for b in rb.beacons.iter().map(|p| p + &offset) {
                 if set.contains(&b) {
                     if count == 11 {
                         return Some(offset);
@@ -250,12 +206,12 @@ fn match_beacons(rb: &RotatedBeacons, set: &HashSet<Pos>) -> Option<Pos> {
     None
 }
 
-fn max_distance(scanners: &[Pos]) -> usize {
+fn max_distance(scanners: &[Pos3d]) -> u32 {
     let mut max = 0;
 
     for (i, p1) in scanners.iter().enumerate() {
         for p2 in scanners.iter().skip(i + 1) {
-            let dist = p1.distance(*p2);
+            let dist = p1.manhattan_distance(p2);
             if dist > max {
                 max = dist;
             }

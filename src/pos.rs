@@ -162,15 +162,28 @@ impl fmt::Debug for Pos {
 
 impl fmt::Display for Pos {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({},{})", self.x, self.y)
+        write!(f, "{},{}", self.x, self.y)
     }
 }
 
 // 3d position with x, y and z coordinates
+#[derive(Clone, Eq, Hash, PartialEq)]
 pub struct Pos3d {
     pub x: i32,
     pub y: i32,
     pub z: i32,
+}
+
+pub const ORIGIN3D: Pos3d = Pos3d { x: 0, y: 0, z: 0 };
+
+impl From<(i32, i32, i32)> for Pos3d {
+    fn from(xyz: (i32, i32, i32)) -> Self {
+        Pos3d {
+            x: xyz.0,
+            y: xyz.1,
+            z: xyz.2,
+        }
+    }
 }
 
 impl FromStr for Pos3d {
@@ -193,6 +206,28 @@ impl FromStr for Pos3d {
             y: next_number()?,
             z: next_number()?,
         })
+    }
+}
+
+impl Add for &Pos3d {
+    type Output = Pos3d;
+    fn add(self, other: &Pos3d) -> Pos3d {
+        Pos3d {
+            x: self.x + other.x,
+            y: self.y + other.y,
+            z: self.z + other.z,
+        }
+    }
+}
+
+impl Sub for &Pos3d {
+    type Output = Pos3d;
+    fn sub(self, other: &Pos3d) -> Pos3d {
+        Pos3d {
+            x: self.x - other.x,
+            y: self.y - other.y,
+            z: self.z - other.z,
+        }
     }
 }
 

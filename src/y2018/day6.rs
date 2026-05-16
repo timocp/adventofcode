@@ -99,15 +99,7 @@ fn box_size(coords: &[Pos]) -> (Pos, Pos) {
 }
 
 pub fn parse_input(input: &str) -> Vec<Pos> {
-    let mut list = vec![];
-    for line in input.lines() {
-        let coords: Vec<_> = line.split(", ").filter_map(|s| s.parse().ok()).collect();
-        list.push(Pos {
-            x: coords[0],
-            y: coords[1],
-        });
-    }
-    list
+    input.lines().map(|s| s.parse().unwrap()).collect()
 }
 
 #[test]

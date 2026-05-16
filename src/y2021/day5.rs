@@ -1,3 +1,4 @@
+use crate::pos::Pos;
 use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
@@ -10,18 +11,8 @@ pub fn part2(lines: &[Line]) -> usize {
     count_overlapping_points(lines, CountFlag::WithDiagonals)
 }
 
-#[derive(Clone, Copy, Eq, Hash, PartialEq)]
-struct Pos {
-    x: usize,
-    y: usize,
-}
-
 impl Pos {
-    fn new(x: usize, y: usize) -> Pos {
-        Pos { x, y }
-    }
-
-    fn step(&self, ordx: Ordering, ordy: Ordering) -> Pos {
+    fn ordered_step(&self, ordx: Ordering, ordy: Ordering) -> Pos {
         Pos {
             x: match ordx {
                 Ordering::Less => self.x + 1,
@@ -37,15 +28,18 @@ impl Pos {
     }
 }
 
-impl fmt::Debug for Pos {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({},{})", self.x, self.y)
-    }
-}
-
 pub struct Line {
     start: Pos,
     end: Pos,
+}
+
+impl From<&str> for Line {
+    fn from(s: &str) -> Self {
+        let mut parts = s.splitn(2, " -> ");
+        let start = parts.next().unwrap().parse().unwrap();
+        let end = parts.next().unwrap().parse().unwrap();
+        Self { start, end }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -85,7 +79,7 @@ fn count_overlapping_points(lines: &[Line], count_flag: CountFlag) -> usize {
             if pos == line.end {
                 break;
             }
-            pos = pos.step(dx, dy);
+            pos = pos.ordered_step(dx, dy);
         }
     }
 
@@ -93,19 +87,7 @@ fn count_overlapping_points(lines: &[Line], count_flag: CountFlag) -> usize {
 }
 
 pub fn parse_input(input: &str) -> Vec<Line> {
-    input
-        .lines()
-        .map(|line| {
-            line.split(" -> ")
-                .flat_map(|coords| coords.split(','))
-                .map(|num| num.parse().unwrap())
-                .collect::<Vec<usize>>()
-        })
-        .map(|nums| Line {
-            start: Pos::new(nums[0], nums[1]),
-            end: Pos::new(nums[2], nums[3]),
-        })
-        .collect()
+    input.lines().map(|line| line.into()).collect()
 }
 
 #[test]
@@ -124,8 +106,8 @@ fn test_day5() {
 ";
     let lines = parse_input(test_input);
     assert_eq!(10, lines.len());
-    assert_eq!(Pos::new(0, 9), lines[0].start);
-    assert_eq!(Pos::new(5, 9), lines[0].end);
+    assert_eq!(Pos { x: 0, y: 9 }, lines[0].start);
+    assert_eq!(Pos { x: 5, y: 9 }, lines[0].end);
     assert_eq!(
         5,
         count_overlapping_points(&lines, CountFlag::WithoutDiagonals)
