@@ -1,4 +1,4 @@
-use crate::grid::Compass::*;
+use crate::compass::Compass::*;
 use crate::grid::{Grid, Pos};
 use std::collections::HashSet;
 

@@ -1,4 +1,5 @@
-use crate::grid::{Compass, Grid, Pos};
+use crate::compass::Compass;
+use crate::grid::{Grid, Pos};
 use std::fmt;
 
 pub fn parse_input(input: &str) -> &str {

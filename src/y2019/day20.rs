@@ -1,7 +1,7 @@
-use crate::{
-    bfs,
-    grid::{Compass, Compass::*, Grid, Pos},
-};
+use crate::bfs;
+use crate::compass::Compass;
+use crate::compass::Compass::*;
+use crate::grid::{Grid, Pos};
 use Cell::*;
 use std::collections::HashMap;
 

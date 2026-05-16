@@ -1,6 +1,7 @@
 use super::intcode::Vm;
 use crate::bfs;
-use crate::grid::{Compass, ORIGIN, Pos, SparseGrid};
+use crate::compass::Compass;
+use crate::grid::{ORIGIN, Pos, SparseGrid};
 
 pub fn parse_input(input: &str) -> SparseGrid<Cell> {
     // pre-explored map of the ship

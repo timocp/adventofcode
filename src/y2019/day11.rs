@@ -1,5 +1,6 @@
 use super::intcode::Vm;
-use crate::grid::{Compass, ORIGIN, Pos, SparseGrid};
+use crate::compass::Compass;
+use crate::grid::{ORIGIN, Pos, SparseGrid};
 use crate::pixel_buffer::PixelBuffer;
 use std::fmt;
 

@@ -2,6 +2,7 @@ use std::io::{self, Read, Write};
 use std::time::Instant;
 
 mod bfs;
+mod compass;
 mod dijkstra;
 mod grid;
 mod numeric;

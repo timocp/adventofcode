@@ -1,5 +1,6 @@
-use crate::grid::Compass::*;
-use crate::grid::{Compass, Grid, Pos};
+use crate::compass::Compass;
+use crate::compass::Compass::*;
+use crate::grid::{Grid, Pos};
 use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt;
