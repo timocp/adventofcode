@@ -53,7 +53,7 @@ pub fn part2(input: &Input) -> i64 {
 }
 
 pub fn parse_input(input: &str) -> Input {
-    let boxes: Vec<Pos3d> = input.lines().map(Pos3d::from).collect();
+    let boxes: Vec<Pos3d> = input.lines().map(|line| line.parse().unwrap()).collect();
 
     let mut connections: Vec<Connection> = vec![];
 
@@ -62,7 +62,7 @@ pub fn parse_input(input: &str) -> Input {
             connections.push(Connection {
                 from: i,
                 to: j,
-                distance: a.distance_cmp(b),
+                distance: a.squared_distance(b),
             })
         }
     }
