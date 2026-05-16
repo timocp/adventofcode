@@ -1,6 +1,7 @@
 use crate::pos3d::Pos3d;
+use crate::union_find::UnionFind;
 
-pub fn part1(input: &Input) -> u32 {
+pub fn part1(input: &Input) -> usize {
     solve_part1(input, 1000)
 }
 
@@ -16,28 +17,17 @@ struct Connection {
     distance: i64,
 }
 
-fn solve_part1(input: &Input, count: usize) -> u32 {
-    // Vec storing which circuit each junction box is in
-    // Each junction box starts in a circuit containing itself
-    let mut circuit: Vec<usize> = (0..(input.boxes.len())).collect();
+fn solve_part1(input: &Input, count: usize) -> usize {
+    let mut circuits = UnionFind::new(input.boxes.len());
 
     for conn in input.connections.iter().take(count) {
-        let from = circuit[conn.from];
-        let to = circuit[conn.to];
-        if from != to {
-            for c in circuit.iter_mut() {
-                if *c == from {
-                    *c = to;
-                }
-            }
-        }
+        circuits.union(conn.from, conn.to);
     }
 
     // find the 3 biggest circuits
-    let mut sizes: Vec<_> = circuit.iter().map(|_| 0).collect();
-    for i in 0..circuit.len() {
-        sizes[circuit[i]] += 1;
-    }
+    let mut sizes: Vec<_> = (0..input.boxes.len())
+        .filter_map(|n| circuits.size_of(n))
+        .collect();
     sizes.sort_by(|a, b| b.cmp(a));
 
     // multiply sizes of the biggest 3
@@ -47,22 +37,14 @@ fn solve_part1(input: &Input, count: usize) -> u32 {
 pub fn part2(input: &Input) -> i64 {
     // for part 2, if there are 1000 circuits to start with, we need to
     // perform a link 999 times
-    let mut circuit: Vec<usize> = (0..(input.boxes.len())).collect();
-
+    let mut circuits = UnionFind::new(input.boxes.len());
     let mut links = 0;
 
     for conn in input.connections.iter() {
-        let i = circuit[conn.from];
-        let j = circuit[conn.to];
-        if i != j {
+        if circuits.union(conn.from, conn.to) {
             links += 1;
             if links == input.boxes.len() - 1 {
                 return input.boxes[conn.from].x as i64 * input.boxes[conn.to].x as i64;
-            }
-            for c in circuit.iter_mut() {
-                if *c == i {
-                    *c = j;
-                }
             }
         }
     }

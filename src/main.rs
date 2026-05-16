@@ -7,6 +7,7 @@ mod grid;
 mod numeric;
 mod pixel_buffer;
 mod pos3d;
+mod union_find;
 
 mod y2015;
 mod y2016;
