@@ -1,5 +1,6 @@
 use crate::compass::Compass;
-use crate::grid::{Grid, Pos};
+use crate::grid::Grid;
+use crate::pos::Pos;
 use crate::{bfs, dijkstra};
 use std::fmt;
 

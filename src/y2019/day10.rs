@@ -1,5 +1,5 @@
 use crate::grid;
-use crate::grid::Pos;
+use crate::pos::Pos;
 use ordered_float::NotNan;
 use std::collections::HashSet;
 

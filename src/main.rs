@@ -7,7 +7,7 @@ mod dijkstra;
 mod grid;
 mod numeric;
 mod pixel_buffer;
-mod pos3d;
+mod pos;
 mod union_find;
 
 mod y2015;

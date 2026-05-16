@@ -1,5 +1,6 @@
 use super::intcode::Vm;
-use crate::grid::{Grid, Pos};
+use crate::grid::Grid;
+use crate::pos::Pos;
 use core::fmt;
 use std::cmp::Ordering;
 use std::{thread, time};

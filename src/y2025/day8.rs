@@ -1,4 +1,4 @@
-use crate::pos3d::Pos3d;
+use crate::pos::Pos3d;
 use crate::union_find::UnionFind;
 
 pub fn part1(input: &Input) -> usize {

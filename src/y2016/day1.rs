@@ -1,5 +1,5 @@
 use crate::compass::Compass;
-use crate::grid::{ORIGIN, Pos};
+use crate::pos::{ORIGIN, Pos};
 use std::collections::HashSet;
 
 pub fn part1(input: &[Instruction]) -> u32 {

@@ -1,7 +1,8 @@
 use super::intcode::Vm;
 use crate::compass::Compass;
 use crate::compass::Compass::*;
-use crate::grid::{Grid, ORIGIN, Pos};
+use crate::grid::Grid;
+use crate::pos::{ORIGIN, Pos};
 use std::fmt;
 use std::ops::Range;
 

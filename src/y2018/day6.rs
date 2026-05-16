@@ -1,4 +1,4 @@
-use crate::grid::Pos;
+use crate::pos::Pos;
 use std::collections::HashMap;
 use std::collections::hash_map::Entry;
 

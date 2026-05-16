@@ -1,7 +1,8 @@
 use super::intcode::Vm;
 use crate::compass::Compass;
-use crate::grid::{ORIGIN, Pos, SparseGrid};
+use crate::grid::SparseGrid;
 use crate::pixel_buffer::PixelBuffer;
+use crate::pos::{ORIGIN, Pos};
 use std::fmt;
 
 pub fn parse_input(input: &str) -> Vm {

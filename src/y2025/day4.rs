@@ -1,5 +1,6 @@
 use crate::compass::ALL_DIRS;
-use crate::grid::{Grid, Pos};
+use crate::grid::Grid;
+use crate::pos::Pos;
 
 pub fn part1(grid: &Grid<Cell>) -> usize {
     accessible_paper(grid).len()
