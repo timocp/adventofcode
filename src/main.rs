@@ -5,6 +5,7 @@ mod bfs;
 mod compass;
 mod dijkstra;
 mod grid;
+mod image;
 mod numeric;
 mod pixel_buffer;
 mod pos;
@@ -23,18 +24,41 @@ struct Solver {
     run: fn(&str),
 }
 
+#[derive(Debug, PartialEq)]
+enum Opt {
+    Visualise,
+    TestInput,
+}
+
 fn main() {
-    let args: Vec<_> = std::env::args().collect();
+    let (opts, args): (Vec<_>, Vec<_>) = std::env::args().partition(|a| a.starts_with("-"));
+
+    let opts: Vec<Opt> = opts
+        .iter()
+        .filter_map(|a| match a.as_str() {
+            "-t" => Some(Opt::TestInput),
+            "-v" => Some(Opt::Visualise),
+            _ => {
+                eprintln!("Unknown option: {a}");
+                None
+            }
+        })
+        .collect();
 
     let solvers = all_solvers();
 
     if args.len() == 3 {
-        run(&solvers, args[1].parse().unwrap(), args[2].parse().unwrap());
+        run(
+            &solvers,
+            args[1].parse().unwrap(),
+            args[2].parse().unwrap(),
+            &opts,
+        );
     } else if args.len() == 2 {
         let t0 = Instant::now();
         let year = args[1].parse().unwrap();
         for day in 1..=25 {
-            run(&solvers, year, day);
+            run(&solvers, year, day, &opts);
         }
         println!(
             "{:>80}",
@@ -112,11 +136,22 @@ fn all_solvers() -> Vec<Solver> {
     .collect()
 }
 
-fn run(solvers: &[Solver], year: u32, day: u32) {
+fn run(solvers: &[Solver], year: u32, day: u32, opts: &[Opt]) {
     if let Some(solver) = solvers.iter().find(|s| s.year == year && s.day == day) {
-        let filename = format!("input/{}/day{}.txt", year, day);
+        let filename = if opts.contains(&Opt::TestInput) {
+            "tmp/input.txt".to_string()
+        } else {
+            format!("input/{year}/day{day}.txt")
+        };
         if let Ok(input) = read_file(&filename) {
-            (solver.run)(&input)
+            if opts.contains(&Opt::Visualise) {
+                match (year, day) {
+                    (2025, 9) => y2025::day9::visualise(&y2025::day9::parse_input(&input)),
+                    _ => eprintln!("No visualiser for {year} day {day}"),
+                }
+            } else {
+                (solver.run)(&input)
+            }
         } else {
             eprintln!("{} day {:02}: Can't read {}", year, day, filename);
         }

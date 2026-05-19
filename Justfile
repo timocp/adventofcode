@@ -17,6 +17,10 @@ run year day:
 run-fast year day:
   cargo run --release {{year}} {{day}}
 
+# Run the visualiser for a specific day
+vis year day:
+  cargo run -- -v {{year}} {{day}}
+
 # Run an entire year
 run-year year:
   cargo run --release {{year}}
