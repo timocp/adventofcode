@@ -1,6 +1,8 @@
+use crate::args::Args;
 use std::io::{self, Read, Write};
 use std::time::Instant;
 
+mod args;
 mod bfs;
 mod compass;
 mod dijkstra;
@@ -24,49 +26,32 @@ struct Solver {
     run: fn(&str),
 }
 
-#[derive(Debug, PartialEq)]
-enum Opt {
-    Visualise,
-    TestInput,
-}
-
 fn main() {
-    let (opts, args): (Vec<_>, Vec<_>) = std::env::args().partition(|a| a.starts_with("-"));
-
-    let opts: Vec<Opt> = opts
-        .iter()
-        .filter_map(|a| match a.as_str() {
-            "-t" => Some(Opt::TestInput),
-            "-v" => Some(Opt::Visualise),
-            _ => {
-                eprintln!("Unknown option: {a}");
-                None
-            }
-        })
-        .collect();
-
+    let args = crate::args::parse();
+    let Ok(args) = args else {
+        eprintln!("Error: {}", args.err().unwrap());
+        crate::args::exit_usage();
+    };
     let solvers = all_solvers();
 
-    if args.len() == 3 {
-        run(
-            &solvers,
-            args[1].parse().unwrap(),
-            args[2].parse().unwrap(),
-            &opts,
-        );
-    } else if args.len() == 2 {
-        let t0 = Instant::now();
-        let year = args[1].parse().unwrap();
-        for day in 1..=25 {
-            run(&solvers, year, day, &opts);
+    match (args.year, args.day) {
+        (Some(year), Some(day)) => {
+            run(&solvers, year, day, &args);
         }
-        println!(
-            "{:>80}",
-            format!("TOTAL: {:.2}s", t0.elapsed().as_secs_f64())
-        );
-    } else {
-        eprintln!("Usage: cargo run year [day]");
-        std::process::exit(1);
+        (Some(year), None) => {
+            let t0 = Instant::now();
+            for day in 1..=25 {
+                run(&solvers, year, day, &args);
+            }
+            println!(
+                "{:>80}",
+                format!("TOTAL: {:.2}s", t0.elapsed().as_secs_f64())
+            );
+        }
+        (None, _) => {
+            eprintln!("Usage: cargo run year [day]");
+            std::process::exit(1);
+        }
     }
 }
 
@@ -136,15 +121,14 @@ fn all_solvers() -> Vec<Solver> {
     .collect()
 }
 
-fn run(solvers: &[Solver], year: u32, day: u32, opts: &[Opt]) {
+fn run(solvers: &[Solver], year: u32, day: u32, args: &Args) {
     if let Some(solver) = solvers.iter().find(|s| s.year == year && s.day == day) {
-        let filename = if opts.contains(&Opt::TestInput) {
-            "tmp/input.txt".to_string()
-        } else {
-            format!("input/{year}/day{day}.txt")
-        };
+        let filename = args
+            .input
+            .clone()
+            .unwrap_or_else(|| format!("input/{year}/day{day}.txt"));
         if let Ok(input) = read_file(&filename) {
-            if opts.contains(&Opt::Visualise) {
+            if args.visualise {
                 match (year, day) {
                     (2025, 9) => y2025::day9::visualise(&y2025::day9::parse_input(&input)),
                     _ => eprintln!("No visualiser for {year} day {day}"),

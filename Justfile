@@ -19,7 +19,7 @@ run-fast year day:
 
 # Run the visualiser for a specific day
 vis year day:
-  cargo run -- -v {{year}} {{day}}
+  cargo run -- --visualise {{year}} {{day}}
 
 # Run an entire year
 run-year year:
