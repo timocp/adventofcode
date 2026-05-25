@@ -21,17 +21,27 @@ fn area(a: &Pos, b: &Pos) -> u64 {
 }
 
 pub fn part2(input: &[Pos]) -> u64 {
-    let boundary = Boundary::new(input);
+    let coords = compact_axes(&input);
+
+    let boundary = Boundary::new(&coords.iter().map(|c| c.compacted).collect::<Vec<_>>());
 
     // 9 mins to get:
     // checking 213080 points in rect 5424,67429..94862,50327 cache.size=16437556
+    // after compacting indices:
+    // 0.3s to get:
+    // checking 438 points in rect 29,153..218,123 cache.size=35376
     let mut cache: HashMap<Pos, bool> = HashMap::new();
 
-    // (a, b, area) where a and b are Pos
-    let mut rects = input
+    // (a, b, area):  compacted (a,b) but original area
+    let mut rects = coords
         .iter()
         .enumerate()
-        .flat_map(|(i, a)| input.iter().skip(i + 1).map(move |b| (a, b, area(a, b))))
+        .flat_map(|(i, a)| {
+            coords
+                .iter()
+                .skip(i + 1)
+                .map(move |b| (&a.compacted, &b.compacted, area(&a.original, &b.original)))
+        })
         .collect::<Vec<_>>();
 
     rects.sort_by_key(|d| Reverse(d.2));
@@ -41,6 +51,44 @@ pub fn part2(input: &[Pos]) -> u64 {
         .find(|&&(a, b, _)| boundary.contains_rect(a, b, &mut cache))
         .unwrap()
         .2
+}
+
+#[derive(Debug)]
+struct CompactedPos {
+    original: Pos,
+    compacted: Pos,
+}
+
+fn compact_axes(original: &[Pos]) -> Vec<CompactedPos> {
+    let compact_x = compact_indices(&original.iter().map(|p| p.x).collect::<Vec<i32>>());
+    let compact_y = compact_indices(&original.iter().map(|p| p.y).collect::<Vec<i32>>());
+
+    let compacted = original
+        .iter()
+        .map(|p| CompactedPos {
+            original: p.clone(),
+            compacted: Pos {
+                x: *compact_x.get(&p.x).unwrap(),
+                y: *compact_y.get(&p.y).unwrap(),
+            },
+        })
+        .collect();
+
+    compacted
+}
+
+// returns map of original index -> compacted index
+fn compact_indices(indexes: &[i32]) -> HashMap<i32, i32> {
+    let mut all: Vec<_> = indexes.iter().collect();
+    all.sort();
+    all.dedup();
+    let mut map: HashMap<i32, i32> = HashMap::new();
+
+    for (i, &x) in all.iter().enumerate() {
+        map.insert(*x, i.try_into().unwrap());
+    }
+
+    map
 }
 
 struct Boundary {
